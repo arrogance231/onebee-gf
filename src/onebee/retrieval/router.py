@@ -44,9 +44,7 @@ class HybridRetriever:
         candidate_lists.append(sparse_results)
 
         if query_embedding is not None:
-            dense_results = self.dense.retrieve(
-                query_embedding, tier=tier, k=k_candidates
-            )
+            dense_results = self.dense.retrieve(query_embedding, tier=tier, k=k_candidates)
             candidate_lists.append(dense_results)
 
         rrf_scores = reciprocal_rank_fusion(candidate_lists)

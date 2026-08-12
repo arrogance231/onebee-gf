@@ -17,7 +17,7 @@ def bootstrap_ci(
     mean = float(np.mean(arr))
     rng = np.random.default_rng(seed)
     n = len(arr)
-    boot_means = np.empty(n_resamples, dtype=np.float64)
+    boot_means: np.ndarray = np.empty(n_resamples, dtype=np.float64)
     for i in range(n_resamples):
         indices = rng.integers(0, n, size=n)
         boot_means[i] = float(np.mean(arr[indices]))
@@ -44,9 +44,7 @@ def paired_bootstrap_diff(
     return bootstrap_ci(diffs.tolist(), n_resamples=n_resamples, ci=ci, seed=seed)
 
 
-def holm_bonferroni(
-    p_values: dict[str, float], alpha: float = 0.05
-) -> dict[str, bool]:
+def holm_bonferroni(p_values: dict[str, float], alpha: float = 0.05) -> dict[str, bool]:
     items = sorted(p_values.items(), key=lambda x: x[1])
     n = len(items)
     result: dict[str, bool] = {name: False for name in p_values}

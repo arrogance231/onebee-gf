@@ -74,8 +74,12 @@ class TestAllocatePriority:
         counter = ApproxTokenCounter()
         # priority 2 is more droppable than priority 1
         blocks = [
-            BudgetBlock(name="prio1", content="x" * 400, priority=1, token_count=100, droppable=True),
-            BudgetBlock(name="prio2", content="y" * 400, priority=2, token_count=100, droppable=True),
+            BudgetBlock(
+                name="prio1", content="x" * 400, priority=1, token_count=100, droppable=True
+            ),
+            BudgetBlock(
+                name="prio2", content="y" * 400, priority=2, token_count=100, droppable=True
+            ),
         ]
         # Budget only allows one of the two droppable blocks
         kept, log = allocate(blocks, total_budget=100, counter=counter)
@@ -150,7 +154,9 @@ class TestAllocateTruncation:
     def test_non_special_block_dropped_not_truncated(self):
         counter = ApproxTokenCounter()
         blocks = [
-            BudgetBlock(name="summary", content="x" * 400, priority=1, token_count=100, droppable=True),
+            BudgetBlock(
+                name="summary", content="x" * 400, priority=1, token_count=100, droppable=True
+            ),
         ]
         kept, log = allocate(blocks, total_budget=50, counter=counter)
         kept_names = {b.name for b in kept}
@@ -324,13 +330,15 @@ class _Memories:
     def make(n: int) -> list[dict]:
         result = []
         for i in range(n):
-            result.append({
-                "id": f"mem_{i}",
-                "tier": "episodic",
-                "event_time": 1700000000000 + i * 86400000,
-                "content": f"Memory item {i} with some extra words for token count",
-                "confidence": 0.8 + i * 0.01,
-            })
+            result.append(
+                {
+                    "id": f"mem_{i}",
+                    "tier": "episodic",
+                    "event_time": 1700000000000 + i * 86400000,
+                    "content": f"Memory item {i} with some extra words for token count",
+                    "confidence": 0.8 + i * 0.01,
+                }
+            )
         return result
 
 

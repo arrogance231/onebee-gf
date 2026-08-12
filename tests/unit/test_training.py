@@ -18,7 +18,6 @@ from onebee.training.sft import (
     run_sft,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fake / stub helpers
 # ---------------------------------------------------------------------------
@@ -289,12 +288,8 @@ class TestRunSFT:
     def test_dry_run_with_fakes_completes(self, tmp_path):
         train_path = tmp_path / "train.jsonl"
         val_path = tmp_path / "val.jsonl"
-        train_path.write_text(
-            json.dumps({"messages": [{"role": "user", "content": "hi"}]}) + "\n"
-        )
-        val_path.write_text(
-            json.dumps({"messages": [{"role": "user", "content": "hello"}]}) + "\n"
-        )
+        train_path.write_text(json.dumps({"messages": [{"role": "user", "content": "hi"}]}) + "\n")
+        val_path.write_text(json.dumps({"messages": [{"role": "user", "content": "hello"}]}) + "\n")
 
         cfg = SFTConfig(
             base_model="test-model",
@@ -351,12 +346,8 @@ class TestRunSFT:
     def test_fake_callables_receive_expected_data(self, tmp_path):
         train_path = tmp_path / "train.jsonl"
         val_path = tmp_path / "val.jsonl"
-        train_path.write_text(
-            json.dumps({"messages": [{"role": "user", "content": "q"}]}) + "\n"
-        )
-        val_path.write_text(
-            json.dumps({"messages": [{"role": "user", "content": "a"}]}) + "\n"
-        )
+        train_path.write_text(json.dumps({"messages": [{"role": "user", "content": "q"}]}) + "\n")
+        val_path.write_text(json.dumps({"messages": [{"role": "user", "content": "a"}]}) + "\n")
 
         cfg = SFTConfig(
             base_model="my-model",
@@ -415,9 +406,7 @@ class TestRunSFT:
 class TestLoadJSONL:
     def test_loads_valid_jsonl(self, tmp_path):
         p = tmp_path / "data.jsonl"
-        p.write_text(
-            '{"a":1}\n{"b":2}\n\n{"c": 3}\n'
-        )
+        p.write_text('{"a":1}\n{"b":2}\n\n{"c": 3}\n')
         result = _load_jsonl(str(p))
         assert result == [{"a": 1}, {"b": 2}, {"c": 3}]
 

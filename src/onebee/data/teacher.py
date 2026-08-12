@@ -14,16 +14,14 @@ class TeacherClient(Protocol):
         session_index: int,
         target_turns: int,
         facts_to_reveal: list[FactSheetEntry],
-    ) -> list[ConversationTurn]:
-        ...
+    ) -> list[ConversationTurn]: ...
 
     def generate_probe(
         self,
         persona: Persona,
         fact: FactSheetEntry,
         category: str,
-    ) -> str:
-        ...
+    ) -> str: ...
 
 
 FACTUAL_TEMPLATES = [

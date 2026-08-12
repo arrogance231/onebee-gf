@@ -38,7 +38,6 @@ from onebee.evaluation import (
     uar,
 )
 
-
 # ---------------------------------------------------------------------------
 # rule.py tests
 # ---------------------------------------------------------------------------
@@ -700,6 +699,7 @@ class TestMinimumDetectableEffect:
 def _fake_response_fn_fn(response_text: str, retrieved_ids: list[str]):
     def fn(probe: Probe) -> tuple[str, list[str]]:
         return response_text, retrieved_ids
+
     return fn
 
 

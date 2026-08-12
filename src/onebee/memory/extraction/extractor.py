@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Dict, List, Protocol
+from typing import Protocol
 
 from pydantic import BaseModel
 
@@ -29,9 +29,7 @@ _PREFERENCE_VERBS = r"\b(?:like|love|hate|prefer|enjoy|dislike)\b"
 
 _ASSERTION_FIRST_PERSON = r"\b(?:I am|I have|I like|I hate|I work|I live|I feel|my )"
 
-_TEMPORAL_WEEKDAY = (
-    r"\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b"
-)
+_TEMPORAL_WEEKDAY = r"\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b"
 _TEMPORAL_RELATIVE = r"\b(?:yesterday|last week|tomorrow|ago)\b"
 _TEMPORAL_DATE = r"\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b"
 
@@ -45,7 +43,12 @@ class SalienceGate:
                 cleaned = word.strip("'\",;:()[]{}")
                 if i == 0:
                     continue
-                if cleaned and cleaned[0].isupper() and len(cleaned) > 1 and cleaned.upper() != cleaned:
+                if (
+                    cleaned
+                    and cleaned[0].isupper()
+                    and len(cleaned) > 1
+                    and cleaned.upper() != cleaned
+                ):
                     return True
         return False
 
@@ -91,9 +94,7 @@ class ExtractionPipeline:
         self._grounding_checker = grounding_checker or NullGroundingChecker()
         self._grounding_threshold = grounding_threshold
 
-    def process_turn(
-        self, turn_text: str, context: dict | None = None
-    ) -> list[ExtractionResult]:
+    def process_turn(self, turn_text: str, context: dict | None = None) -> list[ExtractionResult]:
         if not self._gate.should_trigger(turn_text):
             return []
 
@@ -107,9 +108,7 @@ class ExtractionPipeline:
             passed, reason = validate_claim(claim, turn_text)
 
             if passed:
-                grounding_score = self._grounding_checker.check(
-                    claim.content, turn_text
-                )
+                grounding_score = self._grounding_checker.check(claim.content, turn_text)
                 if grounding_score < self._grounding_threshold:
                     results.append(
                         ExtractionResult(

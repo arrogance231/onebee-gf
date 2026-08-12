@@ -83,16 +83,16 @@ def check_contamination(
 
             shared = train_ngrams & eval_ngrams
             if len(shared) >= min_overlap:
-                example_ngrams = [
-                    " ".join(g) for g in sorted(shared)[:5]
-                ]
-                findings.append({
-                    "train_file": train_file,
-                    "eval_file": eval_file,
-                    "n": n,
-                    "overlap_count": len(shared),
-                    "example_ngrams": example_ngrams,
-                })
+                example_ngrams = [" ".join(g) for g in sorted(shared)[:5]]
+                findings.append(
+                    {
+                        "train_file": train_file,
+                        "eval_file": eval_file,
+                        "n": n,
+                        "overlap_count": len(shared),
+                        "example_ngrams": example_ngrams,
+                    }
+                )
     return findings
 
 
@@ -158,7 +158,10 @@ def main() -> int:
         return 0
 
     findings = check_contamination(
-        train_files, eval_files, args.n, args.min_overlap_ngrams,
+        train_files,
+        eval_files,
+        args.n,
+        args.min_overlap_ngrams,
     )
 
     if findings:

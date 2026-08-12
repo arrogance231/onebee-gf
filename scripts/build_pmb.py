@@ -36,44 +36,414 @@ from onebee.data.teacher import FixtureTeacherClient, TeacherClient
 from onebee.evaluation.metrics.personalized import Probe
 
 FIRST_NAMES = [
-    "Alice", "Bob", "Charlie", "Diana", "Eve", "Frank", "Grace",
-    "Henry", "Iris", "Jack", "Karen", "Leo", "Maya", "Nathan",
-    "Olivia", "Paul", "Quinn", "Rachel", "Sam", "Tina",
+    "Alice",
+    "Bob",
+    "Charlie",
+    "Diana",
+    "Eve",
+    "Frank",
+    "Grace",
+    "Henry",
+    "Iris",
+    "Jack",
+    "Karen",
+    "Leo",
+    "Maya",
+    "Nathan",
+    "Olivia",
+    "Paul",
+    "Quinn",
+    "Rachel",
+    "Sam",
+    "Tina",
 ]
 
 TRAIT_POOL = [
-    "introverted", "extroverted", "conscientious", "agreeable",
-    "open-minded", "creative", "analytical", "empathetic",
-    "ambitious", "patient", "curious", "organized", "spontaneous",
-    "reserved", "outgoing", "pragmatic", "idealistic", "skeptical",
-    "optimistic", "cautious",
+    "introverted",
+    "extroverted",
+    "conscientious",
+    "agreeable",
+    "open-minded",
+    "creative",
+    "analytical",
+    "empathetic",
+    "ambitious",
+    "patient",
+    "curious",
+    "organized",
+    "spontaneous",
+    "reserved",
+    "outgoing",
+    "pragmatic",
+    "idealistic",
+    "skeptical",
+    "optimistic",
+    "cautious",
 ]
 
 FACT_POOL: list[dict] = [
-    {"predicate": "job", "objects": ["software engineer", "teacher", "doctor", "chef", "accountant", "designer", "nurse", "lawyer", "writer", "scientist"], "category": "factual"},
-    {"predicate": "lives in", "objects": ["New York", "London", "Tokyo", "Paris", "Berlin", "Sydney", "Toronto", "Chicago", "Seattle", "Austin"], "category": "factual"},
-    {"predicate": "age", "objects": ["25", "30", "35", "28", "42", "33", "27", "31", "39", "45"], "category": "factual"},
-    {"predicate": "hometown", "objects": ["Portland", "Denver", "Nashville", "Boston", "Miami", "Atlanta", "Phoenix", "Minneapolis", "Detroit", "Orlando"], "category": "factual"},
-    {"predicate": "company", "objects": ["Google", "Microsoft", "Amazon", "Meta", "Apple", "Netflix", "Spotify", "Stripe", "Airbnb", "Uber"], "category": "factual"},
-    {"predicate": "degree", "objects": ["Computer Science", "Mathematics", "Physics", "English Literature", "History", "Biology", "Philosophy", "Economics", "Art History", "Music"], "category": "factual"},
-    {"predicate": "expertise", "objects": ["machine learning", "cooking", "photography", "gardening", "painting", "yoga", "woodworking", "coding", "writing", "music production"], "category": "factual"},
-    {"predicate": "favorite food", "objects": ["pizza", "sushi", "tacos", "pasta", "ramen", "curry", "burgers", "salad", "steak", "dumplings"], "category": "preference"},
-    {"predicate": "favorite color", "objects": ["blue", "green", "red", "purple", "teal", "orange", "yellow", "black", "white", "navy"], "category": "preference"},
-    {"predicate": "preferred music genre", "objects": ["jazz", "rock", "classical", "hip-hop", "electronic", "folk", "R&B", "pop", "indie", "blues"], "category": "preference"},
-    {"predicate": "favorite book", "objects": ["1984", "Dune", "The Hobbit", "Pride and Prejudice", "The Great Gatsby", "To Kill a Mockingbird", "Sapiens", "Frankenstein", "Moby Dick", "Brave New World"], "category": "preference"},
-    {"predicate": "favorite movie genre", "objects": ["sci-fi", "drama", "comedy", "thriller", "documentary", "action", "romance", "horror", "mystery", "fantasy"], "category": "preference"},
-    {"predicate": "preferred season", "objects": ["spring", "summer", "autumn", "winter"], "category": "preference"},
-    {"predicate": "favorite sport", "objects": ["soccer", "basketball", "tennis", "swimming", "cycling", "running", "climbing", "volleyball", "badminton", "skiing"], "category": "preference"},
-    {"predicate": "visited recently", "objects": ["Barcelona", "Kyoto", "Reykjavik", "Cape Town", "Bangkok", "Lisbon", "Hanoi", "Buenos Aires", "Prague", "Marrakech"], "category": "episodic"},
-    {"predicate": "graduated from", "objects": ["Harvard", "Stanford", "MIT", "Oxford", "Cambridge", "Yale", "Princeton", "Columbia", "Berkeley", "NYU"], "category": "episodic"},
-    {"predicate": "adopted a pet", "objects": ["a golden retriever", "a tabby cat", "a parrot", "two guinea pigs", "a husky", "a rescue dog", "a Siamese cat", "a rabbit", "a bearded dragon", "a cockatiel"], "category": "episodic"},
-    {"predicate": "attended a conference", "objects": ["NeurIPS", "ICML", "CVPR", "SIGGRAPH", "OSDI", "CHI", "ACL", "AAAI", "KDD", "SOSP"], "category": "episodic"},
-    {"predicate": "moved to", "objects": ["San Francisco", "Seattle", "Austin", "New York", "London", "Berlin", "Amsterdam", "Singapore", "Dublin", "Vancouver"], "category": "episodic"},
-    {"predicate": "birthday", "objects": ["January 5", "March 12", "June 21", "September 3", "November 18", "February 14", "April 30", "July 8", "October 15", "December 25"], "category": "temporal"},
-    {"predicate": "anniversary", "objects": ["May 20", "August 7", "April 12", "October 3", "June 15", "February 28", "November 9", "March 22", "September 14", "January 30"], "category": "temporal"},
-    {"predicate": "wake-up time", "objects": ["6:00 AM", "6:30 AM", "7:00 AM", "7:30 AM", "8:00 AM", "5:30 AM", "5:00 AM", "8:30 AM", "9:00 AM", "6:15 AM"], "category": "temporal"},
-    {"predicate": "lunch break", "objects": ["12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "11:30 AM", "2:00 PM", "12:15 PM", "1:15 PM", "11:00 AM", "12:45 PM"], "category": "temporal"},
-    {"predicate": "vaccinated on", "objects": ["March 2021", "April 2022", "January 2021", "May 2022", "June 2021", "February 2022", "August 2021", "October 2022", "December 2021", "July 2022"], "category": "temporal"},
+    {
+        "predicate": "job",
+        "objects": [
+            "software engineer",
+            "teacher",
+            "doctor",
+            "chef",
+            "accountant",
+            "designer",
+            "nurse",
+            "lawyer",
+            "writer",
+            "scientist",
+        ],
+        "category": "factual",
+    },
+    {
+        "predicate": "lives in",
+        "objects": [
+            "New York",
+            "London",
+            "Tokyo",
+            "Paris",
+            "Berlin",
+            "Sydney",
+            "Toronto",
+            "Chicago",
+            "Seattle",
+            "Austin",
+        ],
+        "category": "factual",
+    },
+    {
+        "predicate": "age",
+        "objects": ["25", "30", "35", "28", "42", "33", "27", "31", "39", "45"],
+        "category": "factual",
+    },
+    {
+        "predicate": "hometown",
+        "objects": [
+            "Portland",
+            "Denver",
+            "Nashville",
+            "Boston",
+            "Miami",
+            "Atlanta",
+            "Phoenix",
+            "Minneapolis",
+            "Detroit",
+            "Orlando",
+        ],
+        "category": "factual",
+    },
+    {
+        "predicate": "company",
+        "objects": [
+            "Google",
+            "Microsoft",
+            "Amazon",
+            "Meta",
+            "Apple",
+            "Netflix",
+            "Spotify",
+            "Stripe",
+            "Airbnb",
+            "Uber",
+        ],
+        "category": "factual",
+    },
+    {
+        "predicate": "degree",
+        "objects": [
+            "Computer Science",
+            "Mathematics",
+            "Physics",
+            "English Literature",
+            "History",
+            "Biology",
+            "Philosophy",
+            "Economics",
+            "Art History",
+            "Music",
+        ],
+        "category": "factual",
+    },
+    {
+        "predicate": "expertise",
+        "objects": [
+            "machine learning",
+            "cooking",
+            "photography",
+            "gardening",
+            "painting",
+            "yoga",
+            "woodworking",
+            "coding",
+            "writing",
+            "music production",
+        ],
+        "category": "factual",
+    },
+    {
+        "predicate": "favorite food",
+        "objects": [
+            "pizza",
+            "sushi",
+            "tacos",
+            "pasta",
+            "ramen",
+            "curry",
+            "burgers",
+            "salad",
+            "steak",
+            "dumplings",
+        ],
+        "category": "preference",
+    },
+    {
+        "predicate": "favorite color",
+        "objects": [
+            "blue",
+            "green",
+            "red",
+            "purple",
+            "teal",
+            "orange",
+            "yellow",
+            "black",
+            "white",
+            "navy",
+        ],
+        "category": "preference",
+    },
+    {
+        "predicate": "preferred music genre",
+        "objects": [
+            "jazz",
+            "rock",
+            "classical",
+            "hip-hop",
+            "electronic",
+            "folk",
+            "R&B",
+            "pop",
+            "indie",
+            "blues",
+        ],
+        "category": "preference",
+    },
+    {
+        "predicate": "favorite book",
+        "objects": [
+            "1984",
+            "Dune",
+            "The Hobbit",
+            "Pride and Prejudice",
+            "The Great Gatsby",
+            "To Kill a Mockingbird",
+            "Sapiens",
+            "Frankenstein",
+            "Moby Dick",
+            "Brave New World",
+        ],
+        "category": "preference",
+    },
+    {
+        "predicate": "favorite movie genre",
+        "objects": [
+            "sci-fi",
+            "drama",
+            "comedy",
+            "thriller",
+            "documentary",
+            "action",
+            "romance",
+            "horror",
+            "mystery",
+            "fantasy",
+        ],
+        "category": "preference",
+    },
+    {
+        "predicate": "preferred season",
+        "objects": ["spring", "summer", "autumn", "winter"],
+        "category": "preference",
+    },
+    {
+        "predicate": "favorite sport",
+        "objects": [
+            "soccer",
+            "basketball",
+            "tennis",
+            "swimming",
+            "cycling",
+            "running",
+            "climbing",
+            "volleyball",
+            "badminton",
+            "skiing",
+        ],
+        "category": "preference",
+    },
+    {
+        "predicate": "visited recently",
+        "objects": [
+            "Barcelona",
+            "Kyoto",
+            "Reykjavik",
+            "Cape Town",
+            "Bangkok",
+            "Lisbon",
+            "Hanoi",
+            "Buenos Aires",
+            "Prague",
+            "Marrakech",
+        ],
+        "category": "episodic",
+    },
+    {
+        "predicate": "graduated from",
+        "objects": [
+            "Harvard",
+            "Stanford",
+            "MIT",
+            "Oxford",
+            "Cambridge",
+            "Yale",
+            "Princeton",
+            "Columbia",
+            "Berkeley",
+            "NYU",
+        ],
+        "category": "episodic",
+    },
+    {
+        "predicate": "adopted a pet",
+        "objects": [
+            "a golden retriever",
+            "a tabby cat",
+            "a parrot",
+            "two guinea pigs",
+            "a husky",
+            "a rescue dog",
+            "a Siamese cat",
+            "a rabbit",
+            "a bearded dragon",
+            "a cockatiel",
+        ],
+        "category": "episodic",
+    },
+    {
+        "predicate": "attended a conference",
+        "objects": [
+            "NeurIPS",
+            "ICML",
+            "CVPR",
+            "SIGGRAPH",
+            "OSDI",
+            "CHI",
+            "ACL",
+            "AAAI",
+            "KDD",
+            "SOSP",
+        ],
+        "category": "episodic",
+    },
+    {
+        "predicate": "moved to",
+        "objects": [
+            "San Francisco",
+            "Seattle",
+            "Austin",
+            "New York",
+            "London",
+            "Berlin",
+            "Amsterdam",
+            "Singapore",
+            "Dublin",
+            "Vancouver",
+        ],
+        "category": "episodic",
+    },
+    {
+        "predicate": "birthday",
+        "objects": [
+            "January 5",
+            "March 12",
+            "June 21",
+            "September 3",
+            "November 18",
+            "February 14",
+            "April 30",
+            "July 8",
+            "October 15",
+            "December 25",
+        ],
+        "category": "temporal",
+    },
+    {
+        "predicate": "anniversary",
+        "objects": [
+            "May 20",
+            "August 7",
+            "April 12",
+            "October 3",
+            "June 15",
+            "February 28",
+            "November 9",
+            "March 22",
+            "September 14",
+            "January 30",
+        ],
+        "category": "temporal",
+    },
+    {
+        "predicate": "wake-up time",
+        "objects": [
+            "6:00 AM",
+            "6:30 AM",
+            "7:00 AM",
+            "7:30 AM",
+            "8:00 AM",
+            "5:30 AM",
+            "5:00 AM",
+            "8:30 AM",
+            "9:00 AM",
+            "6:15 AM",
+        ],
+        "category": "temporal",
+    },
+    {
+        "predicate": "lunch break",
+        "objects": [
+            "12:00 PM",
+            "12:30 PM",
+            "1:00 PM",
+            "1:30 PM",
+            "11:30 AM",
+            "2:00 PM",
+            "12:15 PM",
+            "1:15 PM",
+            "11:00 AM",
+            "12:45 PM",
+        ],
+        "category": "temporal",
+    },
+    {
+        "predicate": "vaccinated on",
+        "objects": [
+            "March 2021",
+            "April 2022",
+            "January 2021",
+            "May 2022",
+            "June 2021",
+            "February 2022",
+            "August 2021",
+            "October 2022",
+            "December 2021",
+            "July 2022",
+        ],
+        "category": "temporal",
+    },
 ]
 
 CORRECTION_PATTERNS = [
@@ -173,9 +543,7 @@ def _generate_persona_corpus(
 
     for si in range(s_per_persona):
         facts_for_session = fact_buckets[si]
-        turns = teacher.generate_conversation(
-            persona, si, turns_per_session, facts_for_session
-        )
+        turns = teacher.generate_conversation(persona, si, turns_per_session, facts_for_session)
         sessions.append(
             PersonaSession(
                 session_id=f"{persona.persona_id}_s{si:03d}",
@@ -200,7 +568,6 @@ def _generate_probes(
     probe_index = 0
 
     revealed_facts = [f for f in persona.fact_sheet if f.fact_id in fact_to_turn]
-    unrevealed_facts = [f for f in persona.fact_sheet if f.fact_id not in fact_to_turn]
 
     for fact in revealed_facts:
         question = teacher.generate_probe(persona, fact, fact.category)
@@ -226,13 +593,17 @@ def _generate_probes(
 
     for _ in range(min(n_unanswerable, len(UNABANSWERABLE_PREDICATES))):
         predicate = rng.choice(UNABANSWERABLE_PREDICATES)
-        question = teacher.generate_probe(persona, FactSheetEntry(
-            fact_id="__unanswerable__",
-            subject=persona.persona_id,
-            predicate=predicate,
-            object="__absent__",
-            category="factual",
-        ), "unanswerable")
+        question = teacher.generate_probe(
+            persona,
+            FactSheetEntry(
+                fact_id="__unanswerable__",
+                subject=persona.persona_id,
+                predicate=predicate,
+                object="__absent__",
+                category="factual",
+            ),
+            "unanswerable",
+        )
         probe_index += 1
         probes.append(
             Probe(
@@ -249,10 +620,16 @@ def _generate_probes(
     if len(sessions) >= 2 and revealed_facts:
         for _ in range(min(n_outdated, len(revealed_facts))):
             fact = rng.choice(revealed_facts)
-            new_values = [o for o in FACT_POOL if o["predicate"] == fact.predicate or o["category"] == fact.category]
+            new_values = [
+                o
+                for o in FACT_POOL
+                if o["predicate"] == fact.predicate or o["category"] == fact.category
+            ]
             correction_obj = fact.object
             if new_values:
-                candidates = [o for o in new_values[0]["objects"] if o != fact.object] if new_values else []
+                candidates = (
+                    [o for o in new_values[0]["objects"] if o != fact.object] if new_values else []
+                )
                 if candidates:
                     correction_obj = rng.choice(candidates)
 
@@ -278,7 +655,10 @@ def _generate_probes(
                     persona_id=persona.persona_id,
                     question=question,
                     gold_answer=correction_obj,
-                    gold_supporting_memory_ids=[fact_to_turn.get(fact.fact_id, ""), correction_turn_id],
+                    gold_supporting_memory_ids=[
+                        fact_to_turn.get(fact.fact_id, ""),
+                        correction_turn_id,
+                    ],
                     category="outdated_fact",
                     answerable=True,
                 )
@@ -435,7 +815,9 @@ def main() -> None:
         probes = _generate_probes(corpus, args.facts_per_persona, teacher, shared_rng)
         all_probes.extend(probes)
 
-    _write_output(out_dir, corpora, all_probes, args.n_personas * args.facts_per_persona, args.teacher)
+    _write_output(
+        out_dir, corpora, all_probes, args.n_personas * args.facts_per_persona, args.teacher
+    )
 
     hash_val = _compute_hash(out_dir)
     (out_dir / "hash.txt").write_text(hash_val + "\n")
@@ -443,7 +825,10 @@ def main() -> None:
     n_personas = len(corpora)
     n_sessions = sum(len(c.sessions) for c in corpora)
     n_turns = sum(len(s.turns) for c in corpora for s in c.sessions)
-    print(f"Generated {n_personas} persona(s), {n_sessions} session(s), {n_turns} turn(s), {len(all_probes)} probe(s)")
+    print(
+        f"Generated {n_personas} persona(s), {n_sessions} session(s), "
+        f"{n_turns} turn(s), {len(all_probes)} probe(s)"
+    )
     print(f"Output written to {out_dir.resolve()}")
 
 

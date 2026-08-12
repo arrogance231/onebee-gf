@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from pydantic import BaseModel
 
 from onebee.evaluation.graders.judge import Judge
 from onebee.evaluation.graders.nli import NLIChecker
+from onebee.evaluation.metrics.memory_quality import mur
 from onebee.evaluation.metrics.personalized import (
     Probe,
     ProbeResult,
@@ -16,7 +18,6 @@ from onebee.evaluation.metrics.personalized import (
     score_probe,
     uar,
 )
-from onebee.evaluation.metrics.memory_quality import mur
 from onebee.evaluation.stats import bootstrap_ci
 
 
@@ -73,9 +74,7 @@ def run_harness(
 
     per_probe_uar = [1.0 if r.abstained else 0.0 for r in results if not r.probe.answerable]
     if per_probe_uar:
-        metrics_ci["uar"] = bootstrap_ci(
-            per_probe_uar, n_resamples=n_bootstrap, seed=seed
-        )
+        metrics_ci["uar"] = bootstrap_ci(per_probe_uar, n_resamples=n_bootstrap, seed=seed)
 
     per_category: dict[str, dict[str, float]] = {}
     categories = {p.category for p in probes}
@@ -114,9 +113,7 @@ def save_harness_result(result: HarnessResult, path: str) -> None:
         "system": result.system,
         "n_probes": result.n_probes,
         "metrics": result.metrics,
-        "metrics_ci": {
-            k: list(v) for k, v in result.metrics_ci.items()
-        },
+        "metrics_ci": {k: list(v) for k, v in result.metrics_ci.items()},
         "per_category": result.per_category,
     }
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 import sys
 import tempfile
@@ -206,8 +205,16 @@ class TestFixtureTeacherClient:
         fact = persona.fact_sheet[0]
         teacher = FixtureTeacherClient(seed=1)
 
-        for cat in ("factual", "preference", "episodic", "temporal", "unanswerable",
-                    "outdated_fact", "distractor", "continuity"):
+        for cat in (
+            "factual",
+            "preference",
+            "episodic",
+            "temporal",
+            "unanswerable",
+            "outdated_fact",
+            "distractor",
+            "continuity",
+        ):
             question = teacher.generate_probe(persona, fact, cat)
             assert isinstance(question, str)
             assert len(question) > 0
@@ -223,12 +230,18 @@ class TestBuildPmbMain:
             old_argv = sys.argv
             sys.argv = [
                 "build_pmb.py",
-                "--n-personas", "1",
-                "--sessions-per-persona", "1",
-                "--turns-per-session", "4",
-                "--facts-per-persona", "4",
-                "--out-dir", str(out),
-                "--seed", "42",
+                "--n-personas",
+                "1",
+                "--sessions-per-persona",
+                "1",
+                "--turns-per-session",
+                "4",
+                "--facts-per-persona",
+                "4",
+                "--out-dir",
+                str(out),
+                "--seed",
+                "42",
             ]
             try:
                 build_pmb.main()
@@ -278,23 +291,35 @@ class TestBuildPmbMain:
         try:
             sys.argv = [
                 "build_pmb.py",
-                "--n-personas", "1",
-                "--sessions-per-persona", "1",
-                "--turns-per-session", "4",
-                "--facts-per-persona", "4",
-                "--out-dir", str(out1),
-                "--seed", "42",
+                "--n-personas",
+                "1",
+                "--sessions-per-persona",
+                "1",
+                "--turns-per-session",
+                "4",
+                "--facts-per-persona",
+                "4",
+                "--out-dir",
+                str(out1),
+                "--seed",
+                "42",
             ]
             build_pmb.main()
 
             sys.argv = [
                 "build_pmb.py",
-                "--n-personas", "1",
-                "--sessions-per-persona", "1",
-                "--turns-per-session", "4",
-                "--facts-per-persona", "4",
-                "--out-dir", str(out2),
-                "--seed", "42",
+                "--n-personas",
+                "1",
+                "--sessions-per-persona",
+                "1",
+                "--turns-per-session",
+                "4",
+                "--facts-per-persona",
+                "4",
+                "--out-dir",
+                str(out2),
+                "--seed",
+                "42",
             ]
             build_pmb.main()
         finally:

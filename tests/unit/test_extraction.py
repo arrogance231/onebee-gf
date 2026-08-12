@@ -2,27 +2,24 @@ from __future__ import annotations
 
 import pytest
 
+from onebee.memory.extraction.extractor import (
+    ExtractionPipeline,
+    SalienceGate,
+)
 from onebee.memory.extraction.schema import (
     ASSERTION_STRENGTH_MULTIPLIER,
     SOURCE_RELIABILITY_MULTIPLIER,
     ExtractedClaim,
-)
-from onebee.memory.extraction.validators import (
-    GroundingChecker,
-    is_trivial,
-    validate_claim,
-    verify_span,
 )
 from onebee.memory.extraction.scoring import (
     compute_confidence,
     compute_importance,
     detect_assertion_strength,
 )
-from onebee.memory.extraction.extractor import (
-    ExtractionPipeline,
-    ExtractionResult,
-    SalienceGate,
-    TeacherExtractor,
+from onebee.memory.extraction.validators import (
+    is_trivial,
+    validate_claim,
+    verify_span,
 )
 
 
@@ -176,9 +173,7 @@ class TestValidateClaim:
 class TestComputeImportance:
     def test_all_mid(self):
         result = compute_importance(0.5, 0.5, 0.5, 0.5, 0.5)
-        expected = (
-            0.30 * 0.5 + 0.20 * 0.5 + 0.20 * 0.5 + 0.15 * 0.5 + 0.15 * 0.5
-        )
+        expected = 0.30 * 0.5 + 0.20 * 0.5 + 0.20 * 0.5 + 0.15 * 0.5 + 0.15 * 0.5
         assert result == pytest.approx(expected)
 
     def test_all_high(self):
@@ -187,9 +182,7 @@ class TestComputeImportance:
 
     def test_clamps_inputs(self):
         result = compute_importance(2.0, -0.5, 1.5, 0.5, 0.5)
-        expected = (
-            0.30 * 1.0 + 0.20 * 0.0 + 0.20 * 1.0 + 0.15 * 0.5 + 0.15 * 0.5
-        )
+        expected = 0.30 * 1.0 + 0.20 * 0.0 + 0.20 * 1.0 + 0.15 * 0.5 + 0.15 * 0.5
         assert result == pytest.approx(expected)
 
     def test_worked_example_1(self):
@@ -206,12 +199,20 @@ class TestComputeImportance:
 class TestComputeConfidence:
     def test_definite_user_statement(self):
         result = compute_confidence(0.9, "definite", "user_statement")
-        expected = 0.9 * ASSERTION_STRENGTH_MULTIPLIER["definite"] * SOURCE_RELIABILITY_MULTIPLIER["user_statement"]
+        expected = (
+            0.9
+            * ASSERTION_STRENGTH_MULTIPLIER["definite"]
+            * SOURCE_RELIABILITY_MULTIPLIER["user_statement"]
+        )
         assert result == pytest.approx(expected)
 
     def test_uncertain_reflection(self):
         result = compute_confidence(0.8, "uncertain", "reflection_derived")
-        expected = 0.8 * ASSERTION_STRENGTH_MULTIPLIER["uncertain"] * SOURCE_RELIABILITY_MULTIPLIER["reflection_derived"]
+        expected = (
+            0.8
+            * ASSERTION_STRENGTH_MULTIPLIER["uncertain"]
+            * SOURCE_RELIABILITY_MULTIPLIER["reflection_derived"]
+        )
         assert result == pytest.approx(expected)
 
     def test_worked_example_1(self):

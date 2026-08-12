@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import time
 from importlib.util import find_spec
 
@@ -177,9 +176,7 @@ class TestWriteTurnSession:
 
         conn = store._conn
         conn.row_factory = __import__("sqlite3").Row
-        row = conn.execute(
-            "SELECT * FROM session WHERE id = ?", ("s1",)
-        ).fetchone()
+        row = conn.execute("SELECT * FROM session WHERE id = ?", ("s1",)).fetchone()
         assert row is not None
         assert row["summary"] == "test session"
         assert row["turn_count"] == 5
@@ -254,9 +251,7 @@ class TestSearch:
         rec_superseded = _make_record(content="old news", status="superseded")
         store.write(rec_superseded)
 
-        results = store.search(
-            query="news", filters={"status": "superseded"}, k=10
-        )
+        results = store.search(query="news", filters={"status": "superseded"}, k=10)
         ids = {r.id for r in results}
         assert rec_superseded.id in ids
 
@@ -277,9 +272,7 @@ class TestSearch:
         rec = _make_record(content="vector candidate")
         store.write(rec)
 
-        results = store.search(
-            query_embedding=[0.1, 0.2, 0.3, 0.4], k=5
-        )
+        results = store.search(query_embedding=[0.1, 0.2, 0.3, 0.4], k=5)
         if _HAS_SQLITE_VEC:
             pass
         else:
@@ -294,9 +287,7 @@ class TestSearch:
         rec = _make_record(content="nearby", embedding=embedding)
         store.write(rec)
 
-        rec2 = _make_record(
-            content="far away", embedding=[0.9, 0.8, 0.7, 0.6]
-        )
+        rec2 = _make_record(content="far away", embedding=[0.9, 0.8, 0.7, 0.6])
         store.write(rec2)
 
         results = store.search(query_embedding=embedding, k=5)
@@ -308,18 +299,12 @@ class TestSearch:
             pytest.skip("sqlite-vec not available")
 
         store = MemoryStore(str(tmp_path / "test.db"), embedding_dim=4)
-        rec_a = _make_record(
-            content="alpha bravo", embedding=[0.1, 0.2, 0.3, 0.4]
-        )
+        rec_a = _make_record(content="alpha bravo", embedding=[0.1, 0.2, 0.3, 0.4])
         store.write(rec_a)
-        rec_b = _make_record(
-            content="delta echo", embedding=[0.15, 0.25, 0.35, 0.45]
-        )
+        rec_b = _make_record(content="delta echo", embedding=[0.15, 0.25, 0.35, 0.45])
         store.write(rec_b)
 
-        results = store.search(
-            query="alpha", query_embedding=[0.1, 0.2, 0.3, 0.4], k=5
-        )
+        results = store.search(query="alpha", query_embedding=[0.1, 0.2, 0.3, 0.4], k=5)
         ids = {r.id for r in results}
         assert len(ids) >= 1
 
@@ -353,9 +338,7 @@ class TestListByTier:
         store = MemoryStore(str(tmp_path / "test.db"))
         rec = _make_record(tier="episodic", content="active", status="active")
         store.write(rec)
-        rec2 = _make_record(
-            tier="episodic", content="superseded", status="superseded"
-        )
+        rec2 = _make_record(tier="episodic", content="superseded", status="superseded")
         store.write(rec2)
 
         results = store.list_by_tier("episodic")
@@ -365,9 +348,7 @@ class TestListByTier:
 
     def test_list_by_tier_status_override(self, tmp_path):
         store = MemoryStore(str(tmp_path / "test.db"))
-        rec = _make_record(
-            tier="episodic", content="superseded", status="superseded"
-        )
+        rec = _make_record(tier="episodic", content="superseded", status="superseded")
         store.write(rec)
 
         results = store.list_by_tier("episodic", status="superseded")
@@ -487,9 +468,7 @@ class TestSupersededStatus:
         rec2 = _make_record(status="superseded", content="cherry pie")
         store.write(rec2)
 
-        results = store.search(
-            query="cherry", filters={"status": "superseded"}, k=10
-        )
+        results = store.search(query="cherry", filters={"status": "superseded"}, k=10)
         ids = {r.id for r in results}
         assert rec2.id in ids
 
@@ -497,9 +476,7 @@ class TestSupersededStatus:
         store = MemoryStore(str(tmp_path / "test.db"))
         rec = _make_record(tier="episodic", status="active", content="a")
         store.write(rec)
-        rec2 = _make_record(
-            tier="episodic", status="superseded", content="b"
-        )
+        rec2 = _make_record(tier="episodic", status="superseded", content="b")
         store.write(rec2)
 
         results = store.list_by_tier("episodic")
@@ -509,9 +486,7 @@ class TestSupersededStatus:
 
     def test_list_by_tier_includes_superseded_when_explicit(self, tmp_path):
         store = MemoryStore(str(tmp_path / "test.db"))
-        rec2 = _make_record(
-            tier="episodic", status="superseded", content="b"
-        )
+        rec2 = _make_record(tier="episodic", status="superseded", content="b")
         store.write(rec2)
 
         results = store.list_by_tier("episodic", status="superseded")
@@ -521,7 +496,6 @@ class TestSupersededStatus:
 
 class TestProtocolConformance:
     def test_store_implements_protocol(self):
-        from onebee.memory.store import MemoryStoreProtocol
 
         store = MemoryStore(":memory:")
         assert hasattr(store, "write")
