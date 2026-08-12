@@ -10,10 +10,16 @@ from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
 
-
 _FILTERABLE_COLUMNS = {
-    "id", "tier", "status", "importance", "confidence", "supersedes", "superseded_by",
-    "contradiction_group", "schema_version",
+    "id",
+    "tier",
+    "status",
+    "importance",
+    "confidence",
+    "supersedes",
+    "superseded_by",
+    "contradiction_group",
+    "schema_version",
 }
 
 
@@ -251,9 +257,7 @@ class MemoryStore:
                 if extra:
                     for col, val in extra.items():
                         if col not in _FILTERABLE_COLUMNS:
-                            raise ValueError(
-                                f"filters: unknown or non-filterable column {col!r}"
-                            )
+                            raise ValueError(f"filters: unknown or non-filterable column {col!r}")
                         base_where += f" AND m.{col} = ?"
                         base_params.append(val)
 
@@ -267,7 +271,10 @@ class MemoryStore:
         self._conn.row_factory = sqlite3.Row
 
         if query:
-            fts_where = f"{base_where} AND m.rowid IN (SELECT rowid FROM memory_fts WHERE memory_fts MATCH ? ORDER BY rank)"
+            fts_where = (
+                f"{base_where} AND m.rowid IN "
+                f"(SELECT rowid FROM memory_fts WHERE memory_fts MATCH ? ORDER BY rank)"
+            )
             fts_params = base_params + [query]
             fts_limit = k * 2
             rows = self._conn.execute(
@@ -325,15 +332,11 @@ class MemoryStore:
         for tier, cnt in rows:
             tier_counts[tier] = cnt
 
-        total = self._conn.execute(
-            "SELECT COUNT(*) FROM memory"
-        ).fetchone()[0]
+        total = self._conn.execute("SELECT COUNT(*) FROM memory").fetchone()[0]
 
         fts_count = 0
         try:
-            fts_count = self._conn.execute(
-                "SELECT COUNT(*) FROM memory_fts"
-            ).fetchone()[0]
+            fts_count = self._conn.execute("SELECT COUNT(*) FROM memory_fts").fetchone()[0]
         except Exception:
             pass
 
@@ -379,9 +382,7 @@ class MemoryStore:
 
     def get_by_id(self, memory_id: str) -> MemoryRecord | None:
         self._conn.row_factory = sqlite3.Row
-        row = self._conn.execute(
-            "SELECT * FROM memory WHERE id = ?", (memory_id,)
-        ).fetchone()
+        row = self._conn.execute("SELECT * FROM memory WHERE id = ?", (memory_id,)).fetchone()
         if row is None:
             return None
         return self._row_to_record(row)

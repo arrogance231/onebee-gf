@@ -20,12 +20,66 @@ class BenchResult(BaseModel):
 
 
 _SYNTHETIC_WORDS = [
-    "the", "of", "and", "to", "in", "a", "is", "that", "for", "it",
-    "as", "with", "was", "on", "be", "this", "by", "not", "are", "from",
-    "at", "or", "an", "they", "which", "one", "would", "all", "will", "there",
-    "say", "who", "make", "when", "can", "more", "if", "no", "man", "out",
-    "other", "so", "what", "time", "up", "go", "about", "than", "into", "could",
-    "state", "only", "new", "year", "some", "take", "come", "these", "know", "see",
+    "the",
+    "of",
+    "and",
+    "to",
+    "in",
+    "a",
+    "is",
+    "that",
+    "for",
+    "it",
+    "as",
+    "with",
+    "was",
+    "on",
+    "be",
+    "this",
+    "by",
+    "not",
+    "are",
+    "from",
+    "at",
+    "or",
+    "an",
+    "they",
+    "which",
+    "one",
+    "would",
+    "all",
+    "will",
+    "there",
+    "say",
+    "who",
+    "make",
+    "when",
+    "can",
+    "more",
+    "if",
+    "no",
+    "man",
+    "out",
+    "other",
+    "so",
+    "what",
+    "time",
+    "up",
+    "go",
+    "about",
+    "than",
+    "into",
+    "could",
+    "state",
+    "only",
+    "new",
+    "year",
+    "some",
+    "take",
+    "come",
+    "these",
+    "know",
+    "see",
 ]
 
 
@@ -82,9 +136,7 @@ def run_latency_bench(
         for _ in range(n_repeats):
             gen_result = engine.generate(messages, config)
             all_ttft.append(gen_result.ttft_ms)
-            decode_time_s = (
-                (gen_result.total_ms - gen_result.ttft_ms) / 1000.0
-            )
+            decode_time_s = (gen_result.total_ms - gen_result.ttft_ms) / 1000.0
             all_decode_tok_s.append(
                 gen_result.completion_tokens / decode_time_s if decode_time_s > 0 else 0.0
             )
@@ -96,11 +148,14 @@ def run_latency_bench(
         prefill_start = time.perf_counter()
         engine.generate(messages, prefill_config)
         prefill_total_s = time.perf_counter() - prefill_start
-        prefill_tok_s_val = _estimate_tokens(prompt) / prefill_total_s if prefill_total_s > 0 else 0.0
+        prefill_tok_s_val = (
+            _estimate_tokens(prompt) / prefill_total_s if prefill_total_s > 0 else 0.0
+        )
 
         peak_vram: float | None = None
         try:
             import torch
+
             if torch.cuda.is_available():
                 peak_vram = torch.cuda.max_memory_allocated() / (1024 * 1024)
         except ImportError:

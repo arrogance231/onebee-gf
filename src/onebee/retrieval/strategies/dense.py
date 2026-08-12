@@ -23,9 +23,7 @@ class DenseRetriever:
         tier: str | None = None,
         k: int = 20,
     ) -> list[RetrievalCandidate]:
-        records = self.store.search(
-            query_embedding=query_embedding, tier=tier, k=k
-        )
+        records = self.store.search(query_embedding=query_embedding, tier=tier, k=k)
         return [
             RetrievalCandidate(
                 record=r.model_dump(),

@@ -62,9 +62,7 @@ class HFEngine:
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
-        self._tokenizer = AutoTokenizer.from_pretrained(
-            self.model_name, revision=self.revision
-        )
+        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name, revision=self.revision)
         self._model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             revision=self.revision,
@@ -88,9 +86,7 @@ class HFEngine:
 
     def generate(self, messages: list[dict], config: GenerationConfig) -> GenerationResult:
         if not self._loaded or self._model is None or self._tokenizer is None:
-            raise RuntimeError(
-                "load() must be called before generate()"
-            )
+            raise RuntimeError("load() must be called before generate()")
 
         import torch
 
@@ -129,7 +125,19 @@ class HFEngine:
                         first_forward = False
                     total_completion_tokens = input_ids.shape[1] - prompt_tokens
 
-            streamer = FirstTokenCallback(self)
+            from transformers import StoppingCriteria, StoppingCriteriaList
+
+            class _TTFTStoppingCriteria(StoppingCriteria):
+                def __init__(self, callback):
+                    self.callback = callback
+
+                def __call__(self, input_ids, scores, **kwargs) -> bool:
+                    self.callback(input_ids, scores, **kwargs)
+                    return False
+
+            stopping_criteria = StoppingCriteriaList(
+                [_TTFTStoppingCriteria(FirstTokenCallback(self))]
+            )
 
             gen_kwargs: dict = {
                 "max_new_tokens": config.max_new_tokens,
@@ -139,6 +147,7 @@ class HFEngine:
                 "top_k": config.top_k if do_sample else None,
                 "repetition_penalty": config.repetition_penalty,
                 "pad_token_id": self._tokenizer.eos_token_id,
+                "stopping_criteria": stopping_criteria,
             }
 
             gen_kwargs = {k: v for k, v in gen_kwargs.items() if v is not None}
@@ -194,9 +203,7 @@ class LlamaCppEngine:
         from llama_cpp import Llama
 
         if not os.path.isfile(self.model_path):
-            raise FileNotFoundError(
-                f"Model file not found at: {self.model_path}"
-            )
+            raise FileNotFoundError(f"Model file not found at: {self.model_path}")
 
         self._llm = Llama(
             model_path=self.model_path,
@@ -216,18 +223,12 @@ class LlamaCppEngine:
 
     def generate(self, messages: list[dict], config: GenerationConfig) -> GenerationResult:
         if not self._loaded or self._llm is None:
-            raise RuntimeError(
-                "load() must be called before generate()"
-            )
+            raise RuntimeError("load() must be called before generate()")
 
         import os
 
         if not os.path.isfile(self.model_path):
-            raise FileNotFoundError(
-                f"Model file not found at: {self.model_path}"
-            )
-
-        prompt = self.apply_chat_template(messages)
+            raise FileNotFoundError(f"Model file not found at: {self.model_path}")
 
         prompt_tokens = 0
         completion_tokens = 0

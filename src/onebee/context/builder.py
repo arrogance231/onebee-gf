@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import time
-from typing import Any
 
 from pydantic import BaseModel
 
@@ -71,8 +70,6 @@ class ContextBuilder:
         boundaries_rendered = render_boundaries(boundaries)
         memories_rendered = render_memories_block(retrieved_memories)
         recent_turns_rendered = render_recent_turns(recent_turns)
-
-        user_turn_token_count = counter.count(user_turn)
 
         # Build BudgetBlocks with priorities from the spec.
         # Lower priority number = higher importance.
@@ -171,7 +168,11 @@ class ContextBuilder:
                     break
 
             kept_ids = [m.get("id", m.get("memory_id", "")) for m in truncated_memories_list]
-            dropped_ids = [m.get("id", m.get("memory_id", "")) for m in retrieved_memories if m not in truncated_memories_list]
+            dropped_ids = [
+                m.get("id", m.get("memory_id", ""))
+                for m in retrieved_memories
+                if m not in truncated_memories_list
+            ]
         else:
             # Not truncated — check if fully kept or dropped
             if any(b.name == "memories" for b in kept_blocks):

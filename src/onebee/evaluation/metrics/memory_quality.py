@@ -44,10 +44,7 @@ def fmr(results: list[ProbeResult], nli: NLIChecker, store_context: str) -> floa
         r
         for r in results
         if not r.probe.answerable
-        and not (
-            set(r.retrieved_memory_ids)
-            & set(r.probe.gold_supporting_memory_ids)
-        )
+        and not (set(r.retrieved_memory_ids) & set(r.probe.gold_supporting_memory_ids))
     ]
     if not subset:
         return 0.0
@@ -69,9 +66,7 @@ def contradiction_rate(
     return n_contradictions / len(session_pairs)
 
 
-def precision_at_k(
-    retrieved_ids: list[str], gold_ids: list[str], k: int
-) -> float:
+def precision_at_k(retrieved_ids: list[str], gold_ids: list[str], k: int) -> float:
     if k <= 0 or not gold_ids:
         return 0.0
     top_k = retrieved_ids[:k]
@@ -80,9 +75,7 @@ def precision_at_k(
     return hits / min(k, len(top_k)) if top_k else 0.0
 
 
-def recall_at_k(
-    retrieved_ids: list[str], gold_ids: list[str], k: int
-) -> float:
+def recall_at_k(retrieved_ids: list[str], gold_ids: list[str], k: int) -> float:
     if not gold_ids:
         return 0.0
     top_k = set(retrieved_ids[:k])

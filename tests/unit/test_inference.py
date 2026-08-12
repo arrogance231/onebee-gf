@@ -53,10 +53,12 @@ class TestFakeEngine:
 
     def test_apply_chat_template(self):
         engine = FakeEngine()
-        result = engine.apply_chat_template([
-            {"role": "user", "content": "hello"},
-            {"role": "assistant", "content": "hi there"},
-        ])
+        result = engine.apply_chat_template(
+            [
+                {"role": "user", "content": "hello"},
+                {"role": "assistant", "content": "hi there"},
+            ]
+        )
         assert "user: hello" in result
         assert "assistant: hi there" in result
 
@@ -137,10 +139,12 @@ class TestHFEngineBasic:
 
     def test_apply_chat_template_without_tokenizer(self):
         engine = HFEngine(model_name="gpt2")
-        result = engine.apply_chat_template([
-            {"role": "user", "content": "hello"},
-            {"role": "assistant", "content": "hi"},
-        ])
+        result = engine.apply_chat_template(
+            [
+                {"role": "user", "content": "hello"},
+                {"role": "assistant", "content": "hi"},
+            ]
+        )
         assert "user: hello" in result
         assert "assistant: hi" in result
 
@@ -161,10 +165,12 @@ class TestLlamaCppEngineBasic:
 
     def test_apply_chat_template(self):
         engine = LlamaCppEngine(model_path="/nonexistent/model.gguf")
-        result = engine.apply_chat_template([
-            {"role": "user", "content": "hello"},
-            {"role": "assistant", "content": "hi"},
-        ])
+        result = engine.apply_chat_template(
+            [
+                {"role": "user", "content": "hello"},
+                {"role": "assistant", "content": "hi"},
+            ]
+        )
         assert "user: hello" in result
         assert "assistant: hi" in result
 

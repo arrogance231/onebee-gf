@@ -19,9 +19,9 @@ from onebee.memory.extraction.scoring import (
     detect_assertion_strength,
 )
 from onebee.memory.extraction.validators import (
+    TRIVIAL_STOPLIST,
     GroundingChecker,
     NullGroundingChecker,
-    TRIVIAL_STOPLIST,
     is_trivial,
     validate_claim,
     verify_span,

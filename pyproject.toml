@@ -77,7 +77,11 @@ target-version = ["py310"]
 ignore_missing_imports = true
 check_untyped_defs = false
 follow_imports = "skip"
-python_version = "3.10"
+# NOTE: pinned above the project's actual 3.10 minimum because numpy's shipped
+# .pyi stubs use PEP 695 `type` aliases unconditionally; mypy needs
+# python_version >= 3.12 just to parse them. This only affects which stdlib/
+# typeshed syntax mypy permits during checking, not the runtime requirement.
+python_version = "3.12"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

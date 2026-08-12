@@ -19,7 +19,11 @@ from scripts.check_contamination import (  # type: ignore[import-not-found]
 class TestTokenize:
     def test_basic(self) -> None:
         assert tokenize("Hello, world! How are you?") == [
-            "hello", "world", "how", "are", "you",
+            "hello",
+            "world",
+            "how",
+            "are",
+            "you",
         ]
 
     def test_numbers_and_punctuation(self) -> None:
@@ -99,13 +103,11 @@ class TestLoadJsonlTexts:
         texts = load_jsonl_texts(str(f))
         assert texts == ["Q1?", "A1", "Q2?", "A2"]
 
-    def test_malformed_line_skipped(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    def test_malformed_line_skipped(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         f = tmp_path / "test.jsonl"
-        f.write_text(
-            '{"question": "Q1?"}\n'
-            'not valid json\n'
-            '{"question": "Q3?"}\n'
-        )
+        f.write_text('{"question": "Q1?"}\n' "not valid json\n" '{"question": "Q3?"}\n')
         texts = load_jsonl_texts(str(f))
         assert texts == ["Q1?", "Q3?"]
 
@@ -128,7 +130,10 @@ class TestCheckContamination:
         eval_f.write_text(json.dumps({"text": long_text}) + "\n")
 
         findings = check_contamination(
-            [str(train_f)], [str(eval_f)], n=13, min_overlap=1,
+            [str(train_f)],
+            [str(eval_f)],
+            n=13,
+            min_overlap=1,
         )
         assert len(findings) == 1
         assert findings[0]["overlap_count"] >= 1
@@ -141,7 +146,10 @@ class TestCheckContamination:
         eval_f.write_text(json.dumps({"text": "completely different content"}) + "\n")
 
         findings = check_contamination(
-            [str(train_f)], [str(eval_f)], n=13, min_overlap=1,
+            [str(train_f)],
+            [str(eval_f)],
+            n=13,
+            min_overlap=1,
         )
         assert findings == []
 
@@ -157,7 +165,10 @@ class TestCheckContamination:
         eval_f.write_text(json.dumps({"text": long_text}) + "\n")
 
         findings = check_contamination(
-            [str(train_f)], [str(eval_f)], n=13, min_overlap=999,
+            [str(train_f)],
+            [str(eval_f)],
+            n=13,
+            min_overlap=999,
         )
         assert findings == []
 
@@ -173,8 +184,10 @@ class TestMain:
         try:
             sys.argv = [
                 "check_contamination.py",
-                "--train-glob", str(train_f),
-                "--eval-glob", str(eval_f),
+                "--train-glob",
+                str(train_f),
+                "--eval-glob",
+                str(eval_f),
             ]
             rc = main()
         finally:
@@ -199,9 +212,12 @@ class TestMain:
         try:
             sys.argv = [
                 "check_contamination.py",
-                "--train-glob", str(train_f),
-                "--eval-glob", str(eval_f),
-                "--n", "13",
+                "--train-glob",
+                str(train_f),
+                "--eval-glob",
+                str(eval_f),
+                "--n",
+                "13",
             ]
             rc = main()
         finally:
@@ -210,14 +226,18 @@ class TestMain:
         assert rc == 1
 
     def test_zero_glob_match_warns_and_exits_0(
-        self, tmp_path: Path, capsys: pytest.CaptureFixture[str],
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture[str],
     ) -> None:
         old_argv = sys.argv
         try:
             sys.argv = [
                 "check_contamination.py",
-                "--train-glob", str(tmp_path / "does_not_exist*.jsonl"),
-                "--eval-glob", str(tmp_path / "also_not_there*.jsonl"),
+                "--train-glob",
+                str(tmp_path / "does_not_exist*.jsonl"),
+                "--eval-glob",
+                str(tmp_path / "also_not_there*.jsonl"),
             ]
             rc = main()
         finally:
@@ -239,12 +259,20 @@ class TestMain:
 
         train_f = tmp_path / "train.jsonl"
         train_f.write_text(
-            json.dumps({"messages": [
-                {"role": "user", "content": "this is unrelated synthetic text"},
-            ]}) + "\n"
+            json.dumps(
+                {
+                    "messages": [
+                        {"role": "user", "content": "this is unrelated synthetic text"},
+                    ]
+                }
+            )
+            + "\n"
         )
 
         findings = check_contamination(
-            [str(train_f)], [str(probes_path)], n=13, min_overlap=1,
+            [str(train_f)],
+            [str(probes_path)],
+            n=13,
+            min_overlap=1,
         )
         assert findings == []

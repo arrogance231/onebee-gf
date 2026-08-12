@@ -12,8 +12,7 @@ class JudgeVerdict(BaseModel):
 
 
 class Judge(Protocol):
-    def score_response(self, question: str, response: str, rubric: str) -> JudgeVerdict:
-        ...
+    def score_response(self, question: str, response: str, rubric: str) -> JudgeVerdict: ...
 
     def compare_pairwise(
         self,
@@ -22,8 +21,7 @@ class Judge(Protocol):
         response_b: str,
         rubric: str,
         order: Literal["AB", "BA"],
-    ) -> JudgeVerdict:
-        ...
+    ) -> JudgeVerdict: ...
 
 
 class FakeJudge:
@@ -56,9 +54,7 @@ class FakeJudge:
             justification = f"Response B ({len_b} words) is longer than A ({len_a} words)"
         else:
             score = 0.5
-            justification = (
-                f"Both responses have {len_a} words; tie broken to 0.5"
-            )
+            justification = f"Both responses have {len_a} words; tie broken to 0.5"
         return JudgeVerdict(score=score, justification=justification, order=order)
 
 

@@ -40,9 +40,7 @@ class BudgetBlock(BaseModel):
     value_score: float = 1.0
 
 
-def _truncate_content_at_newlines(
-    content: str, counter: TokenCounter, max_tokens: int
-) -> str:
+def _truncate_content_at_newlines(content: str, counter: TokenCounter, max_tokens: int) -> str:
     if not content:
         return ""
     lines = content.split("\n")
@@ -101,9 +99,7 @@ def allocate(
             log[f"kept_{block.name}"] = block.token_count
         else:
             if block.name in ("memories", "recent_turns") and remaining_budget > 0:
-                truncated = _truncate_content_at_newlines(
-                    block.content, counter, remaining_budget
-                )
+                truncated = _truncate_content_at_newlines(block.content, counter, remaining_budget)
                 new_token_count = counter.count(truncated) if truncated else 0
                 truncated_block = block.model_copy(
                     update={

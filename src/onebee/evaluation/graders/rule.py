@@ -47,9 +47,7 @@ def fuzzy_match(prediction: str, gold: str, threshold: float = 0.8) -> bool:
     return len(intersection) / len(union) >= threshold
 
 
-def entity_f1(
-    prediction_entities: list[str], gold_entities: list[str]
-) -> dict[str, float]:
+def entity_f1(prediction_entities: list[str], gold_entities: list[str]) -> dict[str, float]:
     pred_set = {e.lower().strip() for e in prediction_entities}
     gold_set = {e.lower().strip() for e in gold_entities}
     tp = len(pred_set & gold_set)
