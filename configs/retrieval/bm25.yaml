@@ -1,0 +1,10 @@
+name: bm25
+# Weights sum conceptually to 1.0; they are normalized at runtime.
+weights:
+  sim: 0.0
+  bm25: 1.0
+  recency: 0.0
+  importance: 0.0
+  confidence: 0.0
+  entity: 0.0
+k: 8

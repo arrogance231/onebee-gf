@@ -1,0 +1,6 @@
+name: full_3tier
+enabled: true
+tiers:
+  - short_term
+  - episodic
+  - semantic

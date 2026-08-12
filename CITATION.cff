@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software or its associated benchmark/data, please cite it as below."
+title: "onebee-gf: Stretching a 1B Parameter LLM Through Post-Training and External Cognitive Architecture"
+version: 0.0.0
+date-released: 2026-08-12
+authors:
+  - family-names: Arrochi
+url: "https://github.com/arrogance231/onebee-gf"
+license: Apache-2.0

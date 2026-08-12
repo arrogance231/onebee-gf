@@ -1,0 +1,5 @@
+name: qwen3_8b
+hf_repo: Qwen/Qwen3-8B
+revision: "main"
+chat_template: default
+dtype: bfloat16

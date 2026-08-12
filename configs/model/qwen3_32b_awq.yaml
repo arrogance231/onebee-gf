@@ -1,0 +1,5 @@
+name: qwen3_32b_awq
+hf_repo: Qwen/Qwen3-32B-AWQ
+revision: "main"
+chat_template: default
+dtype: float16

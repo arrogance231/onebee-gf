@@ -1,0 +1,13 @@
+name: full_10tier
+enabled: true
+tiers:
+  - short_term
+  - episodic
+  - semantic
+  - working
+  - profile
+  - relationship
+  - preference
+  - summary
+  - pattern
+  - reflection
