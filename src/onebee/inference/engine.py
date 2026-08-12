@@ -1,0 +1,282 @@
+from __future__ import annotations
+
+import time
+import warnings
+from typing import Protocol, runtime_checkable
+
+from pydantic import BaseModel
+
+
+class GenerationConfig(BaseModel):
+    temperature: float = 0.7
+    top_p: float = 0.9
+    top_k: int = 50
+    repetition_penalty: float = 1.05
+    max_new_tokens: int = 256
+    seed: int | None = None
+    deterministic: bool = False
+
+
+class GenerationResult(BaseModel):
+    text: str
+    prompt_tokens: int
+    completion_tokens: int
+    ttft_ms: float
+    total_ms: float
+    tokens_per_sec: float
+
+
+@runtime_checkable
+class Generator(Protocol):
+    @property
+    def name(self) -> str: ...
+
+    def load(self) -> None: ...
+
+    def generate(self, messages: list[dict], config: GenerationConfig) -> GenerationResult: ...
+
+    def apply_chat_template(self, messages: list[dict]) -> str: ...
+
+
+class HFEngine:
+    def __init__(
+        self,
+        model_name: str,
+        revision: str = "main",
+        dtype: str = "bf16",
+        device: str = "cuda",
+    ) -> None:
+        self.model_name = model_name
+        self.revision = revision
+        self.dtype = dtype
+        self.device = device
+        self._model = None
+        self._tokenizer = None
+        self._loaded = False
+
+    @property
+    def name(self) -> str:
+        return f"hf:{self.model_name}"
+
+    def load(self) -> None:
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            self.model_name, revision=self.revision
+        )
+        self._model = AutoModelForCausalLM.from_pretrained(
+            self.model_name,
+            revision=self.revision,
+            torch_dtype=getattr(torch, self.dtype),
+            device_map=self.device,
+        )
+        self._loaded = True
+
+    def apply_chat_template(self, messages: list[dict]) -> str:
+        if self._tokenizer is not None:
+            return self._tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
+
+        parts: list[str] = []
+        for msg in messages:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            parts.append(f"{role}: {content}")
+        return "\n".join(parts)
+
+    def generate(self, messages: list[dict], config: GenerationConfig) -> GenerationResult:
+        if not self._loaded or self._model is None or self._tokenizer is None:
+            raise RuntimeError(
+                "load() must be called before generate()"
+            )
+
+        import torch
+
+        if config.seed is not None:
+            torch.manual_seed(config.seed)
+
+        deterministic_ctx = None
+        if config.deterministic:
+            warnings.filterwarnings("ignore", category=UserWarning, module="torch")
+            deterministic_ctx = torch.use_deterministic_algorithms(True)
+
+        try:
+            prompt = self.apply_chat_template(messages)
+            inputs = self._tokenizer(prompt, return_tensors="pt")
+            inputs = {k: v.to(self.device) for k, v in inputs.items()}
+            prompt_tokens = inputs["input_ids"].shape[1]
+
+            do_sample = config.temperature > 0 and not config.deterministic
+
+            ttft_recorded = False
+            ttft_ms = 0.0
+            start_time = time.perf_counter()
+
+            first_forward = True
+            total_completion_tokens = 0
+
+            class FirstTokenCallback:
+                def __init__(self, parent):
+                    self.parent = parent
+
+                def __call__(self, input_ids, scores, **kwargs):
+                    nonlocal ttft_recorded, ttft_ms, first_forward, total_completion_tokens
+                    if first_forward:
+                        ttft_ms = (time.perf_counter() - start_time) * 1000.0
+                        ttft_recorded = True
+                        first_forward = False
+                    total_completion_tokens = input_ids.shape[1] - prompt_tokens
+
+            streamer = FirstTokenCallback(self)
+
+            gen_kwargs: dict = {
+                "max_new_tokens": config.max_new_tokens,
+                "do_sample": do_sample,
+                "temperature": config.temperature if do_sample else None,
+                "top_p": config.top_p if do_sample else None,
+                "top_k": config.top_k if do_sample else None,
+                "repetition_penalty": config.repetition_penalty,
+                "pad_token_id": self._tokenizer.eos_token_id,
+            }
+
+            gen_kwargs = {k: v for k, v in gen_kwargs.items() if v is not None}
+
+            with torch.no_grad():
+                output_ids = self._model.generate(**inputs, **gen_kwargs)
+
+            if not ttft_recorded:
+                ttft_ms = (time.perf_counter() - start_time) * 1000.0
+
+            total_ms = (time.perf_counter() - start_time) * 1000.0
+            completion_tokens = output_ids.shape[1] - prompt_tokens
+
+            generated_text = self._tokenizer.decode(
+                output_ids[0, prompt_tokens:], skip_special_tokens=True
+            )
+
+            tokens_per_sec = completion_tokens / (total_ms / 1000.0) if total_ms > 0 else 0.0
+
+            return GenerationResult(
+                text=generated_text,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                ttft_ms=ttft_ms,
+                total_ms=total_ms,
+                tokens_per_sec=tokens_per_sec,
+            )
+        finally:
+            if deterministic_ctx is not None:
+                deterministic_ctx.__exit__(None, None, None)
+
+
+class LlamaCppEngine:
+    def __init__(
+        self,
+        model_path: str,
+        n_ctx: int = 4096,
+        n_gpu_layers: int = -1,
+    ) -> None:
+        self.model_path = model_path
+        self.n_ctx = n_ctx
+        self.n_gpu_layers = n_gpu_layers
+        self._llm = None
+        self._loaded = False
+
+    @property
+    def name(self) -> str:
+        return f"llama-cpp:{self.model_path}"
+
+    def load(self) -> None:
+        import os
+
+        from llama_cpp import Llama
+
+        if not os.path.isfile(self.model_path):
+            raise FileNotFoundError(
+                f"Model file not found at: {self.model_path}"
+            )
+
+        self._llm = Llama(
+            model_path=self.model_path,
+            n_ctx=self.n_ctx,
+            n_gpu_layers=self.n_gpu_layers,
+            verbose=False,
+        )
+        self._loaded = True
+
+    def apply_chat_template(self, messages: list[dict]) -> str:
+        parts: list[str] = []
+        for msg in messages:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            parts.append(f"{role}: {content}")
+        return "\n".join(parts)
+
+    def generate(self, messages: list[dict], config: GenerationConfig) -> GenerationResult:
+        if not self._loaded or self._llm is None:
+            raise RuntimeError(
+                "load() must be called before generate()"
+            )
+
+        import os
+
+        if not os.path.isfile(self.model_path):
+            raise FileNotFoundError(
+                f"Model file not found at: {self.model_path}"
+            )
+
+        prompt = self.apply_chat_template(messages)
+
+        prompt_tokens = 0
+        completion_tokens = 0
+        ttft_ms = 0.0
+        ttft_recorded = False
+
+        start_time = time.perf_counter()
+
+        completion = self._llm.create_chat_completion(
+            messages=messages,
+            max_tokens=config.max_new_tokens,
+            temperature=config.temperature if not config.deterministic else 0.0,
+            top_p=config.top_p,
+            top_k=config.top_k,
+            repeat_penalty=config.repetition_penalty,
+            seed=config.seed if config.seed is not None else -1,
+            stream=True,
+        )
+
+        text_parts: list[str] = []
+        for chunk in completion:
+            if not ttft_recorded:
+                ttft_ms = (time.perf_counter() - start_time) * 1000.0
+                ttft_recorded = True
+
+            choices = chunk.get("choices", [])
+            if choices:
+                delta = choices[0].get("delta", {})
+                content = delta.get("content", "")
+                if content:
+                    text_parts.append(content)
+
+            usage = chunk.get("usage")
+            if usage:
+                prompt_tokens = usage.get("prompt_tokens", 0)
+                completion_tokens = usage.get("completion_tokens", len(text_parts))
+
+        total_ms = (time.perf_counter() - start_time) * 1000.0
+
+        if completion_tokens == 0:
+            completion_tokens = len(text_parts)
+
+        tokens_per_sec = completion_tokens / (total_ms / 1000.0) if total_ms > 0 else 0.0
+
+        return GenerationResult(
+            text="".join(text_parts),
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            ttft_ms=ttft_ms,
+            total_ms=total_ms,
+            tokens_per_sec=tokens_per_sec,
+        )
