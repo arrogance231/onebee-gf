@@ -1,0 +1,182 @@
+{
+  "persona": {
+    "persona_id": "p000",
+    "name": "Alice",
+    "description": "Alice is a optimistic and cautious and creative and curious and spontaneous person.",
+    "traits": [
+      "optimistic",
+      "cautious",
+      "creative",
+      "curious",
+      "spontaneous"
+    ],
+    "fact_sheet": [
+      {
+        "fact_id": "p000_f000",
+        "subject": "p000",
+        "predicate": "company",
+        "object": "Stripe",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p000_f001",
+        "subject": "p000",
+        "predicate": "attended a conference",
+        "object": "SIGGRAPH",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p000_f002",
+        "subject": "p000",
+        "predicate": "adopted a pet",
+        "object": "a parrot",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p000_f003",
+        "subject": "p000",
+        "predicate": "job",
+        "object": "designer",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p000_f004",
+        "subject": "p000",
+        "predicate": "age",
+        "object": "45",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p000_f005",
+        "subject": "p000",
+        "predicate": "wake-up time",
+        "object": "8:30 AM",
+        "category": "temporal"
+      },
+      {
+        "fact_id": "p000_f006",
+        "subject": "p000",
+        "predicate": "favorite food",
+        "object": "dumplings",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p000_f007",
+        "subject": "p000",
+        "predicate": "graduated from",
+        "object": "Cambridge",
+        "category": "episodic"
+      }
+    ]
+  },
+  "sessions": [
+    {
+      "session_id": "p000_s000",
+      "persona_id": "p000",
+      "turns": [
+        {
+          "turn_id": "p000_s000_t000",
+          "session_id": "p000_s000",
+          "role": "user",
+          "text": "I like dumplings for favorite food. I have wake-up time on 8:30 AM.",
+          "ts": 0,
+          "revealed_fact_ids": [
+            "p000_f006",
+            "p000_f005"
+          ]
+        },
+        {
+          "turn_id": "p000_s000_t001",
+          "session_id": "p000_s000",
+          "role": "assistant",
+          "text": "That makes sense, Alice.",
+          "ts": 60,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p000_s000_t002",
+          "session_id": "p000_s000",
+          "role": "user",
+          "text": "I job designer. I have company Stripe.",
+          "ts": 120,
+          "revealed_fact_ids": [
+            "p000_f003",
+            "p000_f000"
+          ]
+        },
+        {
+          "turn_id": "p000_s000_t003",
+          "session_id": "p000_s000",
+          "role": "assistant",
+          "text": "Noted, Alice!",
+          "ts": 180,
+          "revealed_fact_ids": []
+        }
+      ]
+    },
+    {
+      "session_id": "p000_s001",
+      "persona_id": "p000",
+      "turns": [
+        {
+          "turn_id": "p000_s001_t000",
+          "session_id": "p000_s001",
+          "role": "user",
+          "text": "Last time, I attended a conference SIGGRAPH. Recently, I adopted a pet a parrot.",
+          "ts": 100000,
+          "revealed_fact_ids": [
+            "p000_f001",
+            "p000_f002"
+          ]
+        },
+        {
+          "turn_id": "p000_s001_t001",
+          "session_id": "p000_s001",
+          "role": "assistant",
+          "text": "Got it, Alice. I will keep that in mind.",
+          "ts": 100060,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p000_s001_t002",
+          "session_id": "p000_s001",
+          "role": "user",
+          "text": "I age 45. Last time, I graduated from Cambridge.",
+          "ts": 100120,
+          "revealed_fact_ids": [
+            "p000_f004",
+            "p000_f007"
+          ]
+        },
+        {
+          "turn_id": "p000_s001_t003",
+          "session_id": "p000_s001",
+          "role": "assistant",
+          "text": "Got it, Alice. I will keep that in mind.",
+          "ts": 100180,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p000_s1_t099",
+          "session_id": "p000_s001",
+          "role": "user",
+          "text": "Update: my age is now scientist.",
+          "ts": 100240,
+          "revealed_fact_ids": [
+            "p000_f004"
+          ]
+        },
+        {
+          "turn_id": "p000_s1_t099",
+          "session_id": "p000_s001",
+          "role": "user",
+          "text": "Actually, my attended a conference changed. It is now Bangkok.",
+          "ts": 100300,
+          "revealed_fact_ids": [
+            "p000_f001"
+          ]
+        }
+      ]
+    }
+  ]
+}
