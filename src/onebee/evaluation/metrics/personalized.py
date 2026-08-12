@@ -1,0 +1,97 @@
+from __future__ import annotations
+
+from typing import Literal
+
+from pydantic import BaseModel
+
+from onebee.evaluation.graders.judge import Judge
+from onebee.evaluation.graders.rule import detect_abstention, exact_match
+
+
+class Probe(BaseModel):
+    probe_id: str
+    persona_id: str
+    question: str
+    gold_answer: str
+    gold_supporting_memory_ids: list[str]
+    category: Literal[
+        "factual",
+        "preference",
+        "episodic",
+        "temporal",
+        "unanswerable",
+        "outdated_fact",
+        "distractor",
+        "continuity",
+    ]
+    answerable: bool
+    acceptable_alternatives: list[str] = []
+
+
+class ProbeResult(BaseModel):
+    probe: Probe
+    response: str
+    retrieved_memory_ids: list[str] = []
+    strict_correct: bool
+    lenient_correct: bool | None = None
+    abstained: bool
+
+
+def pra_strict(results: list[ProbeResult]) -> float:
+    answerable = [r for r in results if r.probe.answerable]
+    if not answerable:
+        return 0.0
+    return sum(1 for r in answerable if r.strict_correct) / len(answerable)
+
+
+def pra_lenient(results: list[ProbeResult]) -> float:
+    answerable = [r for r in results if r.probe.answerable]
+    if not answerable:
+        return 0.0
+    n_correct = 0
+    for r in answerable:
+        if r.lenient_correct is True:
+            n_correct += 1
+        elif r.lenient_correct is None and r.strict_correct:
+            n_correct += 1
+    return n_correct / len(answerable)
+
+
+def uar(results: list[ProbeResult]) -> float:
+    unanswerable = [r for r in results if not r.probe.answerable]
+    if not unanswerable:
+        return 0.0
+    return sum(1 for r in unanswerable if r.abstained) / len(unanswerable)
+
+
+def score_probe(
+    probe: Probe,
+    response: str,
+    retrieved_memory_ids: list[str],
+    judge: Judge | None = None,
+) -> ProbeResult:
+    strict_correct = exact_match(response, probe.gold_answer) or any(
+        exact_match(response, alt) for alt in probe.acceptable_alternatives
+    )
+    abstained = detect_abstention(response)
+
+    lenient_correct: bool | None = None
+    if judge is not None and probe.answerable:
+        rubric = (
+            f"Question: {probe.question}\n"
+            f"Gold answer: {probe.gold_answer}\n"
+            f"Acceptable alternatives: {', '.join(probe.acceptable_alternatives)}"
+            if probe.acceptable_alternatives
+            else ""
+        )
+        verdict = judge.score_response(probe.question, response, rubric)
+        lenient_correct = verdict.score >= 3.0
+
+    return ProbeResult(
+        probe=probe,
+        response=response,
+        retrieved_memory_ids=retrieved_memory_ids,
+        strict_correct=strict_correct,
+        lenient_correct=lenient_correct,
+        abstained=abstained,
+    )
