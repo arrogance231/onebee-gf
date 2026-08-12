@@ -1,0 +1,184 @@
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from typing import Any, Callable
+
+import yaml
+from pydantic import BaseModel
+
+
+class SFTConfig(BaseModel):
+    base_model: str
+    base_model_revision: str = "main"
+    train_file: str
+    val_file: str
+    output_dir: str
+    lora_r: int = 16
+    lora_alpha: int = 32
+    lora_dropout: float = 0.05
+    lora_target_modules: str = "all-linear"
+    learning_rate: float = 1e-4
+    lr_scheduler_type: str = "cosine"
+    warmup_ratio: float = 0.03
+    num_train_epochs: float = 2.0
+    max_seq_length: int = 2048
+    per_device_train_batch_size: int = 8
+    gradient_accumulation_steps: int = 4
+    bf16: bool = True
+    packing: bool = False
+    neftune_noise_alpha: float | None = None
+    seed: int = 1337
+    report_to: str = "wandb"
+    run_name: str | None = None
+
+
+def load_sft_config(path: str) -> SFTConfig:
+    with open(path) as f:
+        raw = yaml.safe_load(f)
+    return SFTConfig(**raw)
+
+
+def effective_batch_size(config: SFTConfig, num_devices: int = 1) -> int:
+    return config.per_device_train_batch_size * config.gradient_accumulation_steps * num_devices
+
+
+def build_lora_config(config: SFTConfig):
+    from peft import LoraConfig
+
+    # "all-linear" is supported directly by recent peft versions as a single string.
+    # Any other value is treated as a comma-separated list of module names.
+    if config.lora_target_modules == "all-linear":
+        target_modules: str | list[str] = "all-linear"
+    else:
+        target_modules = [m.strip() for m in config.lora_target_modules.split(",")]
+
+    return LoraConfig(
+        r=config.lora_r,
+        lora_alpha=config.lora_alpha,
+        lora_dropout=config.lora_dropout,
+        target_modules=target_modules,
+        task_type="CAUSAL_LM",
+    )
+
+
+def build_training_arguments(config: SFTConfig):
+    from transformers import TrainingArguments
+
+    return TrainingArguments(
+        output_dir=config.output_dir,
+        learning_rate=config.learning_rate,
+        lr_scheduler_type=config.lr_scheduler_type,
+        warmup_ratio=config.warmup_ratio,
+        num_train_epochs=config.num_train_epochs,
+        per_device_train_batch_size=config.per_device_train_batch_size,
+        gradient_accumulation_steps=config.gradient_accumulation_steps,
+        bf16=config.bf16,
+        seed=config.seed,
+        report_to=[config.report_to],
+        run_name=config.run_name,
+    )
+
+
+def _load_jsonl(path: str) -> list[dict]:
+    data: list[dict] = []
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                data.append(json.loads(line))
+    return data
+
+
+def run_sft(
+    config: SFTConfig,
+    dry_run: bool = False,
+    model_loader: Callable[[str, str], Any] | None = None,
+    tokenizer_loader: Callable[[str, str], Any] | None = None,
+    trainer_factory: Callable[..., Any] | None = None,
+) -> None:
+    if model_loader is None:
+
+        def model_loader(model_name: str, revision: str):
+            import torch
+            from transformers import AutoModelForCausalLM
+
+            return AutoModelForCausalLM.from_pretrained(
+                model_name, revision=revision, torch_dtype=torch.bfloat16
+            )
+
+    if tokenizer_loader is None:
+
+        def tokenizer_loader(model_name: str, revision: str):
+            from transformers import AutoTokenizer
+
+            tokenizer = AutoTokenizer.from_pretrained(model_name, revision=revision)
+            if tokenizer.pad_token_id is None:
+                tokenizer.pad_token_id = tokenizer.eos_token_id
+            return tokenizer
+
+    if trainer_factory is None:
+
+        def trainer_factory(**kwargs):
+            from trl import SFTTrainer
+
+            return SFTTrainer(**kwargs)
+
+    model = model_loader(config.base_model, config.base_model_revision)
+    tokenizer = tokenizer_loader(config.base_model, config.base_model_revision)
+
+    # Note: JSONL loading via stdlib json — a Week-1 simplification vs. using HF
+    # datasets for streaming or larger corpora later.
+    train_dataset = _load_jsonl(config.train_file)
+    val_dataset = _load_jsonl(config.val_file)
+
+    lora_config = build_lora_config(config)
+    training_args = build_training_arguments(config)
+
+    def formatting_func(example):
+        messages = example["messages"]
+        return tokenizer.apply_chat_template(messages, tokenize=False)
+
+    trainer = trainer_factory(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=val_dataset,
+        formatting_func=formatting_func,
+        tokenizer=tokenizer,
+        peft_config=lora_config,
+        max_seq_length=config.max_seq_length,
+        packing=config.packing,
+        neftune_noise_alpha=config.neftune_noise_alpha,
+    )
+
+    if dry_run:
+        return
+
+    trainer.train()
+    trainer.save_model(os.path.join(config.output_dir, "adapter"))
+    merged_model = trainer.model.merge_and_unload()
+    merged_model.save_pretrained(os.path.join(config.output_dir, "merged"))
+    tokenizer.save_pretrained(os.path.join(config.output_dir, "merged"))
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="SFT training")
+    parser.add_argument("--config", required=True, help="Path to YAML SFT config file")
+    parser.add_argument("--dry-run", action="store_true", help="Build everything but skip training")
+    parser.add_argument("--output-dir", default=None, help="Override output_dir from config")
+    return parser
+
+
+def main() -> None:
+    parser = _build_parser()
+    args = parser.parse_args()
+    config = load_sft_config(args.config)
+    if args.output_dir:
+        config.output_dir = args.output_dir
+    run_sft(config, dry_run=args.dry_run)
+
+
+if __name__ == "__main__":
+    main()

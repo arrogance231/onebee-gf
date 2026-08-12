@@ -1,0 +1,23 @@
+# Base model: placeholder pending Day-1 bake-off decision.
+base_model: "Qwen/Qwen3-1.7B-Instruct"
+base_model_revision: "main"
+train_file: "data/sft/v0/train.jsonl"
+val_file: "data/sft/v0/val.jsonl"
+output_dir: "outputs/sft/v0"
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_modules: "all-linear"
+learning_rate: 1e-4
+lr_scheduler_type: "cosine"
+warmup_ratio: 0.03
+num_train_epochs: 2.0
+max_seq_length: 2048
+per_device_train_batch_size: 8
+gradient_accumulation_steps: 4
+bf16: true
+packing: false
+neftune_noise_alpha: null
+seed: 1337
+report_to: "wandb"
+run_name: null
