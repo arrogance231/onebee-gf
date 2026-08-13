@@ -122,3 +122,20 @@ so results can be traced back to the question they answer.
   now.
 - Image-derived memory tiers (RQ13's second half): captioning-then-storing images as retrievable
   memory, not just answering about an image in the same turn.
+- **Full companion persona card (design note, not yet built).** The companion must read as an
+  actual person, not a generic assistant — the persona card
+  (`src/onebee/context/render.py::render_persona_card`, currently just `name`/`description`/
+  `traits`) needs to expand into a comprehensive human-identity schema: things like age,
+  appearance, favorite color, hobbies/interests, personality quirks, speech style/verbal tics,
+  backstory, family/friends she'd reference, values, and boundaries — the same category of
+  fields a real person would have, not a feature list. This is a distinct concept from the
+  existing PMB `Persona` model in `src/onebee/data/personas.py`, which represents the *user's*
+  synthetic identity for benchmark construction — this new schema is the *companion's own*
+  identity, always-injected (like Tier 5 user-profile memory, bounded token budget) rather than
+  retrieved. **Critically, this can't be a card that's merely present in context — the system
+  must be measured against actually staying consistent with it.** That's not a new concept: it's
+  exactly what H6 (preference optimization improves persona consistency) and H13 (explicit state
+  improves cross-session consistency) and the PCS/PCS-stylometric metrics
+  (`00_RESEARCH_DESIGN.md` definitions, to be implemented in
+  `src/onebee/evaluation/metrics/`) already exist to test — so building the rich persona schema
+  and holding the model to it via PCS evaluation should land together, not the schema alone.
