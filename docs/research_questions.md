@@ -1,5 +1,20 @@
 # Research questions and hypotheses
 
+## Design constraint: multi-year persona persistence
+
+The workload this project stress-tests is a persistent AI-companion persona expected to hold
+its character, relationship history, and emotional continuity across **years** of conversation
+— on the order of millions of tokens of cumulative interaction, none of which can live in the
+1B model's context window at once. This is why the project's central bet (RQ0/RQ1) is
+externalizing that continuity into memory/retrieval/state rather than relying on parametric
+capacity or brute-force context length: no context window realistically holds years of a
+relationship, so the system's ability to compress, retrieve, and reconstruct the *relevant
+slice* of that history per turn — accurately, without fabrication (FMR), and without drifting
+persona (PCS) — is the actual product being evaluated, not raw dialogue fluency. This shapes
+every benchmark and prompt set in this repo: dialogue evaluation prioritizes emotional
+attunement and relationship-memory recall over generic chit-chat or trivia (see
+`scripts/model_bakeoff.py`'s prompt categories).
+
 ## Primary research question
 
 **RQ0.** To what extent can post-training, external memory, retrieval, state modeling,

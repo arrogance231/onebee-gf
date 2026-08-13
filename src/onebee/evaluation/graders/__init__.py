@@ -7,6 +7,7 @@ from onebee.evaluation.graders.judge import (
     dual_order_score,
 )
 from onebee.evaluation.graders.nli import FakeNLI, NLIChecker, NLILabel
+from onebee.evaluation.graders.openai_judge import OpenAIJudge
 from onebee.evaluation.graders.rule import (
     detect_abstention,
     entity_f1,
@@ -22,6 +23,7 @@ __all__ = [
     "JudgeVerdict",
     "NLIChecker",
     "NLILabel",
+    "OpenAIJudge",
     "detect_abstention",
     "dual_order_score",
     "entity_f1",
