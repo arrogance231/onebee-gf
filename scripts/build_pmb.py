@@ -730,8 +730,12 @@ def _write_output(
             f"**not yet human-reviewed** — conversations and probes should be "
             f"spot-checked by a human before being treated as production-quality "
             f"reference data.\n"
-            f"- This run ({n_personas} personas) may not be the full v0 benchmark "
-            f"(target: 8 personas).\n"
+            + (
+                f"- This run ({n_personas} personas) is below the target scale of 8 "
+                f"personas.\n"
+                if n_personas < 8
+                else ""
+            )
         )
     else:
         limitations = (
