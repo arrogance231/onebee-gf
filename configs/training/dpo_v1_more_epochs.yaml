@@ -1,0 +1,12 @@
+# Same data as dpo.yaml (v0's 223 pairs) but more epochs — v0's DPO training-time
+# signal was still climbing strongly at epoch-1 end (reward accuracy 71%->92.5%,
+# margins still growing), and the real held-out eval was inconclusive with only 25
+# training steps. This config tests whether more thorough training on the SAME data
+# (no new API calls needed) produces a distinguishable H6 result, before concluding
+# DPO "doesn't help" vs "wasn't trained enough" at v0 data scale.
+base_model: "outputs/sft/v0/merged"
+base_model_revision: "main"
+train_file: "data/dpo/v0/train.jsonl"
+val_file: "data/dpo/v0/val.jsonl"
+output_dir: "outputs/dpo/v1"
+num_train_epochs: 4.0
