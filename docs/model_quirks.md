@@ -87,6 +87,35 @@ All tok/s numbers above are from a single unoptimized `max_new_tokens=48` genera
 real latency bench (`inference/bench.py`, still pending) — treat as rough signal only, not a
 result.
 
+## Day 3 findings: System D (memory-augmented) wiring
+
+8. **`MemoryStore.search()`'s FTS5 query crashed on real questions.** Fixed in
+   `src/onebee/memory/store.py` via `_sanitize_fts_query()` — see that commit's message for
+   detail. Any natural-language query with `?`, `'`, `-`, `:` would crash before this fix.
+
+9. **A flat single-message prompt (persona + memories + question all as one "user" turn) gets
+   ignored by the raw model — it needs real `system`/`user` role separation.** First System D
+   smoke test: the exact correct memory ("Alice is a designer at Stripe.") was retrieved at
+   rank 1 and correctly present in the assembled context string, but `gemma4-e2b` still
+   answered "I am a large language model, developed by Google DeepMind" — it wasn't reading
+   the context as something to *use*, just as more text. Fixed by sending the persona+memories
+   block as a `system` message and the actual question as a separate `user` message (see
+   `run_system_d.py`'s `response_fn`).
+
+10. **Even with proper system/user roles, the raw (non-SFT) model conflates "you" in a
+    companion-framed question with itself, not the user.** "What company do you work for?"
+    got answered as if asking about the AI ("I am a large language model...") rather than the
+    user, even with the correct fact in context — because nothing tells the model that
+    second-person companion-style questions are usually the user asking to be told about
+    *themselves*. Mitigated (not fully solved) with an explicit system-prompt instruction
+    ("questions addressed to 'you' are usually asking you to recall something about THEM, not
+    about yourself") — this measurably improved behavior (correct recall when relevant memory
+    was retrieved, honest abstention rather than confabulation when it wasn't) but is not
+    perfect. **This is treated as a real, reportable finding, not chased to perfection** — it's
+    exactly the kind of raw-model limitation Day 4's memory-aware SFT (H5) is hypothesized to
+    fix. Further prompt-format tuning belongs to the Week 2+ context-format ablation (H19), not
+    this pass.
+
 ## How to re-run these smoke tests
 
 ```bash
