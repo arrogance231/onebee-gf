@@ -116,6 +116,38 @@ result.
     fix. Further prompt-format tuning belongs to the Week 2+ context-format ablation (H19), not
     this pass.
 
+## Day 4 findings: LoRA SFT training on real trl/transformers versions
+
+11. **`transformers.TrainingArguments` dropped `warmup_ratio` entirely** in this environment's
+    version (5.15.0) — raises `TypeError: unexpected keyword argument 'warmup_ratio'`. Fixed in
+    `build_training_arguments()`: tries `warmup_ratio` first, falls back to computing an
+    equivalent `warmup_steps` from `num_training_examples` on `TypeError`.
+
+12. **Modern `trl.SFTTrainer` restructured its API**: (a) `tokenizer=` kwarg renamed to
+    `processing_class=`; (b) SFT-specific fields (`max_seq_length`→`max_length`, `packing`,
+    `neftune_noise_alpha`) moved from `SFTTrainer.__init__` kwargs into `trl.SFTConfig` (a
+    `TrainingArguments` subclass) passed as `args=`; (c) `train_dataset`/`eval_dataset` must be
+    a real `datasets.Dataset`, not a plain list of dicts. All three fixed in `run_sft`'s default
+    `trainer_factory` — the function's own kwargs contract (what injectable-fake tests assert
+    on) is unchanged, only the real-trl adaptation inside the default factory changed. See the
+    "Fix SFTTrainer TypeError" and "Convert train/eval datasets" commits.
+
+13. **Saving a merged multimodal SFT checkpoint via `tokenizer.save_pretrained()` alone silently
+    drops vision capability.** The merged model directory was missing `preprocessor_config.json`
+    — `HFEngine` loading it fell back to text-only with a warning. Fixed: also save the full
+    `AutoProcessor` (not just the tokenizer) when the base model has one. **If a future merged
+    checkpoint loads as text-only unexpectedly, check for this exact regression first** —
+    `engine._is_multimodal` should be `True` after loading a merged multimodal SFT checkpoint.
+
+14. **A LoRA-tuned model is sensitive to *exact* prompt formatting matching its training
+    distribution — this is expected behavior, not a bug, but easy to mistake for one.** The
+    Day-4 SFT adapter answered a companion-framed question correctly when tested with the exact
+    `ContextBuilder`-produced system prompt (same shape as training data), but answered "I am a
+    large language model, trained by Google" when tested with a hand-written system prompt
+    conveying the same *content* in different *wording/structure*. Always sanity-test a trained
+    checkpoint using the exact same context-assembly code path it saw during training/eval, not
+    an ad-hoc paraphrase — a wrong-looking result may just be a format mismatch.
+
 ## How to re-run these smoke tests
 
 ```bash
