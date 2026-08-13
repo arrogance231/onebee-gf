@@ -457,17 +457,21 @@ def _mk_fact_sheet(persona_id: str, rng: random.Random, n_facts: int) -> list[Fa
     templates = list(FACT_POOL)
     rng.shuffle(templates)
     entries: list[FactSheetEntry] = []
-    used_predicates: set[str] = set()
 
     for i in range(n_facts):
         idx = i % len(templates)
         tmpl = templates[idx]
+        # NOTE: when n_facts exceeds len(templates), the same predicate template
+        # repeats. A past version disambiguated by appending "_{i}" directly to the
+        # predicate STRING (e.g. "favorite food_30"), which corrupted the natural-
+        # language predicate everywhere it's used — conversation text, corrections,
+        # and probe questions all inherited the mangled text (caught via a real
+        # memory-extraction run where the corrupted string ended up verbatim in an
+        # extracted memory). Predicates are allowed to repeat across facts instead;
+        # fact_id remains unique so nothing downstream actually depends on
+        # predicate uniqueness.
         predicate = tmpl["predicate"]
-        if predicate in used_predicates:
-            predicate = f"{predicate}_{i}"
-
         obj = rng.choice(tmpl["objects"])
-        used_predicates.add(predicate)
 
         entries.append(
             FactSheetEntry(
