@@ -449,8 +449,10 @@ class TestShippedConfig:
             _os.path.dirname(__file__), "..", "..", "configs", "training", "sft.yaml"
         )
         cfg = load_sft_config(cfg_path)
-        assert cfg.base_model == "Qwen/Qwen3-1.7B-Instruct"
-        assert cfg.base_model_revision == "main"
+        # Pinned to the real Day-1 bake-off winner (docs/adr/0001-model-selection.md),
+        # not the pre-bake-off placeholder.
+        assert cfg.base_model == "google/gemma-4-E2B-it"
+        assert cfg.base_model_revision == "3e22461f65e89153144f8adb70e3b8c2cc9845a7"
         assert cfg.lora_r == 16
         assert cfg.lora_alpha == 32
         assert cfg.lora_dropout == 0.05
@@ -460,11 +462,13 @@ class TestShippedConfig:
         assert cfg.warmup_ratio == 0.03
         assert cfg.num_train_epochs == 2.0
         assert cfg.max_seq_length == 2048
-        assert cfg.per_device_train_batch_size == 8
-        assert cfg.gradient_accumulation_steps == 4
+        # Smaller than the doc's 8k-example-scale default (8/4) — the real Day-4
+        # dataset is only 202 train examples; see configs/training/sft.yaml's comment.
+        assert cfg.per_device_train_batch_size == 4
+        assert cfg.gradient_accumulation_steps == 2
         assert cfg.bf16 is True
         assert cfg.packing is False
         assert cfg.neftune_noise_alpha is None
         assert cfg.seed == 1337
-        assert cfg.report_to == "wandb"
+        assert cfg.report_to == "none"
         assert cfg.run_name is None

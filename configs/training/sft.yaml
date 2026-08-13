@@ -1,6 +1,6 @@
-# Base model: placeholder pending Day-1 bake-off decision.
-base_model: "Qwen/Qwen3-1.7B-Instruct"
-base_model_revision: "main"
+# Day-1 bake-off winner (docs/adr/0001-model-selection.md), pinned revision.
+base_model: "google/gemma-4-E2B-it"
+base_model_revision: "3e22461f65e89153144f8adb70e3b8c2cc9845a7"
 train_file: "data/sft/v0/train.jsonl"
 val_file: "data/sft/v0/val.jsonl"
 output_dir: "outputs/sft/v0"
@@ -13,11 +13,15 @@ lr_scheduler_type: "cosine"
 warmup_ratio: 0.03
 num_train_epochs: 2.0
 max_seq_length: 2048
-per_device_train_batch_size: 8
-gradient_accumulation_steps: 4
+# Smaller batch than the doc's 8k-example target (per_device=8, grad_accum=4) — this v0
+# dataset is only 202 train examples (Day 4's real run, not the ~6-10k target scale; see
+# data/sft/v0/DATASHEET.md), so a smaller effective batch gives more gradient steps.
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 2
 bf16: true
 packing: false
 neftune_noise_alpha: null
 seed: 1337
-report_to: "wandb"
+# wandb not authenticated on the training box — log to stdout only for this run.
+report_to: "none"
 run_name: null

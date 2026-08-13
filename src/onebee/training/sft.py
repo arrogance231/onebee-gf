@@ -105,9 +105,21 @@ def run_sft(
             import torch
             from transformers import AutoModelForCausalLM
 
-            return AutoModelForCausalLM.from_pretrained(
-                model_name, revision=revision, torch_dtype=torch.bfloat16
-            )
+            # Multimodal models (e.g. gemma4-e2b) need AutoModelForImageTextToText,
+            # not AutoModelForCausalLM (same fix as HFEngine.load(), see
+            # docs/model_quirks.md #3) — try it first, fall back for text-only models.
+            # `dtype` (not the deprecated `torch_dtype`) per transformers 5.15.0+
+            # (docs/model_quirks.md #2).
+            try:
+                from transformers import AutoModelForImageTextToText
+
+                return AutoModelForImageTextToText.from_pretrained(
+                    model_name, revision=revision, dtype=torch.bfloat16
+                )
+            except Exception:
+                return AutoModelForCausalLM.from_pretrained(
+                    model_name, revision=revision, dtype=torch.bfloat16
+                )
 
     if tokenizer_loader is None:
 
