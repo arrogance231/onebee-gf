@@ -1,0 +1,37 @@
+{
+  "engine": "hf:google/gemma-4-E2B-it",
+  "results": [
+    {
+      "context_length": 512,
+      "batch_size": 1,
+      "ttft_ms": 215.29300566665674,
+      "prefill_tok_s": 17562.238498225663,
+      "decode_tok_s": 50.45067482060233,
+      "peak_vram_mb": 9841.7392578125
+    },
+    {
+      "context_length": 1024,
+      "batch_size": 1,
+      "ttft_ms": 28.445884666628746,
+      "prefill_tok_s": 23833.177440182728,
+      "decode_tok_s": 50.261064883189135,
+      "peak_vram_mb": 9914.9052734375
+    },
+    {
+      "context_length": 2048,
+      "batch_size": 1,
+      "ttft_ms": 44.97077233342376,
+      "prefill_tok_s": 28493.889257310268,
+      "decode_tok_s": 49.617927658635345,
+      "peak_vram_mb": 10066.79931640625
+    },
+    {
+      "context_length": 4096,
+      "batch_size": 1,
+      "ttft_ms": 100.16724999968574,
+      "prefill_tok_s": 26386.472902504287,
+      "decode_tok_s": 48.120424159616306,
+      "peak_vram_mb": 10359.4755859375
+    }
+  ]
+}
