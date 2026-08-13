@@ -5,12 +5,32 @@ Measured throughput numbers go here, not spec sheets — this file is populated 
 
 ## Training / inference workstation
 
+Remote GPU rental box, provisioned 2026-08-13.
+
 | Field | Value |
 |---|---|
-| GPU | RTX PRO 6000 Blackwell (96 GB GDDR7) |
-| CUDA | TBD — record `nvidia-smi` output and driver/CUDA version on first bench run |
-| Measured TFLOPs (30s matmul bench) | TBD |
-| PyTorch build | TBD |
+| GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
+| GPU memory | 97,887 MiB (~96 GB GDDR7) |
+| GPU UUID | `GPU-afc5b5be-a181-3c3a-45d5-55f9263f000e` |
+| Board part number | 900-2G153-0000-000 |
+| VBIOS version | 98.02.AF.00.01 |
+| Driver version | 580.173.02 |
+| CUDA version (driver-reported) | 13.0 |
+| CUDA toolkit (`nvcc`) | not installed — pending Day 1 environment setup |
+| MIG mode | Disabled |
+| Virtualization mode | Pass-Through |
+| Persistence mode | Enabled |
+| CPU | AMD EPYC 9555, 30 vCPUs on-line, 1 thread/core |
+| System RAM | 88 GiB total, 87 GiB free at provisioning |
+| Disk | 145 GB total, 114 GB free at provisioning |
+| OS | Ubuntu 24.04.4 LTS |
+| Kernel | 6.8.0-137-generic |
+| Measured TFLOPs (30s matmul bench) | TBD — pending `inference/bench.py` run |
+| PyTorch build | TBD — pending `gpu` extra install |
+
+Notes: on first connect, `nvidia-smi` failed with a driver/library version mismatch (stale
+kernel modules vs. a newer installed driver package, plus a pending kernel upgrade); resolved
+by rebooting the box. `nvidia-smi` confirmed working post-reboot with the values above.
 
 ## Mobile test device
 
