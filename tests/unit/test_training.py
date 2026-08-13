@@ -51,6 +51,26 @@ def _make_fake_transformers_module():
     return fake_tr
 
 
+def _make_fake_transformers_module_no_warmup_ratio():
+    """Mimics transformers 5.15.0, which dropped warmup_ratio from TrainingArguments
+    (docs/model_quirks.md) — raises TypeError on that kwarg, accepts warmup_steps."""
+    fake_tr = mock.MagicMock()
+
+    class FakeTrainingArgumentsNoRatio:
+        def __init__(self, **kwargs):
+            if "warmup_ratio" in kwargs:
+                raise TypeError(
+                    "TrainingArguments.__init__() got an unexpected keyword "
+                    "argument 'warmup_ratio'"
+                )
+            self.kwargs = kwargs
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+
+    fake_tr.TrainingArguments = FakeTrainingArgumentsNoRatio
+    return fake_tr
+
+
 # ---------------------------------------------------------------------------
 # SFTConfig defaults
 # ---------------------------------------------------------------------------
@@ -264,6 +284,36 @@ class TestBuildTrainingArguments:
         assert result.seed == 42
         assert result.report_to == ["none"]
         assert result.run_name == "test-run"
+
+    def test_falls_back_to_warmup_steps_when_ratio_unsupported(self):
+        # Regression test: transformers 5.15.0 dropped warmup_ratio from
+        # TrainingArguments entirely — caught before spending real training time.
+        fake_tr = _make_fake_transformers_module_no_warmup_ratio()
+        with mock.patch.dict(sys.modules, {"transformers": fake_tr}):
+            cfg = SFTConfig(
+                base_model="m",
+                train_file="t.jsonl",
+                val_file="v.jsonl",
+                output_dir="/tmp/out",
+                warmup_ratio=0.1,
+                num_train_epochs=2.0,
+                per_device_train_batch_size=4,
+                gradient_accumulation_steps=2,
+            )
+            # 202 examples, effective batch 8 -> 25 steps/epoch * 2 epochs = 50 steps
+            # -> warmup_steps = int(0.1 * 50) = 5
+            result = build_training_arguments(cfg, num_training_examples=202)
+        assert not hasattr(result, "warmup_ratio") or "warmup_ratio" not in result.kwargs
+        assert result.kwargs["warmup_steps"] == 5
+
+    def test_falls_back_with_zero_warmup_steps_when_no_example_count(self):
+        fake_tr = _make_fake_transformers_module_no_warmup_ratio()
+        with mock.patch.dict(sys.modules, {"transformers": fake_tr}):
+            cfg = SFTConfig(
+                base_model="m", train_file="t.jsonl", val_file="v.jsonl", output_dir="o"
+            )
+            result = build_training_arguments(cfg)
+        assert result.kwargs["warmup_steps"] == 0
 
     def test_report_to_is_list(self):
         fake_tr = _make_fake_transformers_module()

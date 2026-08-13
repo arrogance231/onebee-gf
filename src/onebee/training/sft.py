@@ -64,14 +64,13 @@ def build_lora_config(config: SFTConfig):
     )
 
 
-def build_training_arguments(config: SFTConfig):
+def build_training_arguments(config: SFTConfig, num_training_examples: int | None = None):
     from transformers import TrainingArguments
 
-    return TrainingArguments(
+    base_kwargs = dict(
         output_dir=config.output_dir,
         learning_rate=config.learning_rate,
         lr_scheduler_type=config.lr_scheduler_type,
-        warmup_ratio=config.warmup_ratio,
         num_train_epochs=config.num_train_epochs,
         per_device_train_batch_size=config.per_device_train_batch_size,
         gradient_accumulation_steps=config.gradient_accumulation_steps,
@@ -80,6 +79,20 @@ def build_training_arguments(config: SFTConfig):
         report_to=[config.report_to],
         run_name=config.run_name,
     )
+    try:
+        return TrainingArguments(warmup_ratio=config.warmup_ratio, **base_kwargs)
+    except TypeError:
+        # transformers 5.15.0 dropped warmup_ratio from TrainingArguments entirely
+        # (docs/model_quirks.md) — compute an equivalent warmup_steps count instead.
+        warmup_steps = 0
+        if num_training_examples is not None:
+            effective_batch = (
+                config.per_device_train_batch_size * config.gradient_accumulation_steps
+            )
+            steps_per_epoch = max(1, num_training_examples // effective_batch)
+            total_steps = steps_per_epoch * int(config.num_train_epochs)
+            warmup_steps = max(0, int(config.warmup_ratio * total_steps))
+        return TrainingArguments(warmup_steps=warmup_steps, **base_kwargs)
 
 
 def _load_jsonl(path: str) -> list[dict]:
@@ -147,7 +160,7 @@ def run_sft(
     val_dataset = _load_jsonl(config.val_file)
 
     lora_config = build_lora_config(config)
-    training_args = build_training_arguments(config)
+    training_args = build_training_arguments(config, num_training_examples=len(train_dataset))
 
     def formatting_func(example):
         messages = example["messages"]
