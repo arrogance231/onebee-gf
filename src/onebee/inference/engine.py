@@ -115,7 +115,7 @@ class HFEngine:
         self._model = model_cls.from_pretrained(
             self.model_name,
             revision=self.revision,
-            torch_dtype=getattr(torch, torch_dtype_name),
+            dtype=getattr(torch, torch_dtype_name),
             device_map=self.device,
         )
         self._loaded = True
