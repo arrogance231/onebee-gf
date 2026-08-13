@@ -1,0 +1,55 @@
+{
+  "system": "E_sft_memory",
+  "n_probes": 688,
+  "metrics": {
+    "pra_strict": 0.004934210526315789,
+    "pra_lenient": 0.17763157894736842,
+    "uar": 0.3375,
+    "mur": 0.0
+  },
+  "metrics_ci": {
+    "pra_strict": [
+      0.004934210526315789,
+      0.0,
+      0.011513157894736841
+    ],
+    "uar": [
+      0.3375,
+      0.2375,
+      0.43781249999999544
+    ]
+  },
+  "per_category": {
+    "episodic": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.34782608695652173
+    },
+    "temporal": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.1774193548387097
+    },
+    "outdated_fact": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.125
+    },
+    "preference": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0989010989010989
+    },
+    "factual": {
+      "pra_strict": 0.01020408163265306,
+      "pra_lenient": 0.14285714285714285
+    },
+    "unanswerable": {
+      "uar": 0.3375
+    },
+    "distractor": {
+      "pra_strict": 0.020833333333333332,
+      "pra_lenient": 0.19791666666666666
+    },
+    "continuity": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.19791666666666666
+    }
+  }
+}
