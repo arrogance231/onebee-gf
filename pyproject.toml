@@ -35,6 +35,7 @@ gpu = [
   "vllm>=0.4",
   "sentence-transformers>=3.0",
   "wandb>=0.17",
+  "pillow>=10",
 ]
 dev = [
   "ruff>=0.4",

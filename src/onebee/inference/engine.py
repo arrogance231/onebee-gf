@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 import warnings
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
@@ -24,6 +24,17 @@ class GenerationResult(BaseModel):
     ttft_ms: float
     total_ms: float
     tokens_per_sec: float
+
+
+def _extract_images_and_text(messages: list[dict]) -> tuple[list[dict], list[Any]]:
+    images: list[Any] = []
+    for msg in messages:
+        content = msg.get("content")
+        if isinstance(content, list):
+            for part in content:
+                if isinstance(part, dict) and part.get("type") == "image":
+                    images.append(part.get("image"))
+    return messages, images
 
 
 @runtime_checkable
@@ -52,6 +63,8 @@ class HFEngine:
         self.device = device
         self._model = None
         self._tokenizer = None
+        self._processor = None
+        self._is_multimodal = False
         self._loaded = False
 
     @property
@@ -60,9 +73,27 @@ class HFEngine:
 
     def load(self) -> None:
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from transformers import AutoModelForCausalLM, AutoProcessor, AutoTokenizer
 
-        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name, revision=self.revision)
+        self._processor = None
+        self._is_multimodal = False
+        try:
+            self._processor = AutoProcessor.from_pretrained(
+                self.model_name, revision=self.revision
+            )
+            self._is_multimodal = (
+                getattr(self._processor, "image_processor", None) is not None
+            )
+        except Exception:
+            self._processor = None
+
+        if self._processor is not None:
+            self._tokenizer = getattr(self._processor, "tokenizer", None)
+        if self._tokenizer is None:
+            self._tokenizer = AutoTokenizer.from_pretrained(
+                self.model_name, revision=self.revision
+            )
+
         self._model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             revision=self.revision,
@@ -72,6 +103,10 @@ class HFEngine:
         self._loaded = True
 
     def apply_chat_template(self, messages: list[dict]) -> str:
+        if self._is_multimodal and self._processor is not None:
+            return self._processor.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
         if self._tokenizer is not None:
             return self._tokenizer.apply_chat_template(
                 messages, tokenize=False, add_generation_prompt=True
@@ -98,9 +133,15 @@ class HFEngine:
             warnings.filterwarnings("ignore", category=UserWarning, module="torch")
             deterministic_ctx = torch.use_deterministic_algorithms(True)
 
+        messages, images = _extract_images_and_text(messages)
+
         try:
-            prompt = self.apply_chat_template(messages)
-            inputs = self._tokenizer(prompt, return_tensors="pt")
+            if images and self._is_multimodal and self._processor is not None:
+                prompt = self.apply_chat_template(messages)
+                inputs = self._processor(text=prompt, images=images, return_tensors="pt")
+            else:
+                prompt = self.apply_chat_template(messages)
+                inputs = self._tokenizer(prompt, return_tensors="pt")
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
             prompt_tokens = inputs["input_ids"].shape[1]
 

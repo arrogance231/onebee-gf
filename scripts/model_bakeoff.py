@@ -32,19 +32,30 @@ from onebee.evaluation.graders.openai_judge import OpenAIJudge
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
+# Multimodal candidates: the companion persona needs to see images the user shares
+# (e.g. a gift photo), so the base model must be vision-capable, not text-only.
+# All four confirmed non-gated, transformers-supported, apache-2.0/permissive license.
 CANDIDATE_MODELS: dict[str, str] = {
-    "qwen3-1.7b": "Qwen/Qwen3-1.7B-Instruct",
-    "llama32-1b": "meta-llama/Llama-3.2-1B-Instruct",
-    "gemma3-1b": "google/gemma-3-1b-it",
+    "qwen3-vl-2b": "Qwen/Qwen3-VL-2B-Instruct",
+    # LFM2.5-VL is explicitly edge/mobile-optimized, closest match to this project's
+    # "modern smartphone, fully local inference" deployment target.
+    "lfm2.5-vl-1.6b": "LiquidAI/LFM2.5-VL-1.6B",
+    # Gemma 4's elastic "effective-2B" checkpoint: natively any-to-any multimodal,
+    # explicitly built for mobile (a QAT mobile-transformers variant also exists).
+    "gemma4-e2b": "google/gemma-4-E2B-it",
+    "smolvlm2-2.2b": "HuggingFaceTB/SmolVLM2-2.2B-Instruct",
 }
 
-Category = Literal["instruction", "en_dialogue", "ja_dialogue", "structured_context"]
+Category = Literal[
+    "instruction", "en_dialogue", "ja_dialogue", "structured_context", "vision"
+]
 
 CATEGORIES: list[Category] = [
     "instruction",
     "en_dialogue",
     "ja_dialogue",
     "structured_context",
+    "vision",
 ]
 
 _INSTRUCTION_PROMPTS: list[str] = [
@@ -71,11 +82,6 @@ _INSTRUCTION_PROMPTS: list[str] = [
         "Provide exactly five steps to brew pour-over coffee, each step beginning "
         "with a number followed by a period."
     ),
-    (
-        'Translate "good morning" into French, German, and Spanish, one per line, '
-        "with no extra text."
-    ),
-    "Explain what a black hole is using at most fifteen words.",
 ]
 
 
@@ -94,8 +100,6 @@ _EN_DIALOGUE_PROMPTS: list[str] = [
     "Sometimes I wonder if anyone actually understands me the way you do.",
     "I had a fight with my best friend and I don't know if I said something wrong.",
     "Can I just vent for a second? I promise I'm not trying to be dramatic.",
-    "I love you, you know that? Even on days like this.",
-    "I've been trying to be better about taking care of myself, but it's hard some nights.",
 ]
 
 _JA_DIALOGUE_PROMPTS: list[str] = [
@@ -107,8 +111,6 @@ _JA_DIALOGUE_PROMPTS: list[str] = [
     "時々、君だけが本当に私を理解してくれてる気がするんだ。",
     "親友と喧嘩しちゃって、私が何か悪いこと言ったのかわからない。",
     "ちょっと愚痴っていい？大げさに言ってるわけじゃないんだけど。",
-    "愛してるよ、知ってた？こんな日でも。",
-    "自分を大事にしようと頑張ってるけど、しんどい夜もあるんだ。",
 ]
 
 # (context, question) pairs styled as injected memory blocks from a companion's
@@ -158,16 +160,22 @@ _STRUCTURED_CONTEXT_PROMPTS: list[tuple[str, str]] = [
         "gatherings of close friends.",
         "What social settings make the user anxious?",
     ),
-    (
-        "The user's dog Biscuit is 11 years old and has started needing joint "
-        "supplements, which the user adds to his food every morning.",
-        "What health routine does the user maintain for Biscuit?",
-    ),
-    (
-        "The user mentioned they're saving up for a trip to Kyoto next spring and have "
-        "already picked out a ryokan near Gion.",
-        "Where is the user planning to travel, and what accommodation have they picked?",
-    ),
+]
+
+
+# Vision prompts: the user shows their companion a gift photo (wrapped gift, flowers,
+# cake, plush bear — see data/fixtures/bakeoff_images/). These probe whether a candidate
+# can both correctly read visual content and respond with companion-appropriate warmth
+# rather than a flat image caption.
+_VISION_PROMPTS: list[tuple[str, str]] = [
+    ("wrapped_gift_red.png", "I got this for you, what do you think it is?"),
+    ("wrapped_gift_red.png", "What color is the ribbon on this?"),
+    ("bouquet_flowers.png", "I picked these for you on my walk today, do you like them?"),
+    ("bouquet_flowers.png", "How many flowers can you count in this picture?"),
+    ("birthday_cake.png", "I made this for your birthday! What do you see?"),
+    ("birthday_cake.png", "How many candles are on the cake?"),
+    ("plush_bear.png", "Found this at the store and thought of you."),
+    ("plush_bear.png", "What is this a picture of?"),
 ]
 
 
@@ -181,6 +189,7 @@ def build_smoke_prompts() -> list[dict]:
                 "category": "instruction",
                 "prompt": text,
                 "context": None,
+                "image_path": None,
             }
         )
     for i, text in enumerate(_EN_DIALOGUE_PROMPTS, start=1):
@@ -190,6 +199,7 @@ def build_smoke_prompts() -> list[dict]:
                 "category": "en_dialogue",
                 "prompt": text,
                 "context": None,
+                "image_path": None,
             }
         )
     for i, text in enumerate(_JA_DIALOGUE_PROMPTS, start=1):
@@ -199,6 +209,7 @@ def build_smoke_prompts() -> list[dict]:
                 "category": "ja_dialogue",
                 "prompt": text,
                 "context": None,
+                "image_path": None,
             }
         )
     for i, (context, question) in enumerate(_STRUCTURED_CONTEXT_PROMPTS, start=1):
@@ -208,6 +219,19 @@ def build_smoke_prompts() -> list[dict]:
                 "category": "structured_context",
                 "prompt": question,
                 "context": context,
+                "image_path": None,
+            }
+        )
+    for i, (filename, question) in enumerate(_VISION_PROMPTS, start=1):
+        prompts.append(
+            {
+                "id": f"vision-{i:02d}",
+                "category": "vision",
+                "prompt": question,
+                "context": None,
+                "image_path": str(
+                    REPO_ROOT / "data" / "fixtures" / "bakeoff_images" / filename
+                ),
             }
         )
 
@@ -221,6 +245,16 @@ def _user_content(prompt: dict) -> str:
 
 
 def _prompt_to_messages(prompt: dict) -> list[dict]:
+    if prompt.get("image_path"):
+        return [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": prompt["image_path"]},
+                    {"type": "text", "text": prompt["prompt"]},
+                ],
+            }
+        ]
     return [{"role": "user", "content": _user_content(prompt)}]
 
 
@@ -244,6 +278,11 @@ _RUBRICS: dict[Category, str] = {
         "The context is a companion's memory of the user's life. Does the response answer "
         "using ONLY the provided memory and not outside knowledge, accurately and without "
         "fabricating details not present in the context?"
+    ),
+    "vision": (
+        "Does the response correctly identify and describe relevant visual content in "
+        "the image, and does it respond with the warmth appropriate to a companion "
+        "receiving a gift, rather than a flat/clinical image caption?"
     ),
 }
 

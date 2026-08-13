@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -20,13 +21,13 @@ from scripts.model_bakeoff import (  # type: ignore[import-not-found]
 
 
 class TestBuildSmokePrompts:
-    def test_returns_exactly_40_prompts_10_per_category(self):
+    def test_returns_exactly_40_prompts_8_per_category(self):
         prompts = build_smoke_prompts()
         assert len(prompts) == 40
         counts: dict[str, int] = {}
         for p in prompts:
             counts[p["category"]] = counts.get(p["category"], 0) + 1
-        assert counts == {category: 10 for category in CATEGORIES}
+        assert counts == {category: 8 for category in CATEGORIES}
 
     def test_all_prompts_have_nonempty_text(self):
         prompts = build_smoke_prompts()
@@ -35,8 +36,17 @@ class TestBuildSmokePrompts:
     def test_structured_context_entries_all_have_context(self):
         prompts = build_smoke_prompts()
         structured = [p for p in prompts if p["category"] == "structured_context"]
-        assert len(structured) == 10
+        assert len(structured) == 8
         assert all(p["context"] is not None for p in structured)
+
+    def test_vision_prompts_point_at_existing_images(self):
+        prompts = build_smoke_prompts()
+        for p in prompts:
+            if p["category"] == "vision":
+                assert p["image_path"] is not None
+                assert Path(p["image_path"]).is_file()
+            else:
+                assert p["image_path"] is None
 
     def test_ids_are_unique(self):
         prompts = build_smoke_prompts()
@@ -128,11 +138,12 @@ class TestWriteAdr:
 
         assert "TBD" not in new_text
         assert (
-            "| Model | instruction | en_dialogue | ja_dialogue | structured_context | Overall |"
+            "| Model | instruction | en_dialogue | ja_dialogue | structured_context "
+            "| vision | Overall |"
             in new_text
         )
-        assert "| model-a | 3.00 | — | — | 3.00 | 3.00 |" in new_text
-        assert "| model-b | 1.50 | — | — | 5.00 | 3.25 |" in new_text
+        assert "| model-a | 3.00 | — | — | 3.00 | — | 3.00 |" in new_text
+        assert "| model-b | 1.50 | — | — | 5.00 | — | 3.25 |" in new_text
         assert "**Recommendation:** pin **model-b**" in new_text
         assert "- model-a: `abc123`" in new_text
         assert "- model-b: `def456`" in new_text

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import time
 
 import pytest
@@ -12,6 +13,7 @@ from onebee.inference.engine import (
     Generator,
     HFEngine,
     LlamaCppEngine,
+    _extract_images_and_text,
 )
 
 
@@ -127,6 +129,63 @@ class TestGenerationResult:
         assert result.prompt_tokens == 10
         assert result.completion_tokens == 5
         assert result.tokens_per_sec == 10.0
+
+
+class TestExtractImagesAndText:
+    def test_text_only_messages_yield_no_images(self):
+        messages = [
+            {"role": "user", "content": "hello"},
+            {"role": "assistant", "content": "hi there"},
+        ]
+        returned, images = _extract_images_and_text(messages)
+        assert images == []
+        assert returned == messages
+
+    def test_multimodal_message_with_one_image_part(self):
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": "/path/to/pic.png"},
+                    {"type": "text", "text": "What is this?"},
+                ],
+            }
+        ]
+        returned, images = _extract_images_and_text(messages)
+        assert len(images) == 1
+        assert images[0] == "/path/to/pic.png"
+        assert returned == messages
+
+    def test_multiple_images_collected_in_encounter_order(self):
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": "first.png"},
+                    {"type": "text", "text": "a"},
+                    {"type": "image", "image": "second.png"},
+                ],
+            }
+        ]
+        _, images = _extract_images_and_text(messages)
+        assert images == ["first.png", "second.png"]
+
+    def test_works_without_pil_or_torch_installed(self):
+        assert "PIL" not in sys.modules
+        assert "torch" not in sys.modules
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": "plain-string-ref"},
+                    {"type": "text", "text": "do you like it?"},
+                ],
+            }
+        ]
+        _, images = _extract_images_and_text(messages)
+        assert images == ["plain-string-ref"]
+        assert "PIL" not in sys.modules
+        assert "torch" not in sys.modules
 
 
 class TestHFEngineBasic:
