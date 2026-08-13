@@ -1,27 +1,40 @@
 # Research questions and hypotheses
 
-## Design constraint: multi-year persona persistence
+## Design constraints
 
-The workload this project stress-tests is a persistent AI-companion persona expected to hold
-its character, relationship history, and emotional continuity across **years** of conversation
-— on the order of millions of tokens of cumulative interaction, none of which can live in the
-1B model's context window at once. This is why the project's central bet (RQ0/RQ1) is
-externalizing that continuity into memory/retrieval/state rather than relying on parametric
-capacity or brute-force context length: no context window realistically holds years of a
-relationship, so the system's ability to compress, retrieve, and reconstruct the *relevant
-slice* of that history per turn — accurately, without fabrication (FMR), and without drifting
-persona (PCS) — is the actual product being evaluated, not raw dialogue fluency. This shapes
-every benchmark and prompt set in this repo: dialogue evaluation prioritizes emotional
-attunement and relationship-memory recall over generic chit-chat or trivia (see
-`scripts/model_bakeoff.py`'s prompt categories).
+**Multi-year persona persistence.** The workload this project stress-tests is a persistent
+AI-companion persona expected to hold its character, relationship history, and emotional
+continuity across **years** of conversation — on the order of millions of tokens of cumulative
+interaction, none of which can live in a small model's context window at once. This is why the
+project's central bet (RQ0/RQ1) is externalizing that continuity into memory/retrieval/state
+rather than relying on parametric capacity or brute-force context length: no context window
+realistically holds years of a relationship, so the system's ability to compress, retrieve, and
+reconstruct the *relevant slice* of that history per turn — accurately, without fabrication
+(FMR), and without drifting persona (PCS) — is the actual product being evaluated, not raw
+dialogue fluency. This shapes every benchmark and prompt set in this repo: dialogue evaluation
+prioritizes emotional attunement and relationship-memory recall over generic chit-chat or trivia
+(see `scripts/model_bakeoff.py`'s prompt categories).
+
+**Multimodal, not text-only.** The companion needs to see and respond to images the user shares
+— a gift, a photo from their day, a meme — not just read text. Base model selection therefore
+targets small **vision-language** models (the bake-off's `vision` category), and the memory
+architecture must eventually support image-derived memories (a photo the user shared becomes a
+retrievable memory, not just its caption), which is in scope for later weeks, not Week 1.
+
+**"Small," not fixed at 1B.** Earlier framing pinned the base model at ~1B parameters. That was
+too rigid: the actual constraint is *small enough to run locally on a phone*, not *exactly 1B*.
+The bake-off candidates span ~1.6B–2.2B multimodal models; the project should track the
+quality/size/latency trade-off empirically (RQ0, RQ9, RQ10) rather than pre-committing to one
+parameter count. "1B" in RQ text below is shorthand for "the smallest model that clears the
+capability bar," not a hard requirement.
 
 ## Primary research question
 
 **RQ0.** To what extent can post-training, external memory, retrieval, state modeling,
-distillation, and inference-time architecture recover conversational and personalized
-capability in a ~1B parameter LLM relative to (a) the same model unaugmented and (b)
-substantially larger unaugmented models — and how much of that recovery survives 4-bit
-quantization and on-device execution?
+distillation, and inference-time architecture recover conversational, personalized, and
+multimodal (vision-grounded) capability in a small (~1–4B parameter) LLM relative to (a) the
+same model unaugmented and (b) substantially larger unaugmented models — and how much of that
+recovery survives 4-bit quantization and on-device execution?
 
 ## Secondary research questions
 
@@ -38,7 +51,8 @@ quantization and on-device execution?
 | RQ9 | Quantization survival — how much of the RQ1–RQ8 gain survives INT8/Q5/Q4? |
 | RQ10 | Mobile viability — achievable tok/s, TTFT, RAM, storage, thermal profile on-device? |
 | RQ11 | Fundamental limits — which failure modes are not fixed by any external architecture? |
-| RQ12 | Cross-over — can 1B+scaffold beat a 7–8B unaugmented model on narrow personalized-memory tasks? |
+| RQ12 | Cross-over — can a small model + full scaffold beat a much larger (7–8B class) unaugmented model on narrow personalized-memory tasks? |
+| RQ13 | Multimodal grounding — how accurately can the small model answer questions about a user-shared image, and does captioning-then-storing images as memory improve later recall of image-derived facts vs. discarding the image after the turn? |
 
 ## Hypotheses
 
@@ -59,11 +73,12 @@ quantization and on-device execution?
 | H13 | Explicit state modeling improves cross-session consistency beyond retrieval alone | +0.3 to +0.6 consistency score | No effect | Exp G vs E |
 | H14 | Reflection/consolidation improves retrieval precision but introduces fabricated memories at a measurable rate | +5 to +15 pp precision; 3–15% fabrication rate | Consolidation is lossless / no precision gain | Exp H vs G |
 | H15 | Q4 quantization costs <5% on dialogue quality but >10% on structured/long-context tasks | asymmetric degradation | Uniform degradation across task types | Exp Quant |
-| H16 | 1B + full scaffold beats an 8B unaugmented model on personalized-memory tasks | +15 to +35 pp PRA | No win, or the 8B wins | Exp Crossover |
-| H17 | 1B + full scaffold never beats the 8B model on multi-step reasoning | 8B wins by a wide margin | 1B+scaffold closes the reasoning gap | Exp Crossover |
+| H16 | Small model + full scaffold beats a much larger (7–8B class) unaugmented model on personalized-memory tasks | +15 to +35 pp PRA | No win, or the larger model wins | Exp Crossover |
+| H17 | Small model + full scaffold never beats the larger model on multi-step reasoning | larger model wins by a wide margin | Small+scaffold closes the reasoning gap | Exp Crossover |
 | H18 | Continued pretraining on companion-domain text degrades instruction following unless mixed with instruction data | −3 to −10 pp IFEval without replay | CPT is harmless | Exp CPT |
 | H19 | Structured (schema) memory formatting beats prose at equal token count | +3 to +8 pp memory utilization | No difference | Exp Context format |
 | H20 | Full system TTFT on-device exceeds 1.5 s at 2k context on a flagship phone | measured | TTFT under 1.5 s | Exp J |
+| H21 | The chosen vision-language model correctly identifies the salient object/count in a user-shared image at a rate that supports companion use (e.g. "how many candles") | ≥80% accuracy on the bake-off's vision category | Vision accuracy is not reliable enough for companion use | Exp bake-off vision category |
 
 Every `experiments/EXP-xxx/hypothesis.md` in this repo must cite the RQ and H IDs it tests,
 committed **before** the run starts — git history is the pre-registration record.
@@ -85,7 +100,8 @@ personalized recall — that result is reported as-is, not hidden or reframed af
 | RQ8, H14 | `src/onebee/memory/reflection/`, `consolidation/` |
 | RQ9, H15 | `configs/quantization/`, quant sweep in the eval grid |
 | RQ10, H20 | `mobile/`, `benchmarks/device/` |
-| RQ12, H16–H17 | Crossover experiment: 1B+scaffold vs 8B unaugmented in the eval grid |
+| RQ12, H16–H17 | Crossover experiment: small model+scaffold vs a larger unaugmented model in the eval grid |
+| RQ13, H21 | `scripts/model_bakeoff.py`'s `vision` category; future image-memory tiers in `src/onebee/memory/` |
 
 Every experiment config under `configs/experiment/` sets an `rq_ids` / `hypothesis_ids` field
 so results can be traced back to the question they answer.
