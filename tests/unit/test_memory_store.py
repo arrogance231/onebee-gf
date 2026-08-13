@@ -217,6 +217,39 @@ class TestSearch:
         results = store.search(query="zzzznonexistent", k=5)
         assert len(results) == 0
 
+    def test_fts_search_handles_punctuation_in_query(self, tmp_path):
+        # Regression test: a real System D run crashed with
+        # `sqlite3.OperationalError: fts5: syntax error near "?"` because natural
+        # questions ("What's my favorite color?") contain characters FTS5's MATCH
+        # parses as query syntax (?, ', -, :), not literal text.
+        store = MemoryStore(str(tmp_path / "test.db"))
+        rec = _make_record(content="my favorite color is blue")
+        store.write(rec)
+
+        for query in [
+            "What's my favorite color?",
+            "How-old are you: really?",
+            'quote "marks" and (parens)',
+            "AND OR NOT",  # FTS5 boolean operator keywords as literal query text
+        ]:
+            results = store.search(query=query, k=5)  # must not raise
+            assert isinstance(results, list)
+
+        results = store.search(query="What's my favorite color?", k=5)
+        ids = {r.id for r in results}
+        assert rec.id in ids
+
+    def test_fts_search_empty_query_after_sanitization(self, tmp_path):
+        store = MemoryStore(str(tmp_path / "test.db"))
+        rec = _make_record(content="hello world")
+        store.write(rec)
+        # Punctuation-only query has no word tokens after sanitization — must not
+        # raise, and (with no query_embedding either) falls through to no results
+        # from the FTS branch specifically (query is still truthy so the
+        # recency-fallback branch does not apply either).
+        results = store.search(query="???", k=5)
+        assert results == []
+
     def test_search_rejects_unknown_filter_column(self, tmp_path):
         store = MemoryStore(str(tmp_path / "test.db"))
         with pytest.raises(ValueError, match="unknown or non-filterable column"):

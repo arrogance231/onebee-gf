@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sqlite3
 import time
 import uuid
@@ -9,6 +10,24 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
+
+_FTS_TOKEN_RE = re.compile(r"\w+", re.UNICODE)
+
+
+def _sanitize_fts_query(query: str) -> str:
+    """Turn arbitrary natural-language text into a safe FTS5 MATCH expression.
+
+    FTS5's MATCH argument is a query language, not a literal string — punctuation
+    like ``?``, ``'``, ``-``, ``:`` (all common in real questions: "What's my ...?")
+    is parsed as query syntax and raises ``sqlite3.OperationalError: fts5: syntax
+    error`` on anything but the simplest inputs. Extract word tokens, quote each one
+    (so tokens containing FTS5 operator characters are treated as literal terms, not
+    operators), and OR them together for reasonable recall on natural questions.
+    """
+    tokens = _FTS_TOKEN_RE.findall(query)
+    if not tokens:
+        return ""
+    return " OR ".join(f'"{t}"' for t in tokens)
 
 _FILTERABLE_COLUMNS = {
     "id",
@@ -270,12 +289,13 @@ class MemoryStore:
 
         self._conn.row_factory = sqlite3.Row
 
-        if query:
+        fts_query = _sanitize_fts_query(query) if query else ""
+        if fts_query:
             fts_where = (
                 f"{base_where} AND m.rowid IN "
                 f"(SELECT rowid FROM memory_fts WHERE memory_fts MATCH ? ORDER BY rank)"
             )
-            fts_params = base_params + [query]
+            fts_params = base_params + [fts_query]
             fts_limit = k * 2
             rows = self._conn.execute(
                 f"SELECT m.* FROM memory m {fts_where} LIMIT {fts_limit}",
