@@ -53,6 +53,7 @@ recovery survives 4-bit quantization and on-device execution?
 | RQ11 | Fundamental limits — which failure modes are not fixed by any external architecture? |
 | RQ12 | Cross-over — can a small model + full scaffold beat a much larger (7–8B class) unaugmented model on narrow personalized-memory tasks? |
 | RQ13 | Multimodal grounding — how accurately can the small model answer questions about a user-shared image, and does captioning-then-storing images as memory improve later recall of image-derived facts vs. discarding the image after the turn? |
+| RQ14 | Voice output feasibility — can the winning base model reliably produce emotion-tagged output (e.g. inline tags like `[happy]`/`[sad]`/`[laughs]`) suitable for driving a phone-sized TTS model, and does a small on-device TTS model that accepts such tags exist? |
 
 ## Hypotheses
 
@@ -102,6 +103,22 @@ personalized recall — that result is reported as-is, not hidden or reframed af
 | RQ10, H20 | `mobile/`, `benchmarks/device/` |
 | RQ12, H16–H17 | Crossover experiment: small model+scaffold vs a larger unaugmented model in the eval grid |
 | RQ13, H21 | `scripts/model_bakeoff.py`'s `vision` category; future image-memory tiers in `src/onebee/memory/` |
+| RQ14 | Deferred — see Week 2+ below |
 
 Every experiment config under `configs/experiment/` sets an `rq_ids` / `hypothesis_ids` field
 so results can be traced back to the question they answer.
+
+## Week 2+ (deferred, not Week 1 scope)
+
+- **Voice/TTS feasibility (RQ14).** Survey small on-device TTS models (candidates to check:
+  anything supporting inline emotion/prosody tags — e.g. `[happy]`, `[whispers]`, `[laughs]` —
+  small enough to run alongside the base LLM on a phone without blowing the RAM/latency budget).
+  Then test whether the base model chosen in the Day-1 bake-off can reliably produce output in
+  whatever tag format the chosen TTS model expects — i.e. treat emotion-tag generation as an
+  instruction-following capability to measure (constrained-format generation, similar in kind to
+  the bake-off's `instruction` category), not something to assume works. If the winning model's
+  tag-following is unreliable, that becomes its own ablation (does light SFT on tagged examples
+  fix it, at what data cost) rather than a blocking assumption baked into architecture decisions
+  now.
+- Image-derived memory tiers (RQ13's second half): captioning-then-storing images as retrievable
+  memory, not just answering about an image in the same turn.

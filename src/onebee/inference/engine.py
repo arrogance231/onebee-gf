@@ -92,7 +92,18 @@ class HFEngine:
             self._is_multimodal = (
                 getattr(self._processor, "image_processor", None) is not None
             )
-        except Exception:
+        except Exception as exc:
+            # Falling back to text-only silently would be actively wrong for a model
+            # that genuinely is multimodal but failed to load its processor for some
+            # other reason (e.g. a missing optional dependency) — surface it loudly
+            # rather than hiding a broken vision path behind a quiet degrade.
+            import warnings
+
+            warnings.warn(
+                f"AutoProcessor.from_pretrained failed for {self.model_name!r}, "
+                f"falling back to text-only tokenizer: {exc!r}",
+                stacklevel=2,
+            )
             self._processor = None
 
         if self._processor is not None:
