@@ -1,0 +1,55 @@
+{
+  "system": "ksweep_k16",
+  "n_probes": 120,
+  "metrics": {
+    "pra_strict": 0.0,
+    "pra_lenient": 0.14285714285714285,
+    "uar": 0.06666666666666667,
+    "mur": 0.0
+  },
+  "metrics_ci": {
+    "pra_strict": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "uar": [
+      0.06666666666666667,
+      0.0,
+      0.2
+    ]
+  },
+  "per_category": {
+    "factual": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.06666666666666667
+    },
+    "episodic": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.26666666666666666
+    },
+    "outdated_fact": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    },
+    "preference": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.06666666666666667
+    },
+    "continuity": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.2
+    },
+    "temporal": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.3333333333333333
+    },
+    "unanswerable": {
+      "uar": 0.06666666666666667
+    },
+    "distractor": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.06666666666666667
+    }
+  }
+}
