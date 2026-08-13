@@ -139,3 +139,17 @@ so results can be traced back to the question they answer.
   (`00_RESEARCH_DESIGN.md` definitions, to be implemented in
   `src/onebee/evaluation/metrics/`) already exist to test — so building the rich persona schema
   and holding the model to it via PCS evaluation should land together, not the schema alone.
+
+## Final phase (last week): open-source app
+
+Once post-training, memory/retrieval, and the TTS/emotion-tag work (RQ14) above are far enough
+along to have something worth shipping, package everything built across this project into a
+real, open-source, runnable app — not just library code. This means: the post-trained model
+(quantized per Day 5's methodology, not the raw base), the memory/retrieval/context pipeline,
+a real efficient inference runtime (llama.cpp/MLC/ExecuTorch — whichever the quantization/mobile
+work in `mobile/` lands on, not the unoptimized eager-mode `HFEngine` path used for Day-1
+baselines), and the TTS/emotion-tag output pipeline if RQ14 pans out, wired together into
+something a person can actually install and talk to. This is explicitly the capstone, not a
+Week-1/2 deliverable — it depends on essentially everything else in this document being done
+first, and should not start until the underlying components it packages are themselves real and
+evaluated, not aspirational.
