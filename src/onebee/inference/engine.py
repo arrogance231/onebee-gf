@@ -49,6 +49,14 @@ class Generator(Protocol):
     def apply_chat_template(self, messages: list[dict]) -> str: ...
 
 
+_DTYPE_ALIASES = {
+    "bf16": "bfloat16",
+    "fp16": "float16",
+    "fp32": "float32",
+    "half": "float16",
+}
+
+
 class HFEngine:
     def __init__(
         self,
@@ -94,10 +102,20 @@ class HFEngine:
                 self.model_name, revision=self.revision
             )
 
-        self._model = AutoModelForCausalLM.from_pretrained(
+        torch_dtype_name = _DTYPE_ALIASES.get(self.dtype, self.dtype)
+        model_cls = AutoModelForCausalLM
+        if self._is_multimodal:
+            try:
+                from transformers import AutoModelForImageTextToText
+
+                model_cls = AutoModelForImageTextToText
+            except ImportError:
+                pass
+
+        self._model = model_cls.from_pretrained(
             self.model_name,
             revision=self.revision,
-            torch_dtype=getattr(torch, self.dtype),
+            torch_dtype=getattr(torch, torch_dtype_name),
             device_map=self.device,
         )
         self._loaded = True
