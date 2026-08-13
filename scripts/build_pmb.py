@@ -4,10 +4,10 @@
 Generates the Personalised Memory Benchmark (PMB) v0 corpus: personas with fact sheets,
 synthetic conversation sessions, and probe questions across 8 categories.
 
-This script is intended as a local, offline generator that produces a directory of
-benchmark files. It currently only supports the deterministic ``fixture`` teacher
-client. A real teacher model (OpenAI-compatible endpoint) requires network configuration
-not available here and is documented in the ``--help`` text.
+This script is intended as a local generator that produces a directory of benchmark
+files. It supports the deterministic ``fixture`` teacher client (no network) and the
+``openai`` teacher client backed by the OpenAI chat-completions API (requires the
+optional ``judge`` extra and an ``OPENAI_API_KEY``).
 
 In the fixture mode, per-category probe counts are derived proportionally from
 ``--facts-per-persona`` rather than hardcoding absolute target counts (e.g. the reference
@@ -32,7 +32,7 @@ from onebee.data.personas import (
     PersonaCorpus,
     PersonaSession,
 )
-from onebee.data.teacher import FixtureTeacherClient, TeacherClient
+from onebee.data.teacher import FixtureTeacherClient, OpenAITeacherClient, TeacherClient
 from onebee.evaluation.metrics.personalized import Probe
 
 FIRST_NAMES = [
@@ -724,6 +724,32 @@ def _write_output(
 
     datasheet_path = out_dir / "DATASHEET.md"
     n_personas = len(corpora)
+    if teacher_name == "openai":
+        limitations = (
+            f"- This corpus was generated with a **live teacher model** "
+            f"(OpenAI-compatible endpoint), not a deterministic fixture. It is "
+            f"**not yet human-reviewed** — conversations and probes should be "
+            f"spot-checked by a human before being treated as production-quality "
+            f"reference data.\n"
+            f"- This run ({n_personas} personas) may not be the full v0 benchmark "
+            f"(target: 8 personas).\n"
+        )
+    else:
+        limitations = (
+            f"- This corpus was generated with a **fixture teacher** (deterministic "
+            f"templates, no live LLM). Conversations and probes are synthetic "
+            f"approximations, not naturally generated.\n"
+            f"- A real teacher model (OpenAI-compatible endpoint) is required for "
+            f"production-quality data. Pass `--teacher openai --teacher-model <model>` "
+            f"once configured.\n"
+            f"- Distractor and continuity probes are lightweight approximations; a "
+            f"real teacher would produce richer variants.\n"
+            f"- Per-category probe counts are derived proportionally from "
+            f"`--facts-per-persona` rather than targeting the absolute reference "
+            f"distribution from the paper.\n"
+            f"- This fixture-scale run ({n_personas} personas) is a smoke-test "
+            f"example, not the full v0 benchmark (target: 8 personas).\n"
+        )
     datasheet_path.write_text(
         f"# PMB v0 — Personalised Memory Benchmark\n\n"
         f"## Overview\n"
@@ -737,17 +763,7 @@ def _write_output(
         f"Probe categories: factual, preference, episodic, temporal, unanswerable, "
         f"outdated_fact, distractor, continuity.\n\n"
         f"## Limitations\n\n"
-        f"- This corpus was generated with a **fixture teacher** (deterministic templates, "
-        f"no live LLM). Conversations and probes are synthetic approximations, not "
-        f"naturally generated.\n"
-        f"- A real teacher model (OpenAI-compatible endpoint) is required for production-"
-        f"quality data. Pass `--teacher real --teacher-endpoint ...` once wired up.\n"
-        f"- Distractor and continuity probes are lightweight approximations; a real teacher "
-        f"would produce richer variants.\n"
-        f"- Per-category probe counts are derived proportionally from `--facts-per-persona` "
-        f"rather than targeting the absolute reference distribution from the paper.\n"
-        f"- This fixture-scale run ({n_personas} personas) is a smoke-test example, not the "
-        f"full v0 benchmark (target: 8 personas).\n"
+        f"{limitations}"
     )
 
 
@@ -770,8 +786,8 @@ def main() -> None:
         epilog=(
             "Teacher options:\n"
             "  fixture  Deterministic template-based teacher (default, no network)\n"
-            "  real     NOT YET IMPLEMENTED — requires an OpenAI-compatible endpoint\n"
-            "           and additional network configuration not available in this release.\n"
+            "  openai   Live teacher backed by the OpenAI chat-completions API\n"
+            "           (requires the optional 'judge' extra and an OPENAI_API_KEY)\n"
         ),
     )
     parser.add_argument("--out-dir", default="data/benchmarks/pmb_v0", help="Output directory path")
@@ -783,16 +799,37 @@ def main() -> None:
     parser.add_argument(
         "--teacher",
         default="fixture",
-        choices=["fixture"],
-        help="Teacher client to use (only 'fixture' is wired up)",
+        choices=["fixture", "openai"],
+        help="Teacher client to use",
+    )
+    parser.add_argument(
+        "--teacher-model",
+        default=None,
+        help=(
+            "teacher model id (default: $JUDGE_MODEL, falling back to 'gpt-4o' if unset) "
+            "— the same OpenAI-compatible model the bake-off judge uses"
+        ),
+    )
+    parser.add_argument(
+        "--teacher-temperature",
+        type=float,
+        default=0.9,
+        help="sampling temperature for the live teacher (default: 0.9)",
     )
     args = parser.parse_args()
 
     out_dir = Path(args.out_dir)
     rng = random.Random(args.seed)
 
+    teacher_model = args.teacher_model or os.environ.get("JUDGE_MODEL") or "gpt-4o"
+
     if args.teacher == "fixture":
         teacher: TeacherClient = FixtureTeacherClient(seed=args.seed)
+    elif args.teacher == "openai":
+        teacher = OpenAITeacherClient(
+            model=teacher_model,
+            temperature=args.teacher_temperature,
+        )
     else:
         print(f"Error: --teacher '{args.teacher}' is not supported.", file=sys.stderr)
         sys.exit(1)
