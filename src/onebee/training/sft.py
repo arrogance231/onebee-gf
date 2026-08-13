@@ -147,9 +147,46 @@ def run_sft(
     if trainer_factory is None:
 
         def trainer_factory(**kwargs):
+            from trl import SFTConfig as TrlSFTConfig
             from trl import SFTTrainer
 
-            return SFTTrainer(**kwargs)
+            # Modern trl (>=0.x with the SFTConfig split) wants `args` to be an
+            # SFTConfig (a TrainingArguments subclass) carrying the SFT-specific
+            # fields (max_length, packing, neftune_noise_alpha) directly, rather
+            # than as separate SFTTrainer kwargs, and `processing_class` instead of
+            # the old `tokenizer` kwarg. Adapt the generic kwargs this function
+            # receives (which tests assert on directly, so keep that shape stable)
+            # into what real trl actually wants. See docs/model_quirks.md.
+            base_args = kwargs.pop("args")
+            tokenizer_obj = kwargs.pop("tokenizer", None)
+            max_seq_length = kwargs.pop("max_seq_length", None)
+            packing = kwargs.pop("packing", False)
+            neftune_noise_alpha = kwargs.pop("neftune_noise_alpha", None)
+
+            sft_config_kwargs = {
+                "output_dir": base_args.output_dir,
+                "learning_rate": base_args.learning_rate,
+                "lr_scheduler_type": base_args.lr_scheduler_type,
+                "num_train_epochs": base_args.num_train_epochs,
+                "per_device_train_batch_size": base_args.per_device_train_batch_size,
+                "gradient_accumulation_steps": base_args.gradient_accumulation_steps,
+                "bf16": base_args.bf16,
+                "seed": base_args.seed,
+                "report_to": base_args.report_to,
+                "run_name": base_args.run_name,
+                "packing": packing,
+            }
+            if hasattr(base_args, "warmup_ratio"):
+                sft_config_kwargs["warmup_ratio"] = base_args.warmup_ratio
+            elif hasattr(base_args, "warmup_steps"):
+                sft_config_kwargs["warmup_steps"] = base_args.warmup_steps
+            if max_seq_length is not None:
+                sft_config_kwargs["max_length"] = max_seq_length
+            if neftune_noise_alpha is not None:
+                sft_config_kwargs["neftune_noise_alpha"] = neftune_noise_alpha
+
+            sft_args = TrlSFTConfig(**sft_config_kwargs)
+            return SFTTrainer(args=sft_args, processing_class=tokenizer_obj, **kwargs)
 
     model = model_loader(config.base_model, config.base_model_revision)
     tokenizer = tokenizer_loader(config.base_model, config.base_model_revision)
