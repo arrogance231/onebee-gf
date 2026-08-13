@@ -77,13 +77,16 @@ def score_probe(
 
     lenient_correct: bool | None = None
     if judge is not None and probe.answerable:
-        rubric = (
-            f"Question: {probe.question}\n"
-            f"Gold answer: {probe.gold_answer}\n"
-            f"Acceptable alternatives: {', '.join(probe.acceptable_alternatives)}"
-            if probe.acceptable_alternatives
-            else ""
-        )
+        # NOTE: the gold answer must ALWAYS be in the rubric — a past version of this
+        # line put the whole "Gold answer: ..." block inside a ternary keyed on
+        # `probe.acceptable_alternatives`, so any probe with no alternatives (the
+        # common case) got an EMPTY rubric, meaning the judge scored responses with
+        # no gold answer to check against at all. Caught via a real harness run
+        # where a raw model with zero injected context scored ~94% "lenient correct"
+        # on personalized-recall probes it had no way to actually answer.
+        rubric = f"Question: {probe.question}\nGold answer: {probe.gold_answer}"
+        if probe.acceptable_alternatives:
+            rubric += f"\nAcceptable alternatives: {', '.join(probe.acceptable_alternatives)}"
         verdict = judge.score_response(probe.question, response, rubric)
         lenient_correct = verdict.score >= 3.0
 

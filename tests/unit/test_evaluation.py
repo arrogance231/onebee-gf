@@ -445,6 +445,33 @@ class TestScoreProbe:
         result = score_probe(probe, "Paris", [], judge=judge)
         assert result.lenient_correct is None
 
+    def test_rubric_always_contains_gold_answer(self):
+        # Regression test: the rubric string must include the gold answer even when
+        # acceptable_alternatives is empty (the common case) — a past bug put the
+        # whole "Gold answer: ..." block inside a ternary keyed on
+        # acceptable_alternatives, so probes with none got an EMPTY rubric and the
+        # judge scored responses with no gold answer to check against at all.
+        captured_rubrics: list[str] = []
+
+        class RubricCapturingJudge:
+            def score_response(self, question, response, rubric):
+                captured_rubrics.append(rubric)
+                return JudgeVerdict(score=5.0, justification="ok")
+
+            def compare_pairwise(self, *args, **kwargs):
+                raise NotImplementedError
+
+        probe = _make_probe(gold_answer="Paris", acceptable=[])
+        score_probe(probe, "some response", [], judge=RubricCapturingJudge())
+        assert len(captured_rubrics) == 1
+        assert "Paris" in captured_rubrics[0]
+        assert captured_rubrics[0] != ""
+
+        probe_with_alts = _make_probe(gold_answer="Paris", acceptable=["City of Lights"])
+        score_probe(probe_with_alts, "some response", [], judge=RubricCapturingJudge())
+        assert "Paris" in captured_rubrics[1]
+        assert "City of Lights" in captured_rubrics[1]
+
 
 # ---------------------------------------------------------------------------
 # memory_quality.py tests
