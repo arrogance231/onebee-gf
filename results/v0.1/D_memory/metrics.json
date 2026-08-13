@@ -1,0 +1,55 @@
+{
+  "system": "D_memory",
+  "n_probes": 688,
+  "metrics": {
+    "pra_strict": 0.0,
+    "pra_lenient": 0.1513157894736842,
+    "uar": 0.0875,
+    "mur": 0.0
+  },
+  "metrics_ci": {
+    "pra_strict": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "uar": [
+      0.0875,
+      0.0375,
+      0.15
+    ]
+  },
+  "per_category": {
+    "continuity": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.17708333333333334
+    },
+    "unanswerable": {
+      "uar": 0.0875
+    },
+    "preference": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.07692307692307693
+    },
+    "temporal": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.1774193548387097
+    },
+    "factual": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.10204081632653061
+    },
+    "episodic": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.30434782608695654
+    },
+    "outdated_fact": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.09375
+    },
+    "distractor": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.17708333333333334
+    }
+  }
+}
