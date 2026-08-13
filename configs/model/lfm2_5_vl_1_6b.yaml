@@ -1,0 +1,6 @@
+name: lfm2_5_vl_1_6b
+hf_repo: LiquidAI/LFM2.5-VL-1.6B
+revision: "919fde3d022e3f90a4716006f993938ee8c2eb97"
+chat_template: default
+dtype: bfloat16
+multimodal: true

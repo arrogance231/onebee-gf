@@ -1,0 +1,30 @@
+{
+  "qwen3-vl-2b": {
+    "instruction": 3.9375,
+    "en_dialogue": 3.3125,
+    "ja_dialogue": 1.8125,
+    "structured_context": 4.0,
+    "vision": 3.1875
+  },
+  "lfm2.5-vl-1.6b": {
+    "instruction": 4.8125,
+    "en_dialogue": 2.875,
+    "ja_dialogue": 1.375,
+    "structured_context": 4.125,
+    "vision": 3.0
+  },
+  "gemma4-e2b": {
+    "instruction": 4.875,
+    "en_dialogue": 3.5,
+    "ja_dialogue": 3.45,
+    "structured_context": 5.0,
+    "vision": 3.1625
+  },
+  "smolvlm2-2.2b": {
+    "instruction": 3.5625,
+    "en_dialogue": 2.625,
+    "ja_dialogue": 0.0625,
+    "structured_context": 2.8125,
+    "vision": 2.75
+  }
+}

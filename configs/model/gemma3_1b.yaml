@@ -1,5 +1,0 @@
-name: gemma3_1b
-hf_repo: google/gemma-3-1b-it
-revision: "main"
-chat_template: default
-dtype: bfloat16

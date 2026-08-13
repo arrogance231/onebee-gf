@@ -1,0 +1,6 @@
+name: gemma4_e2b
+hf_repo: google/gemma-4-E2B-it
+revision: "3e22461f65e89153144f8adb70e3b8c2cc9845a7"
+chat_template: default
+dtype: bfloat16
+multimodal: true

@@ -1,5 +1,5 @@
 defaults:
-  - model: qwen3_1_7b
+  - model: gemma4_e2b
   - memory: full_3tier
   - retrieval: hybrid
 
