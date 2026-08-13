@@ -620,16 +620,15 @@ def _generate_probes(
     if len(sessions) >= 2 and revealed_facts:
         for _ in range(min(n_outdated, len(revealed_facts))):
             fact = rng.choice(revealed_facts)
-            new_values = [
-                o
-                for o in FACT_POOL
-                if o["predicate"] == fact.predicate or o["category"] == fact.category
-            ]
+            # Must match on predicate, not just category: two facts sharing a
+            # category (e.g. "job" and "degree" are both "factual") have unrelated
+            # object pools, so a category-only match can pick a "corrected value"
+            # from a completely different predicate (e.g. "correcting" a degree
+            # subject to a job title) — a real bug caught via a real generation run.
+            same_predicate = [o for o in FACT_POOL if o["predicate"] == fact.predicate]
             correction_obj = fact.object
-            if new_values:
-                candidates = (
-                    [o for o in new_values[0]["objects"] if o != fact.object] if new_values else []
-                )
+            if same_predicate:
+                candidates = [o for o in same_predicate[0]["objects"] if o != fact.object]
                 if candidates:
                     correction_obj = rng.choice(candidates)
 
