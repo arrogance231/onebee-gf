@@ -16,7 +16,7 @@ Remote GPU rental box, provisioned 2026-08-13.
 | VBIOS version | 98.02.AF.00.01 |
 | Driver version | 580.173.02 |
 | CUDA version (driver-reported) | 13.0 |
-| CUDA toolkit (`nvcc`) | not installed — pending Day 1 environment setup |
+| CUDA toolkit (`nvcc`) | not installed — not needed yet; PyTorch ships its own CUDA runtime |
 | MIG mode | Disabled |
 | Virtualization mode | Pass-Through |
 | Persistence mode | Enabled |
@@ -25,12 +25,17 @@ Remote GPU rental box, provisioned 2026-08-13.
 | Disk | 145 GB total, 114 GB free at provisioning |
 | OS | Ubuntu 24.04.4 LTS |
 | Kernel | 6.8.0-137-generic |
+| PyTorch build | `torch==2.13.0+cu130` |
+| `torch.cuda.is_available()` | `True` |
+| `torch.cuda.get_device_capability(0)` | `(12, 0)` — sm_120, confirms Blackwell support (the doc's flagged likely Day-1 blocker did not occur) |
 | Measured TFLOPs (30s matmul bench) | TBD — pending `inference/bench.py` run |
-| PyTorch build | TBD — pending `gpu` extra install |
 
 Notes: on first connect, `nvidia-smi` failed with a driver/library version mismatch (stale
 kernel modules vs. a newer installed driver package, plus a pending kernel upgrade); resolved
 by rebooting the box. `nvidia-smi` confirmed working post-reboot with the values above.
+`uv sync --extra gpu` installed the full training/inference stack (torch 2.13.0+cu130,
+transformers 5.15.0, trl 1.10.0, vllm 0.27.1, sentence-transformers 5.7.0, wandb 0.28.2) without
+issue.
 
 ## Mobile test device
 
