@@ -46,6 +46,30 @@ fresh session (or a future week's re-test) doesn't have to rediscover any of thi
    similar missing-dependency error, you'll now see a Python warning naming the exact exception
    instead of the model quietly running text-only.**
 
+6. **`gpt-5.6-luna` (the OpenAI judge) rejects any non-default `temperature`.** Raises
+   `400 Unsupported value: 'temperature' does not support 0 with this model. Only the default
+   (1) value is supported.` `OpenAIJudge._request_json` now retries once without `temperature`
+   on this specific error and remembers not to send it again for the rest of that judge
+   instance's life (`self._temperature_unsupported`). **If a future judge model has the same
+   restriction, this handles it automatically — no code change needed.**
+
+7. **SmolVLM2's chat template silently drops plain-string message content.** The FIRST real
+   bake-off run scored `smolvlm2-2.2b` a flat `0.0` on every text-only category
+   (instruction/en_dialogue/ja_dialogue/structured_context) — not because the model answered
+   badly, but because `apply_chat_template` handed it `content: "some text"` (a plain string,
+   the normal shape for text-only messages) and SmolVLM's Jinja template only knows how to
+   iterate typed content parts (`[{"type": "text", "text": ...}]`). The rendered prompt came out
+   as `'<|im_start|>User: <end_of_utterance>\nAssistant:'` — **the user's question was silently
+   missing entirely**, so the model was free-associating with no input, not underperforming.
+   Fixed generically in `HFEngine.apply_chat_template` via
+   `_normalize_content_for_multimodal_template()`, which converts plain-string content to
+   list-of-parts form before handing off to ANY multimodal processor's chat template — this
+   fixes it for every VLM with this template style, not just SmolVLM2. **This is the most
+   important finding in this file**: always re-run the bake-off after this fix if it's ever
+   reverted, and treat a suspiciously flat/zero score on one model as a wiring bug to
+   investigate (check the actual rendered prompt via `engine.apply_chat_template(messages)`)
+   before assuming the model is just bad.
+
 ## Per-candidate results (real download + generate, 2026-08-13)
 
 All 4 confirmed: load successfully, correctly detected as multimodal
