@@ -1,15 +1,17 @@
 # onebee-gf
 
-**Stretching a 1B parameter LLM through post-training and external cognitive architecture.**
+**Stretching a small multimodal LLM through post-training and external cognitive architecture.**
 
-How much apparent capability can be recovered from a ~1B parameter language model through
-post-training, external memory, retrieval, state modeling, distillation, and inference-time
-cognitive architecture — and how much of that survives quantization and runs locally on a
-smartphone? This project builds a ~1B parameter conversational model augmented with an
-external memory system (short-term, episodic, and semantic tiers), hybrid dense+BM25
-retrieval, a token-budgeted context builder, and a LoRA/DPO post-training pipeline, and
-evaluates it against an adversarial personalized-memory benchmark (PMB) with abstention and
-contradiction traps — not just recall.
+How much apparent capability can be recovered from a small (~1–4B parameter), vision-capable
+language model through post-training, external memory, retrieval, state modeling, distillation,
+and inference-time cognitive architecture — and how much of that survives quantization and runs
+locally on a smartphone? This project builds a small multimodal companion model — able to see
+and respond to images the user shares, not just text — augmented with an external memory system
+(short-term, episodic, and semantic tiers), hybrid dense+BM25 retrieval, a token-budgeted
+context builder, and a LoRA/DPO post-training pipeline, and evaluates it against an adversarial
+personalized-memory benchmark (PMB) with abstention and contradiction traps — not just recall.
+The stress test is a persona expected to hold continuity across **years** of conversation, which
+is why external memory rather than raw context length is the project's central bet.
 
 See [`docs/research_questions.md`](docs/research_questions.md) for the full research question
 hierarchy and hypotheses this project is testing.
