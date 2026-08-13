@@ -260,7 +260,19 @@ class TestRunLatencyBench:
             assert r.batch_size == 1
             assert r.ttft_ms > 0
             assert r.decode_tok_s > 0
-            assert r.peak_vram_mb is None
+            # peak_vram_mb is None when torch/cuda aren't available (the common case
+            # for this sandbox); when torch+CUDA ARE present (e.g. the training box),
+            # it's a real (possibly 0.0, since FakeEngine never allocates) float.
+            try:
+                import torch
+
+                cuda_available = torch.cuda.is_available()
+            except ImportError:
+                cuda_available = False
+            if cuda_available:
+                assert isinstance(r.peak_vram_mb, float)
+            else:
+                assert r.peak_vram_mb is None
 
     def test_with_prompt_source(self):
         engine = FakeEngine()
