@@ -29,6 +29,10 @@ class OpenAIJudge:
         self.api_key = api_key
         self.base_url = base_url
         self.temperature = temperature
+        # Set True after the API rejects a non-default temperature once (e.g. some
+        # reasoning-style models only accept the implicit default); once learned,
+        # every subsequent request for this instance skips the failing attempt.
+        self._temperature_unsupported = False
 
     def _resolve_api_key(self) -> str | None:
         if self.api_key is not None:
@@ -47,6 +51,8 @@ class OpenAIJudge:
         return openai.OpenAI(**kwargs)
 
     def _request_json(self, system_prompt: str, user_prompt: str) -> dict[str, Any]:
+        import openai
+
         client = self._client()
         messages: list[dict[str, str]] = [
             {"role": "system", "content": system_prompt},
@@ -55,12 +61,25 @@ class OpenAIJudge:
 
         raw: str | None = None
         for attempt in range(2):
-            completion = client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=self.temperature,
-                response_format={"type": "json_object"},
-            )
+            request_kwargs: dict[str, Any] = {
+                "model": self.model,
+                "messages": messages,
+                "response_format": {"type": "json_object"},
+            }
+            if not self._temperature_unsupported:
+                request_kwargs["temperature"] = self.temperature
+            try:
+                completion = client.chat.completions.create(**request_kwargs)
+            except openai.BadRequestError as exc:
+                # Some models (e.g. reasoning-style models) reject any non-default
+                # temperature and only accept the implicit default (1.0) — retry once
+                # without the param instead of failing the whole judge run.
+                if not self._temperature_unsupported and "temperature" in str(exc):
+                    self._temperature_unsupported = True
+                    request_kwargs.pop("temperature", None)
+                    completion = client.chat.completions.create(**request_kwargs)
+                else:
+                    raise
             raw = completion.choices[0].message.content
 
             try:
