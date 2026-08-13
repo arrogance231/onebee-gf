@@ -1,0 +1,8 @@
+# DPO on top of the Day-4 SFT checkpoint — standard sequential post-training
+# practice (docs/model_quirks.md). Every other field uses its DPOTrainingConfig
+# default.
+base_model: "outputs/sft/v0/merged"
+base_model_revision: "main"
+train_file: "data/dpo/v0/train.jsonl"
+val_file: "data/dpo/v0/val.jsonl"
+output_dir: "outputs/dpo/v0"
