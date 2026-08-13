@@ -1,0 +1,9 @@
+name: qwen3_vl_2b
+hf_repo: Qwen/Qwen3-VL-2B-Instruct
+revision: "89644892e4d85e24eaac8bacfd4f463576704203"
+chat_template: default
+dtype: bfloat16
+multimodal: true
+# Requires TORCH_CUDNN_V8_API_DISABLED=1 on Blackwell (sm_120) GPUs — see docs/model_quirks.md.
+env:
+  TORCH_CUDNN_V8_API_DISABLED: "1"

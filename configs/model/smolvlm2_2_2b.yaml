@@ -1,0 +1,6 @@
+name: smolvlm2_2_2b
+hf_repo: HuggingFaceTB/SmolVLM2-2.2B-Instruct
+revision: "482adb537c021c86670beed01cd58990d01e72e4"
+chat_template: default
+dtype: bfloat16
+multimodal: true
