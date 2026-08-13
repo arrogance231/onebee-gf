@@ -8,6 +8,9 @@ venv/
 wandb/
 *.db
 *.db-journal
+# Populated memory stores are versioned artifacts per the project's own data-versioning
+# rule (see 01_ARCHITECTURE.md / docs/research_questions.md) — exempt from the *.db ignore.
+!data/stores/**/*.db
 *.sqlite
 *.gguf
 *.safetensors
