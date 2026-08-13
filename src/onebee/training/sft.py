@@ -233,8 +233,22 @@ def run_sft(
     trainer.train()
     trainer.save_model(os.path.join(config.output_dir, "adapter"))
     merged_model = trainer.model.merge_and_unload()
-    merged_model.save_pretrained(os.path.join(config.output_dir, "merged"))
-    tokenizer.save_pretrained(os.path.join(config.output_dir, "merged"))
+    merged_dir = os.path.join(config.output_dir, "merged")
+    merged_model.save_pretrained(merged_dir)
+    tokenizer.save_pretrained(merged_dir)
+    # For multimodal base models, saving only the tokenizer drops the image
+    # processor config (preprocessor_config.json), silently degrading the merged
+    # checkpoint to text-only — caught via a real training run. Also save the full
+    # AutoProcessor when the base model has one; no-op (caught) for text-only models.
+    try:
+        from transformers import AutoProcessor
+
+        processor = AutoProcessor.from_pretrained(
+            config.base_model, revision=config.base_model_revision
+        )
+        processor.save_pretrained(merged_dir)
+    except Exception:
+        pass
 
 
 def _build_parser() -> argparse.ArgumentParser:
