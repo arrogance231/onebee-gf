@@ -188,6 +188,46 @@ class TestExtractImagesAndText:
         assert "torch" not in sys.modules
 
 
+class TestNormalizeContentForMultimodalTemplate:
+    def test_plain_string_content_becomes_typed_text_part(self):
+        from onebee.inference.engine import _normalize_content_for_multimodal_template
+
+        messages = [{"role": "user", "content": "hello there"}]
+        normalized = _normalize_content_for_multimodal_template(messages)
+        assert normalized == [
+            {"role": "user", "content": [{"type": "text", "text": "hello there"}]}
+        ]
+
+    def test_list_content_is_left_untouched(self):
+        from onebee.inference.engine import _normalize_content_for_multimodal_template
+
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": "pic.png"},
+                    {"type": "text", "text": "what is this?"},
+                ],
+            }
+        ]
+        normalized = _normalize_content_for_multimodal_template(messages)
+        assert normalized == messages
+
+    def test_mixed_batch_of_string_and_list_content(self):
+        from onebee.inference.engine import _normalize_content_for_multimodal_template
+
+        messages = [
+            {"role": "system", "content": "you are helpful"},
+            {
+                "role": "user",
+                "content": [{"type": "image", "image": "x.png"}, {"type": "text", "text": "?"}],
+            },
+        ]
+        normalized = _normalize_content_for_multimodal_template(messages)
+        assert normalized[0]["content"] == [{"type": "text", "text": "you are helpful"}]
+        assert normalized[1]["content"] == messages[1]["content"]
+
+
 class TestHFEngineBasic:
     def test_can_import_and_instantiate_without_torch(self):
         engine = HFEngine(model_name="gpt2")
@@ -206,6 +246,26 @@ class TestHFEngineBasic:
         )
         assert "user: hello" in result
         assert "assistant: hi" in result
+
+    def test_apply_chat_template_multimodal_normalizes_string_content(self):
+        # Regression test: a real VLM chat template (SmolVLM2) silently dropped
+        # plain-string content, producing prompts with the user's text missing.
+        engine = HFEngine(model_name="fake-vlm")
+        engine._is_multimodal = True
+
+        class FakeProcessor:
+            def apply_chat_template(self, messages, tokenize, add_generation_prompt):
+                # Real templates iterate typed parts; return the text back out so the
+                # test can assert it was actually present, not dropped.
+                parts = messages[0]["content"]
+                assert isinstance(parts, list)
+                return " ".join(p["text"] for p in parts if p.get("type") == "text")
+
+        engine._processor = FakeProcessor()
+        result = engine.apply_chat_template(
+            [{"role": "user", "content": "does a square have four sides?"}]
+        )
+        assert result == "does a square have four sides?"
 
     def test_generate_raises_without_load(self):
         engine = HFEngine(model_name="gpt2")

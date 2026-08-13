@@ -37,6 +37,25 @@ def _extract_images_and_text(messages: list[dict]) -> tuple[list[dict], list[Any
     return messages, images
 
 
+def _normalize_content_for_multimodal_template(messages: list[dict]) -> list[dict]:
+    """Ensure every message's ``content`` is list-of-typed-parts form.
+
+    Some multimodal chat templates (e.g. SmolVLM/Idefics-family) only know how to
+    iterate typed content parts (``[{"type": "text", "text": ...}]``) and silently
+    drop plain-string content — producing a prompt with the user's text missing
+    entirely rather than an error. Normalizing here makes text-only calls behave
+    the same regardless of which multimodal model is loaded.
+    """
+    normalized: list[dict] = []
+    for msg in messages:
+        content = msg.get("content")
+        if isinstance(content, str):
+            normalized.append({**msg, "content": [{"type": "text", "text": content}]})
+        else:
+            normalized.append(msg)
+    return normalized
+
+
 @runtime_checkable
 class Generator(Protocol):
     @property
@@ -133,6 +152,7 @@ class HFEngine:
 
     def apply_chat_template(self, messages: list[dict]) -> str:
         if self._is_multimodal and self._processor is not None:
+            messages = _normalize_content_for_multimodal_template(messages)
             return self._processor.apply_chat_template(
                 messages, tokenize=False, add_generation_prompt=True
             )
