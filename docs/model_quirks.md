@@ -148,6 +148,18 @@ result.
     checkpoint using the exact same context-assembly code path it saw during training/eval, not
     an ad-hoc paraphrase — a wrong-looking result may just be a format mismatch.
 
+15. **`trl.ORPOTrainer`/`ORPOConfig` do not exist in this environment's trl (1.10.0) at all** —
+    `ImportError: cannot import name 'ORPOConfig' from 'trl'`. This isn't a rename like the
+    earlier SFT/DPO API breaks; ORPO support was dropped entirely from this trl version.
+    Available preference/RL trainers in this environment: `DPOConfig`/`DPOTrainer`,
+    `GRPOConfig`/`GRPOTrainer`, `KTOConfig`/`KTOTrainer`, `RLOOConfig`/`RLOOTrainer`,
+    `RewardConfig`/`RewardTrainer`, `DistillationConfig`/`DistillationTrainer`. **H3.1 ("does
+    ORPO match DPO at lower compute") cannot be tested without either pinning an older trl
+    version (risk: could break the already-working SFT/DPO pipeline, which depends on this
+    exact trl version's API) or hand-implementing the ORPO loss.** Neither was attempted given
+    time budget — documented as a real blocker, not silently skipped. If ORPO is needed later,
+    check trl's current version support before assuming `ORPOTrainer` exists.
+
 ## How to re-run these smoke tests
 
 ```bash
