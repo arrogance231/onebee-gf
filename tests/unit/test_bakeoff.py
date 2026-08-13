@@ -69,6 +69,57 @@ class TestOpenAIJudgeConstruction:
         assert judge.base_url == "http://x"
         assert judge.temperature == 0.3
 
+    def test_retries_without_temperature_when_unsupported(self, monkeypatch):
+        # Some models (reasoning-style, e.g. gpt-5.6-luna) reject any non-default
+        # temperature. Simulate that: first call with temperature=... raises
+        # BadRequestError mentioning "temperature"; the retry without it succeeds.
+        import types
+
+        calls: list[dict] = []
+
+        class FakeBadRequestError(Exception):
+            pass
+
+        class FakeResponse:
+            def __init__(self, content):
+                self.choices = [types.SimpleNamespace(message=types.SimpleNamespace(content=content))]
+
+        class FakeCompletions:
+            def create(self, **kwargs):
+                calls.append(kwargs)
+                if "temperature" in kwargs:
+                    raise FakeBadRequestError(
+                        "Unsupported value: 'temperature' does not support 0 with this model."
+                    )
+                return FakeResponse('{"score": 4.0, "justification": "ok"}')
+
+        class FakeChat:
+            completions = FakeCompletions()
+
+        class FakeOpenAIClient:
+            def __init__(self, **kwargs):
+                self.chat = FakeChat()
+
+        fake_openai = types.ModuleType("openai")
+        fake_openai.OpenAI = FakeOpenAIClient
+        fake_openai.BadRequestError = FakeBadRequestError
+        monkeypatch.setitem(sys.modules, "openai", fake_openai)
+
+        judge = OpenAIJudge(model="gpt-5.6-luna", api_key="sk-test")
+        verdict = judge.score_response("q", "r", "rubric")
+
+        assert verdict.score == 4.0
+        assert len(calls) == 2
+        assert "temperature" in calls[0]
+        assert "temperature" not in calls[1]
+        assert judge._temperature_unsupported is True
+
+        # Second call for the same instance should skip the failing attempt entirely.
+        calls.clear()
+        judge.score_response("q2", "r2", "rubric")
+        assert len(calls) == 1
+        assert "temperature" not in calls[0]
+
 
 class TestScoreWithJudge:
     def test_aggregation_math(self):
