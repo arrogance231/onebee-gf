@@ -36,6 +36,8 @@ gpu = [
   "sentence-transformers>=3.0",
   "wandb>=0.17",
   "pillow>=10",
+  # required by some VLM processors (e.g. SmolVLM) for number-to-word text normalization
+  "num2words>=0.5",
 ]
 dev = [
   "ruff>=0.4",
