@@ -6,6 +6,7 @@ from onebee.memory.extraction.extractor import (
     SalienceGate,
     TeacherExtractor,
 )
+from onebee.memory.extraction.openai_extractor import OpenAITeacherExtractor
 from onebee.memory.extraction.schema import (
     ASSERTION_STRENGTH_MULTIPLIER,
     SOURCE_RELIABILITY_MULTIPLIER,
@@ -36,6 +37,7 @@ __all__ = [
     "ExtractionResult",
     "GroundingChecker",
     "NullGroundingChecker",
+    "OpenAITeacherExtractor",
     "SalienceGate",
     "SourceReliability",
     "TRIVIAL_STOPLIST",
