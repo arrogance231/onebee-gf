@@ -293,6 +293,11 @@ def run_candidate(
     prompts: list[dict],
     revision: str = "main",
 ) -> list[dict]:
+    # Required for Qwen3-VL on Blackwell (sm_120): without it, its vision tower's
+    # Conv3d patch-embed crashes with CUDNN_STATUS_SUBLIBRARY_VERSION_MISMATCH.
+    # Harmless for the other candidates. See docs/model_quirks.md.
+    os.environ.setdefault("TORCH_CUDNN_V8_API_DISABLED", "1")
+
     from onebee.inference.engine import GenerationConfig, HFEngine
 
     try:
