@@ -464,6 +464,13 @@ class OpenAITeacherClient:
             "has shared.\n\n"
             f"Probe category: {category}.\n"
             f"{_PROBE_CATEGORY_GUIDANCE.get(category, 'Ask directly about the fact.')}\n\n"
+            "CRITICAL: this benchmark grades answers against a fixed gold value — the "
+            f"fact's object, {fact.object!r} — verbatim. The question you write MUST be "
+            f"phrased so that {fact.object!r} is literally the correct, direct answer to "
+            "it. Do NOT ask a 'when'/'how many'/'where' question if the object is not "
+            "itself a time/count/place — match the question's expected answer type to "
+            "the object's actual type. For example, if the object is a kind of pet, ask "
+            "'what pet...', not 'when did...'.\n\n"
             "Respond with ONLY the question text — a single natural question, no "
             "JSON, no labels, no explanation."
         )
