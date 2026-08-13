@@ -1,0 +1,1234 @@
+{
+  "persona": {
+    "persona_id": "p006",
+    "name": "Grace",
+    "description": "Grace is a patient and extroverted and ambitious and reserved and curious person.",
+    "traits": [
+      "patient",
+      "extroverted",
+      "ambitious",
+      "reserved",
+      "curious"
+    ],
+    "fact_sheet": [
+      {
+        "fact_id": "p006_f000",
+        "subject": "p006",
+        "predicate": "favorite movie genre",
+        "object": "fantasy",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f001",
+        "subject": "p006",
+        "predicate": "adopted a pet",
+        "object": "two guinea pigs",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p006_f002",
+        "subject": "p006",
+        "predicate": "vaccinated on",
+        "object": "December 2021",
+        "category": "temporal"
+      },
+      {
+        "fact_id": "p006_f003",
+        "subject": "p006",
+        "predicate": "preferred season",
+        "object": "winter",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f004",
+        "subject": "p006",
+        "predicate": "hometown",
+        "object": "Miami",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f005",
+        "subject": "p006",
+        "predicate": "company",
+        "object": "Meta",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f006",
+        "subject": "p006",
+        "predicate": "graduated from",
+        "object": "Berkeley",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p006_f007",
+        "subject": "p006",
+        "predicate": "favorite sport",
+        "object": "volleyball",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f008",
+        "subject": "p006",
+        "predicate": "preferred music genre",
+        "object": "blues",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f009",
+        "subject": "p006",
+        "predicate": "favorite food",
+        "object": "dumplings",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f010",
+        "subject": "p006",
+        "predicate": "expertise",
+        "object": "woodworking",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f011",
+        "subject": "p006",
+        "predicate": "wake-up time",
+        "object": "6:15 AM",
+        "category": "temporal"
+      },
+      {
+        "fact_id": "p006_f012",
+        "subject": "p006",
+        "predicate": "job",
+        "object": "lawyer",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f013",
+        "subject": "p006",
+        "predicate": "degree",
+        "object": "Music",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f014",
+        "subject": "p006",
+        "predicate": "visited recently",
+        "object": "Reykjavik",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p006_f015",
+        "subject": "p006",
+        "predicate": "lives in",
+        "object": "Toronto",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f016",
+        "subject": "p006",
+        "predicate": "birthday",
+        "object": "April 30",
+        "category": "temporal"
+      },
+      {
+        "fact_id": "p006_f017",
+        "subject": "p006",
+        "predicate": "favorite color",
+        "object": "yellow",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f018",
+        "subject": "p006",
+        "predicate": "moved to",
+        "object": "Austin",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p006_f019",
+        "subject": "p006",
+        "predicate": "attended a conference",
+        "object": "ICML",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p006_f020",
+        "subject": "p006",
+        "predicate": "anniversary",
+        "object": "June 15",
+        "category": "temporal"
+      },
+      {
+        "fact_id": "p006_f021",
+        "subject": "p006",
+        "predicate": "age",
+        "object": "33",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f022",
+        "subject": "p006",
+        "predicate": "lunch break",
+        "object": "1:00 PM",
+        "category": "temporal"
+      },
+      {
+        "fact_id": "p006_f023",
+        "subject": "p006",
+        "predicate": "favorite book",
+        "object": "The Great Gatsby",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f024",
+        "subject": "p006",
+        "predicate": "favorite movie genre_24",
+        "object": "fantasy",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f025",
+        "subject": "p006",
+        "predicate": "adopted a pet_25",
+        "object": "a husky",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p006_f026",
+        "subject": "p006",
+        "predicate": "vaccinated on_26",
+        "object": "December 2021",
+        "category": "temporal"
+      },
+      {
+        "fact_id": "p006_f027",
+        "subject": "p006",
+        "predicate": "preferred season_27",
+        "object": "autumn",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f028",
+        "subject": "p006",
+        "predicate": "hometown_28",
+        "object": "Denver",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f029",
+        "subject": "p006",
+        "predicate": "company_29",
+        "object": "Microsoft",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f030",
+        "subject": "p006",
+        "predicate": "graduated from_30",
+        "object": "NYU",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p006_f031",
+        "subject": "p006",
+        "predicate": "favorite sport_31",
+        "object": "tennis",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f032",
+        "subject": "p006",
+        "predicate": "preferred music genre_32",
+        "object": "classical",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f033",
+        "subject": "p006",
+        "predicate": "favorite food_33",
+        "object": "curry",
+        "category": "preference"
+      },
+      {
+        "fact_id": "p006_f034",
+        "subject": "p006",
+        "predicate": "expertise_34",
+        "object": "woodworking",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f035",
+        "subject": "p006",
+        "predicate": "wake-up time_35",
+        "object": "7:00 AM",
+        "category": "temporal"
+      },
+      {
+        "fact_id": "p006_f036",
+        "subject": "p006",
+        "predicate": "job_36",
+        "object": "writer",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f037",
+        "subject": "p006",
+        "predicate": "degree_37",
+        "object": "Mathematics",
+        "category": "factual"
+      },
+      {
+        "fact_id": "p006_f038",
+        "subject": "p006",
+        "predicate": "visited recently_38",
+        "object": "Reykjavik",
+        "category": "episodic"
+      },
+      {
+        "fact_id": "p006_f039",
+        "subject": "p006",
+        "predicate": "lives in_39",
+        "object": "Seattle",
+        "category": "factual"
+      }
+    ]
+  },
+  "sessions": [
+    {
+      "session_id": "p006_s000",
+      "persona_id": "p006",
+      "turns": [
+        {
+          "turn_id": "p006_s000_t000",
+          "session_id": "p006_s000",
+          "role": "user",
+          "text": "I had one of those unusually calm mornings today. I made coffee, opened the window, and let myself ease into the day instead of rushing.",
+          "ts": 0,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s000_t001",
+          "session_id": "p006_s000",
+          "role": "assistant",
+          "text": "That sounds very much like the kind of morning that lets you arrive in your own life before the rest of the day starts asking things from you. I\u2019m glad you gave yourself that little pocket of calm, Grace.",
+          "ts": 60,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s000_t002",
+          "session_id": "p006_s000",
+          "role": "user",
+          "text": "It helped that I knew I had a writing project to look forward to. I suppose I\u2019ve never really stopped feeling lucky that my job is being a writer.",
+          "ts": 120,
+          "revealed_fact_ids": [
+            "p006_f036"
+          ]
+        },
+        {
+          "turn_id": "p006_s000_t003",
+          "session_id": "p006_s000",
+          "role": "assistant",
+          "text": "There\u2019s something lovely about calling it a project rather than just a task. Your curiosity probably serves you well as a writer\u2014you get to keep following questions wherever they lead.",
+          "ts": 180,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s000_t004",
+          "session_id": "p006_s000",
+          "role": "user",
+          "text": "Exactly. And when I get stuck, I usually put on some music. Blues is still my favorite; there\u2019s so much feeling in it without it having to explain itself.",
+          "ts": 240,
+          "revealed_fact_ids": [
+            "p006_f008"
+          ]
+        },
+        {
+          "turn_id": "p006_s000_t005",
+          "session_id": "p006_s000",
+          "role": "assistant",
+          "text": "Blues feels like a good companion for you: patient, honest, and spacious enough to hold a complicated mood. I can picture you letting a song play while a stubborn sentence slowly finds its shape.",
+          "ts": 300,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s000_t006",
+          "session_id": "p006_s000",
+          "role": "user",
+          "text": "You know, I\u2019m working from home in Seattle these days. The gray weather can be dramatic, but I\u2019ve grown fond of it\u2014especially when the city is quiet and misty.",
+          "ts": 360,
+          "revealed_fact_ids": [
+            "p006_f039"
+          ]
+        },
+        {
+          "turn_id": "p006_s000_t007",
+          "session_id": "p006_s000",
+          "role": "assistant",
+          "text": "Seattle\u2019s misty quiet seems like it would suit both your reserved side and your adventurous one. You can have a private, reflective day and still be surrounded by a lively, outward-looking city.",
+          "ts": 420,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s000_t008",
+          "session_id": "p006_s000",
+          "role": "user",
+          "text": "That balance is probably why I\u2019ve stayed. Though I still miss Berkeley sometimes. Graduating from there feels like it happened in another lifetime, but certain streets can bring the whole feeling back.",
+          "ts": 480,
+          "revealed_fact_ids": [
+            "p006_f006"
+          ]
+        },
+        {
+          "turn_id": "p006_s000_t009",
+          "session_id": "p006_s000",
+          "role": "assistant",
+          "text": "Places hold our earlier selves so vividly. I love that Berkeley can still open that door for you, even from Seattle\u2014like a familiar voice reminding you where some of your ambition began.",
+          "ts": 540,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s000_t010",
+          "session_id": "p006_s000",
+          "role": "user",
+          "text": "Speaking of ambition, I\u2019m trying to be more deliberate about taking breaks instead of treating them like a reward. My lunch break is at 1:00 PM, and I\u2019m actually going to honor it today.",
+          "ts": 600,
+          "revealed_fact_ids": [
+            "p006_f022"
+          ]
+        },
+        {
+          "turn_id": "p006_s000_t011",
+          "session_id": "p006_s000",
+          "role": "assistant",
+          "text": "I\u2019m proud of you for making it a boundary rather than a prize you have to earn. At one, I hope you step away completely\u2014even if it\u2019s only for a quiet meal and a few minutes of not producing anything.",
+          "ts": 660,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s000_t012",
+          "session_id": "p006_s000",
+          "role": "user",
+          "text": "I will. Maybe I\u2019ll even watch a little tennis afterward. It\u2019s my favorite sport, and I love how much patience and nerve it demands from the players.",
+          "ts": 720,
+          "revealed_fact_ids": [
+            "p006_f031"
+          ]
+        },
+        {
+          "turn_id": "p006_s000_t013",
+          "session_id": "p006_s000",
+          "role": "assistant",
+          "text": "Tennis does seem to mirror something in you: patient but determined, composed while still reaching for the next point. And you have a meaningful date coming up too, don\u2019t you?",
+          "ts": 780,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s000_t014",
+          "session_id": "p006_s000",
+          "role": "user",
+          "text": "I do. Our anniversary is June 15. I\u2019m trying to plan something thoughtful rather than extravagant\u2014something that feels personal to us.",
+          "ts": 840,
+          "revealed_fact_ids": [
+            "p006_f020"
+          ]
+        },
+        {
+          "turn_id": "p006_s000_t015",
+          "session_id": "p006_s000",
+          "role": "assistant",
+          "text": "June 15 deserves something with real meaning behind it, not just polish. I know you well enough to suspect that the thoughtful details\u2014the shared memory, the small surprise, the moment that says \u201cI remember us\u201d\u2014will matter most to you both.",
+          "ts": 900,
+          "revealed_fact_ids": []
+        }
+      ]
+    },
+    {
+      "session_id": "p006_s001",
+      "persona_id": "p006",
+      "turns": [
+        {
+          "turn_id": "p006_s001_t000",
+          "session_id": "p006_s001",
+          "role": "user",
+          "text": "I woke up absurdly early today\u20146:15 AM\u2014and somehow felt ready to take on the whole world.",
+          "ts": 100000,
+          "revealed_fact_ids": [
+            "p006_f011"
+          ]
+        },
+        {
+          "turn_id": "p006_s001_t001",
+          "session_id": "p006_s001",
+          "role": "assistant",
+          "text": "That is very on-brand for you: ambitious before most people have even found their coffee. Did the early start feel energizing, or are you quietly holding yourself together until breakfast?",
+          "ts": 100060,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s001_t002",
+          "session_id": "p006_s001",
+          "role": "user",
+          "text": "A little of both. I made dumplings, which is my reliable answer to almost any emotional or logistical problem.",
+          "ts": 100120,
+          "revealed_fact_ids": [
+            "p006_f009"
+          ]
+        },
+        {
+          "turn_id": "p006_s001_t003",
+          "session_id": "p006_s001",
+          "role": "assistant",
+          "text": "Dumplings are an excellent strategy\u2014comforting, practical, and adaptable, much like you. Were they homemade, or did you have a favorite place nearby?",
+          "ts": 100180,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s001_t004",
+          "session_id": "p006_s001",
+          "role": "user",
+          "text": "Homemade this time. My technique has improved since I moved to Denver, though I still miss the food and energy of Miami, where I\u2019m from.",
+          "ts": 100240,
+          "revealed_fact_ids": [
+            "p006_f028",
+            "p006_f004"
+          ]
+        },
+        {
+          "turn_id": "p006_s001_t005",
+          "session_id": "p006_s001",
+          "role": "assistant",
+          "text": "That makes sense: Denver gives you a different rhythm and landscape, while Miami still carries that deeply familiar spark. I can imagine you appreciating both\u2014the room to build something new and the pull of where you began.",
+          "ts": 100300,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s001_t006",
+          "session_id": "p006_s001",
+          "role": "user",
+          "text": "Exactly. I like having a fresh challenge, even when I\u2019m being reserved about how much it matters to me. I think that\u2019s part of why I studied Music.",
+          "ts": 100360,
+          "revealed_fact_ids": [
+            "p006_f013"
+          ]
+        },
+        {
+          "turn_id": "p006_s001_t007",
+          "session_id": "p006_s001",
+          "role": "assistant",
+          "text": "Music feels like a lovely fit for that combination of patience and ambition. It lets you be precise and thoughtful, but also expressive when you\u2019re ready. Do you still make or perform music?",
+          "ts": 100420,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s001_t008",
+          "session_id": "p006_s001",
+          "role": "user",
+          "text": "I do, though lately I\u2019ve been more curious than disciplined about it. I\u2019ll spend an hour exploring some sound, then realize I was supposed to be working toward an actual goal.",
+          "ts": 100480,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s001_t009",
+          "session_id": "p006_s001",
+          "role": "assistant",
+          "text": "Curiosity is not wasted time, especially for someone with a musical mind. Still, I know you\u2014you probably want the exploration to eventually become something you can point to and say, \u201cI made this.\u201d",
+          "ts": 100540,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s001_t010",
+          "session_id": "p006_s001",
+          "role": "user",
+          "text": "That is painfully accurate. Traveling helps, too. I visited Reykjavik recently, and the atmosphere there made me think differently about silence and space in music.",
+          "ts": 100600,
+          "revealed_fact_ids": [
+            "p006_f014"
+          ]
+        },
+        {
+          "turn_id": "p006_s001_t011",
+          "session_id": "p006_s001",
+          "role": "assistant",
+          "text": "Reykjavik seems like it would give you exactly that kind of spaciousness: stark, atmospheric, and quietly intense. I love that you brought the feeling of the place home with you instead of treating it as just a trip.",
+          "ts": 100660,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s001_t012",
+          "session_id": "p006_s001",
+          "role": "user",
+          "text": "I\u2019ve been carrying it around. On a less poetic note, I finally got vaccinated in December 2021, so I felt much more comfortable making trips like that afterward.",
+          "ts": 100720,
+          "revealed_fact_ids": [
+            "p006_f002"
+          ]
+        },
+        {
+          "turn_id": "p006_s001_t013",
+          "session_id": "p006_s001",
+          "role": "assistant",
+          "text": "That must have felt like an important step toward reclaiming some freedom after such a strange, restricted stretch of life. I\u2019m glad you\u2019ve been able to keep following your curiosity\u2014whether that leads you across the world, back to music, or simply to an early-morning plate of dumplings.",
+          "ts": 100780,
+          "revealed_fact_ids": []
+        }
+      ]
+    },
+    {
+      "session_id": "p006_s002",
+      "persona_id": "p006",
+      "turns": [
+        {
+          "turn_id": "p006_s002_t000",
+          "session_id": "p006_s002",
+          "role": "assistant",
+          "text": "You sound especially thoughtful today, Grace. What\u2019s been taking up your attention lately?",
+          "ts": 200000,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s002_t001",
+          "session_id": "p006_s002",
+          "role": "user",
+          "text": "I\u2019ve been thinking about how quickly this year is moving. I\u2019m 33 now, and somehow I still feel like I\u2019m just getting started.",
+          "ts": 200060,
+          "revealed_fact_ids": [
+            "p006_f021"
+          ]
+        },
+        {
+          "turn_id": "p006_s002_t002",
+          "session_id": "p006_s002",
+          "role": "assistant",
+          "text": "That feeling makes sense\u201433 can hold both perspective and possibility. You\u2019ve got plenty of time to keep becoming whoever you\u2019re aiming to be. Has anything lately made you feel especially capable?",
+          "ts": 200120,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s002_t003",
+          "session_id": "p006_s002",
+          "role": "user",
+          "text": "Actually, yes. I spent part of the weekend in my workshop. Woodworking is something I\u2019m really good at, and I\u2019ve been refining a few techniques.",
+          "ts": 200180,
+          "revealed_fact_ids": [
+            "p006_f034",
+            "p006_f010"
+          ]
+        },
+        {
+          "turn_id": "p006_s002_t004",
+          "session_id": "p006_s002",
+          "role": "assistant",
+          "text": "I love that image of you patiently working with your hands, turning raw material into something useful and beautiful. What are you making?",
+          "ts": 200240,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s002_t005",
+          "session_id": "p006_s002",
+          "role": "user",
+          "text": "A small walnut side table. It\u2019s challenging enough to keep me focused, but not so complicated that I can\u2019t enjoy the process.",
+          "ts": 200300,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s002_t006",
+          "session_id": "p006_s002",
+          "role": "assistant",
+          "text": "That sounds very you: ambitious, but still willing to savor the details. Do you get that same sense of challenge in your day job?",
+          "ts": 200360,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s002_t007",
+          "session_id": "p006_s002",
+          "role": "user",
+          "text": "Definitely. I work at Microsoft, and there\u2019s always something new to learn or a bigger problem to solve. It can be intense, but I like having room to grow.",
+          "ts": 200420,
+          "revealed_fact_ids": [
+            "p006_f029"
+          ]
+        },
+        {
+          "turn_id": "p006_s002_t008",
+          "session_id": "p006_s002",
+          "role": "assistant",
+          "text": "The combination of your careful craftsmanship and your appetite for growth seems like a real strength. When work gets intense, what helps you recharge?",
+          "ts": 200480,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s002_t009",
+          "session_id": "p006_s002",
+          "role": "user",
+          "text": "Winter helps more than people might expect. I like the quiet, the early evenings, and having an excuse to stay in and work on projects.",
+          "ts": 200540,
+          "revealed_fact_ids": [
+            "p006_f003"
+          ]
+        },
+        {
+          "turn_id": "p006_s002_t010",
+          "session_id": "p006_s002",
+          "role": "assistant",
+          "text": "That fits your reflective side beautifully. A quiet winter evening, your workshop nearby, and music in the background sounds almost perfectly restorative. What do you usually listen to?",
+          "ts": 200600,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s002_t011",
+          "session_id": "p006_s002",
+          "role": "user",
+          "text": "Classical music, usually. It gives me something rich to focus on without demanding too much of my attention.",
+          "ts": 200660,
+          "revealed_fact_ids": [
+            "p006_f032"
+          ]
+        },
+        {
+          "turn_id": "p006_s002_t012",
+          "session_id": "p006_s002",
+          "role": "assistant",
+          "text": "I can picture it: classical music drifting through the room while you work carefully on that table. Is there anything bright or cheerful you like to bring into those quieter spaces?",
+          "ts": 200720,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s002_t013",
+          "session_id": "p006_s002",
+          "role": "user",
+          "text": "Yellow. It\u2019s my favorite color\u2014warm and optimistic, even in the middle of winter.",
+          "ts": 200780,
+          "revealed_fact_ids": [
+            "p006_f017"
+          ]
+        }
+      ]
+    },
+    {
+      "session_id": "p006_s003",
+      "persona_id": "p006",
+      "turns": [
+        {
+          "turn_id": "p006_s003_t000",
+          "session_id": "p006_s003",
+          "role": "user",
+          "text": "I\u2019ve been thinking about how much my life has changed lately. Even the move still feels a little unreal sometimes.",
+          "ts": 300000,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s003_t001",
+          "session_id": "p006_s003",
+          "role": "assistant",
+          "text": "That sounds like the kind of change that takes a while to settle into your bones. You\u2019ve always had a lot of patience with big transitions, even when they\u2019re exciting. What part of it feels most unreal today?",
+          "ts": 300060,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s003_t002",
+          "session_id": "p006_s003",
+          "role": "user",
+          "text": "Probably living in Austin now. I\u2019m enjoying it, though\u2014I like how lively and open it feels.",
+          "ts": 300120,
+          "revealed_fact_ids": [
+            "p006_f018"
+          ]
+        },
+        {
+          "turn_id": "p006_s003_t003",
+          "session_id": "p006_s003",
+          "role": "assistant",
+          "text": "Austin does seem like it would suit your curious, ambitious side, while still giving you room to keep some things private. Have you found any favorite places or routines there yet?",
+          "ts": 300180,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s003_t004",
+          "session_id": "p006_s003",
+          "role": "user",
+          "text": "Work keeps me busy, but in a good way. I\u2019m at Meta, and there\u2019s always something new to learn.",
+          "ts": 300240,
+          "revealed_fact_ids": [
+            "p006_f005"
+          ]
+        },
+        {
+          "turn_id": "p006_s003_t005",
+          "session_id": "p006_s003",
+          "role": "assistant",
+          "text": "That sounds very much like you: energized by possibilities, but willing to be patient while you figure things out properly. Do you ever get to step away from work and do something completely unrelated?",
+          "ts": 300300,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s003_t006",
+          "session_id": "p006_s003",
+          "role": "user",
+          "text": "I try to. My degree was in Mathematics, so sometimes I still end up doing puzzles or getting absorbed in a problem for fun.",
+          "ts": 300360,
+          "revealed_fact_ids": [
+            "p006_f037"
+          ]
+        },
+        {
+          "turn_id": "p006_s003_t007",
+          "session_id": "p006_s003",
+          "role": "assistant",
+          "text": "Of course you do\u2014you make even \u201cswitching off\u201d sound delightfully analytical. I love that your curiosity follows you everywhere. Has anything outside work been especially absorbing lately?",
+          "ts": 300420,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s003_t008",
+          "session_id": "p006_s003",
+          "role": "user",
+          "text": "Travel, mostly. I visited Reykjavik recently, and I\u2019m still thinking about the light there. It felt almost otherworldly.",
+          "ts": 300480,
+          "revealed_fact_ids": [
+            "p006_f038"
+          ]
+        },
+        {
+          "turn_id": "p006_s003_t009",
+          "session_id": "p006_s003",
+          "role": "assistant",
+          "text": "Reykjavik\u2019s light must have been unforgettable, especially for someone who notices details the way you do. I can imagine you quietly taking it all in while also wanting to explore every corner. What welcomed you home afterward?",
+          "ts": 300540,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s003_t010",
+          "session_id": "p006_s003",
+          "role": "user",
+          "text": "My pets, definitely. I adopted two guinea pigs, and they\u2019re tiny, noisy little companions.",
+          "ts": 300600,
+          "revealed_fact_ids": [
+            "p006_f001"
+          ]
+        },
+        {
+          "turn_id": "p006_s003_t011",
+          "session_id": "p006_s003",
+          "role": "assistant",
+          "text": "That is such a charming welcome-home committee. Tiny and noisy sounds like exactly the sort of gentle chaos that makes a place feel lived in. And I seem to remember there may be another animal in your household too?",
+          "ts": 300660,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s003_t012",
+          "session_id": "p006_s003",
+          "role": "user",
+          "text": "Yes\u2014a husky. I adopted him a while back, and he has endless energy. His vaccinations were done in December 2021, so at least that part is nicely documented.",
+          "ts": 300720,
+          "revealed_fact_ids": [
+            "p006_f025",
+            "p006_f026"
+          ]
+        },
+        {
+          "turn_id": "p006_s003_t013",
+          "session_id": "p006_s003",
+          "role": "assistant",
+          "text": "A husky plus two guinea pigs\u2014your home must have its own little ecosystem of personalities. I\u2019m glad you keep such careful track of his health, too. Between Austin, Meta, your mathematical brain, and that lively household, your life sounds full in the best possible way.",
+          "ts": 300780,
+          "revealed_fact_ids": []
+        }
+      ]
+    },
+    {
+      "session_id": "p006_s004",
+      "persona_id": "p006",
+      "turns": [
+        {
+          "turn_id": "p006_s004_t000",
+          "session_id": "p006_s004",
+          "role": "user",
+          "text": "I woke up feeling unusually motivated today. I think I\u2019m ready to make some real progress on the goals I\u2019ve been putting off.",
+          "ts": 400000,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s004_t001",
+          "session_id": "p006_s004",
+          "role": "assistant",
+          "text": "I love hearing that spark in you, Grace. You can be wonderfully patient with yourself, but there\u2019s also such ambition underneath it. What kind of progress are you hoping to make today?",
+          "ts": 400060,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s004_t002",
+          "session_id": "p006_s004",
+          "role": "user",
+          "text": "First, I want to get out for a walk. Toronto has been looking especially beautiful lately, and I\u2019ve been spending too much time indoors.",
+          "ts": 400120,
+          "revealed_fact_ids": [
+            "p006_f015"
+          ]
+        },
+        {
+          "turn_id": "p006_s004_t003",
+          "session_id": "p006_s004",
+          "role": "assistant",
+          "text": "A walk through Toronto sounds like a lovely way to begin\u2014fresh air, movement, and a little room for your thoughts to stretch out. Are you usually an early riser, or did today feel different?",
+          "ts": 400180,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s004_t004",
+          "session_id": "p006_s004",
+          "role": "user",
+          "text": "I\u2019m usually up at 7:00 AM. It gives me a quiet hour before the day gets noisy, which I really value.",
+          "ts": 400240,
+          "revealed_fact_ids": [
+            "p006_f035"
+          ]
+        },
+        {
+          "turn_id": "p006_s004_t005",
+          "session_id": "p006_s004",
+          "role": "assistant",
+          "text": "That quiet hour feels very you: reserved enough to protect your peace, but curious enough to fill it with plans and possibilities. What did you have in mind for breakfast after your walk?",
+          "ts": 400300,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s004_t006",
+          "session_id": "p006_s004",
+          "role": "user",
+          "text": "Probably curry, honestly. It\u2019s my favorite food, and I can never resist something fragrant and spicy in the morning if I have leftovers.",
+          "ts": 400360,
+          "revealed_fact_ids": [
+            "p006_f033"
+          ]
+        },
+        {
+          "turn_id": "p006_s004_t007",
+          "session_id": "p006_s004",
+          "role": "assistant",
+          "text": "Curry for breakfast is an excellent kind of confidence. I can practically imagine the warm spices waking you up better than coffee. Maybe you could make the walk your reward before coming home to it.",
+          "ts": 400420,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s004_t008",
+          "session_id": "p006_s004",
+          "role": "user",
+          "text": "That sounds good. Tonight I might also watch a movie as a little celebration for getting things done.",
+          "ts": 400480,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s004_t009",
+          "session_id": "p006_s004",
+          "role": "assistant",
+          "text": "Then tonight deserves something that lets your imagination roam. Do you have a favorite kind of movie for winding down?",
+          "ts": 400540,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s004_t010",
+          "session_id": "p006_s004",
+          "role": "user",
+          "text": "Fantasy, definitely. It\u2019s my favorite movie genre\u2014the bigger and stranger the world, the better.",
+          "ts": 400600,
+          "revealed_fact_ids": [
+            "p006_f024",
+            "p006_f000"
+          ]
+        },
+        {
+          "turn_id": "p006_s004_t011",
+          "session_id": "p006_s004",
+          "role": "assistant",
+          "text": "Fantasy suits your curious side so well. You like having one foot in the practical world and one somewhere wonderfully impossible. Is there a book that gives you that same feeling, even if it\u2019s a very different kind of story?",
+          "ts": 400660,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s004_t012",
+          "session_id": "p006_s004",
+          "role": "user",
+          "text": "My favorite book is The Great Gatsby. I love how polished and glittering it feels on the surface, while everything underneath is so complicated.",
+          "ts": 400720,
+          "revealed_fact_ids": [
+            "p006_f023"
+          ]
+        },
+        {
+          "turn_id": "p006_s004_t013",
+          "session_id": "p006_s004",
+          "role": "assistant",
+          "text": "That makes perfect sense for you, Grace\u2014you notice the layers beneath appearances. I hope your walk, your curry, and your ambitious little plans all make today feel as purposeful as you want it to be. And tonight, whether you choose a sweeping fantasy or revisit Gatsby, I\u2019ll be here to hear how it went.",
+          "ts": 400780,
+          "revealed_fact_ids": []
+        }
+      ]
+    },
+    {
+      "session_id": "p006_s005",
+      "persona_id": "p006",
+      "turns": [
+        {
+          "turn_id": "p006_s005_t000",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "I\u2019ve been thinking about how quickly this year is moving. My birthday is coming up on April 30, so I\u2019m trying to decide whether to make a big plan or keep it simple.",
+          "ts": 500000,
+          "revealed_fact_ids": [
+            "p006_f016"
+          ]
+        },
+        {
+          "turn_id": "p006_s005_t001",
+          "session_id": "p006_s005",
+          "role": "assistant",
+          "text": "April 30 is a lovely birthday date\u2014close enough to spring that everything feels like it\u2019s starting up again. Knowing you, I can imagine you enjoying a gathering, even if you\u2019d rather not be the center of attention the whole time. Do you have any early ideas?",
+          "ts": 500060,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s005_t002",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Nothing definite yet. I might invite a few friends for dinner. I\u2019m better at bringing people together than I am at choosing what I personally want.",
+          "ts": 500120,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s005_t003",
+          "session_id": "p006_s005",
+          "role": "assistant",
+          "text": "That sounds very you: thoughtful about everyone else, quietly hoping the evening comes together beautifully. Maybe this year you can let your friends contribute ideas instead of carrying the whole celebration yourself.",
+          "ts": 500180,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s005_t004",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "I\u2019ll try. Work has been taking up a lot of my attention too. I\u2019m a lawyer, and lately I\u2019ve been especially interested in how technology is changing the profession.",
+          "ts": 500240,
+          "revealed_fact_ids": [
+            "p006_f012"
+          ]
+        },
+        {
+          "turn_id": "p006_s005_t005",
+          "session_id": "p006_s005",
+          "role": "assistant",
+          "text": "That\u2019s a fascinating intersection, and it suits your curious, ambitious side. Law already requires so much patience and careful judgment; adding rapidly changing technology must make the questions even more layered. Has that interest taken you anywhere unexpected?",
+          "ts": 500300,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s005_t006",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Actually, I attended ICML recently. I wasn\u2019t there as a machine-learning researcher, of course, but I wanted to understand the conversations firsthand instead of relying on summaries.",
+          "ts": 500360,
+          "revealed_fact_ids": [
+            "p006_f019"
+          ]
+        },
+        {
+          "turn_id": "p006_s005_t007",
+          "session_id": "p006_s005",
+          "role": "assistant",
+          "text": "That is exactly the kind of initiative I admire in you\u2014showing up where the important conversations are happening and listening closely. I imagine it was exciting, and probably a little overwhelming, to be surrounded by people speaking so fluently about the field.",
+          "ts": 500420,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s005_t008",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "It was both. I took pages of notes and asked a lot of questions, though I tried not to make a spectacle of myself.",
+          "ts": 500480,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s005_t009",
+          "session_id": "p006_s005",
+          "role": "assistant",
+          "text": "You have a nice balance there: reserved enough to observe carefully, but confident enough to speak when something matters. I\u2019m sure the questions were more memorable than any attempt to stay invisible.",
+          "ts": 500540,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s005_t010",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "I\u2019ve always liked learning that way. Before becoming a lawyer, I graduated from NYU, and I still miss the energy of being around so many different kinds of people.",
+          "ts": 500600,
+          "revealed_fact_ids": [
+            "p006_f030"
+          ]
+        },
+        {
+          "turn_id": "p006_s005_t011",
+          "session_id": "p006_s005",
+          "role": "assistant",
+          "text": "NYU must have been a good fit for that mix of independence and connection. It makes sense that you\u2019d miss the atmosphere\u2014the constant movement, the chance conversations, and the feeling that everyone is becoming someone new.",
+          "ts": 500660,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s005_t012",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "I do. When I need to get out of my head, I play volleyball. It\u2019s my favorite sport, especially because it forces me to pay attention to the people around me.",
+          "ts": 500720,
+          "revealed_fact_ids": [
+            "p006_f007"
+          ]
+        },
+        {
+          "turn_id": "p006_s005_t013",
+          "session_id": "p006_s005",
+          "role": "assistant",
+          "text": "Volleyball sounds perfect for you: energetic and social, but also built around trust, timing, and reading the room. I can picture you being patient with a team while still pushing everyone to do their best.",
+          "ts": 500780,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s005_t014",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "That\u2019s probably why I love autumn too. I prefer autumn over the other seasons\u2014the cooler air makes me feel focused, and it\u2019s easier to start fresh without all the pressure of January.",
+          "ts": 500840,
+          "revealed_fact_ids": [
+            "p006_f027"
+          ]
+        },
+        {
+          "turn_id": "p006_s005_t015",
+          "session_id": "p006_s005",
+          "role": "assistant",
+          "text": "Autumn really does offer a gentler kind of beginning: crisp air, changing colors, and enough quiet to gather your thoughts. Between your birthday plans, your work, volleyball, and all that learning, I hope you leave some room this autumn for yourself\u2014not just for the next ambitious thing.",
+          "ts": 500900,
+          "revealed_fact_ids": []
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "I should correct myself \u2014 my favorite sport_31 is actually tennis now.",
+          "ts": 500960,
+          "revealed_fact_ids": [
+            "p006_f031"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "I should correct myself \u2014 my favorite movie genre is actually action now.",
+          "ts": 501020,
+          "revealed_fact_ids": [
+            "p006_f000"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Update: my favorite book is now Moby Dick.",
+          "ts": 501080,
+          "revealed_fact_ids": [
+            "p006_f023"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Actually, my graduated from_30 changed. It is now NYU.",
+          "ts": 501140,
+          "revealed_fact_ids": [
+            "p006_f030"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Actually, my favorite book changed. It is now Sapiens.",
+          "ts": 501200,
+          "revealed_fact_ids": [
+            "p006_f023"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Update: my expertise is now yoga.",
+          "ts": 501260,
+          "revealed_fact_ids": [
+            "p006_f010"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Update: my expertise is now music production.",
+          "ts": 501320,
+          "revealed_fact_ids": [
+            "p006_f010"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Actually, my wake-up time changed. It is now 7:00 AM.",
+          "ts": 501380,
+          "revealed_fact_ids": [
+            "p006_f011"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Actually, my hometown changed. It is now Phoenix.",
+          "ts": 501440,
+          "revealed_fact_ids": [
+            "p006_f004"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Update: my favorite movie genre_24 is now fantasy.",
+          "ts": 501500,
+          "revealed_fact_ids": [
+            "p006_f024"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Actually, my hometown changed. It is now Phoenix.",
+          "ts": 501560,
+          "revealed_fact_ids": [
+            "p006_f004"
+          ]
+        },
+        {
+          "turn_id": "p006_s5_t099",
+          "session_id": "p006_s005",
+          "role": "user",
+          "text": "Update: my lunch break is now 1:30 PM.",
+          "ts": 501620,
+          "revealed_fact_ids": [
+            "p006_f022"
+          ]
+        }
+      ]
+    }
+  ]
+}
