@@ -186,6 +186,17 @@ def run_sft(
                 sft_config_kwargs["neftune_noise_alpha"] = neftune_noise_alpha
 
             sft_args = TrlSFTConfig(**sft_config_kwargs)
+
+            # trl requires an actual datasets.Dataset, not a plain list of dicts
+            # (our own _load_jsonl loader intentionally returns a plain list — see
+            # its docstring — so convert only here, at the real-trl boundary).
+            from datasets import Dataset
+
+            if isinstance(kwargs.get("train_dataset"), list):
+                kwargs["train_dataset"] = Dataset.from_list(kwargs["train_dataset"])
+            if isinstance(kwargs.get("eval_dataset"), list):
+                kwargs["eval_dataset"] = Dataset.from_list(kwargs["eval_dataset"])
+
             return SFTTrainer(args=sft_args, processing_class=tokenizer_obj, **kwargs)
 
     model = model_loader(config.base_model, config.base_model_revision)
