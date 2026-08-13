@@ -1,0 +1,55 @@
+{
+  "system": "A_raw",
+  "n_probes": 688,
+  "metrics": {
+    "pra_strict": 0.0,
+    "pra_lenient": 0.001644736842105263,
+    "uar": 0.1375,
+    "mur": 0.0
+  },
+  "metrics_ci": {
+    "pra_strict": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "uar": [
+      0.1375,
+      0.0625,
+      0.2125
+    ]
+  },
+  "per_category": {
+    "preference": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.01098901098901099
+    },
+    "temporal": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    },
+    "outdated_fact": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    },
+    "unanswerable": {
+      "uar": 0.1375
+    },
+    "episodic": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    },
+    "continuity": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    },
+    "distractor": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    },
+    "factual": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    }
+  }
+}
