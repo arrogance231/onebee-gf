@@ -29,12 +29,18 @@ Base model: `gemma4-e2b` (`google/gemma-4-E2B-it`), chosen via a real multimodal
 | **E** | **+ SFT and memory together** | **17.76%** | **33.75%** |
 
 Memory retrieval alone recovers real personalized-recall accuracy from a model with zero
-context (H1); SFT alone does not (H4, as expected); combining both beats either alone (H5) and
-dramatically improves calibration (far fewer confident wrong answers) beyond what memory alone
-achieves. A k-sweep confirms an inverted-U in retrieved-memory count peaking at k=8 (H10). DPO
-preference optimization on top of SFT was also tried (H6-H7) — full writeup in
-[`docs/dpo_results.md`](docs/dpo_results.md), reported honestly as not yet distinguishable from
-the pre-DPO model at v0 data scale, not oversold as a win.
+context (H1); SFT alone does not (H4, as expected); combining both beats either alone (H5) at
+v0 data scale. A k-sweep confirms an inverted-U in retrieved-memory count peaking at k=8 (H10).
+DPO preference optimization on top of SFT was also tried (H6-H7) — full writeup in
+[`docs/dpo_results.md`](docs/dpo_results.md).
+
+**Follow-up at proper training scale** (10x the data — 40 personas, 2242 SFT examples, 2277 DPO
+pairs): DPO's effect on persona consistency becomes clearly distinguishable (a 39.0% vs 20.0%
+pairwise win rate, up from v0's 24.8% vs 21.9% — not just noise anymore), but SFT+memory's
+calibration advantage from the v0 pass does **not** replicate — the larger-scale model
+confabulates specific false answers to unanswerable questions more often than it did at v0
+scale, a genuine regression reported honestly rather than hidden. Full writeup:
+[`docs/proper_scale_results.md`](docs/proper_scale_results.md).
 
 Full writeups: [`docs/day3_memory_results.md`](docs/day3_memory_results.md) (memory system),
 [`docs/day4_sft_results.md`](docs/day4_sft_results.md) (SFT), and
