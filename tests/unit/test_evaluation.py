@@ -147,6 +147,20 @@ class TestDetectAbstention:
     def test_dont_recall(self):
         assert detect_abstention("I don't recall that happening") is True
 
+    def test_sft_abstention_template(self):
+        # Literal template from generate_sft_data.py's abstention examples -- a model that
+        # learns to reproduce this exact intended abstention phrasing must be scored as
+        # abstaining (see docs/model_quirks.md's dedup-collapse follow-up entry).
+        assert detect_abstention(
+            "I don't think you've told me that — I don't want to guess."
+        ) is True
+
+    def test_sft_irrelevant_retrieval_template(self):
+        assert detect_abstention(
+            "I don't have anything about that in what I remember about you — "
+            "could you tell me more?"
+        ) is True
+
     def test_normal_response(self):
         assert detect_abstention("The capital of France is Paris") is False
 

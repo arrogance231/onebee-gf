@@ -21,6 +21,19 @@ _ABSTENTION_PHRASES: list[str] = [
     "i am not aware",
     "i don't remember",
     "i do not remember",
+    # Literal training-target phrases from generate_sft_data.py's abstention/
+    # irrelevant_retrieval example generation -- without these, a model that learned to
+    # reproduce these exact templates (the intended, correct behavior) was scored as NOT
+    # abstaining, undercounting UAR. See docs/model_quirks.md's dedup-collapse entry and its
+    # follow-up: this gap existed all along but was masked while abstention training examples
+    # were themselves collapsed to ~1 by a separate dedup bug, so the model rarely reproduced
+    # these exact strings; fixing the dedup bug increased verbatim-template output, which then
+    # exposed this second, independent detector gap.
+    "i don't think you've told me that",
+    "i do not think you have told me that",
+    "i don't have anything about that in what i remember",
+    "i don't want to guess",
+    "i do not want to guess",
 ]
 
 
