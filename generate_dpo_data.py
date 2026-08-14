@@ -10,9 +10,9 @@ from onebee.data.personas import PersonaCorpus
 from onebee.memory.store import MemoryStore
 from onebee.retrieval.router import HybridRetriever
 
-personas_dir = Path("data/benchmarks/sft_personas_v0/personas")
-stores_dir = Path("data/stores/sft_personas_v0")
-out_dir = Path("data/dpo/v0")
+personas_dir = Path("data/benchmarks/sft_personas_v1/personas")
+stores_dir = Path("data/stores/sft_personas_v1")
+out_dir = Path("data/dpo/v1_scale")
 out_dir.mkdir(parents=True, exist_ok=True)
 
 embedder = SentenceTransformer("intfloat/multilingual-e5-small")
@@ -137,13 +137,13 @@ with open(out_dir / "val.jsonl", "w") as f:
     for p in val:
         f.write(json.dumps(p) + "\n")
 
-datasheet = f"""# DPO v0 preference dataset
+datasheet = f"""# DPO v1_scale preference dataset (proper scale)
 
 Persona-contrastive preference pairs: chosen = real teacher (gpt-5.6-luna) response using
-injected memory context (same pipeline as data/sft/v0), rejected = a generic persona-breaking
+injected memory context (same pipeline as data/sft/v1), rejected = a generic persona-breaking
 AI-assistant disclaimer, matching the exact failure mode observed in Day 3's raw-model
-evaluation ("I am a large language model, trained by Google."). Built from the same 4 SFT
-personas as data/sft/v0/ (disjoint from the PMB-v0 eval set).
+evaluation ("I am a large language model, trained by Google."). Built from the same 40 SFT
+personas as data/sft/v1/ (disjoint from the PMB-v0 eval set).
 
 - Total pairs: {len(pairs)} ({len(train)} train / {len(val)} val)
 - Only turns where memory was actually retrieved are included (a meaningful preference signal
