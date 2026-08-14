@@ -116,6 +116,50 @@ reuses the same training infrastructure) is the actual deliverable of this pass;
 size itself needs a real-scale dataset (the roadmap's target is thousands of pairs, not
 hundreds) to properly test H6.
 
+## Follow-up: proper scale (v1_scale, 2026-08-14, "train properly" pass)
+
+Per the user's explicit instruction to train properly at scale (task #40-47 of the
+`docs/gpu_box_bootstrap.md` §7 status), generated 40 personas (vs v0's 4), a 2242-example SFT
+dataset (`data/sft/v1/`, see `docs/day4_sft_v1_results.md`) and a 2277-pair DPO preference
+dataset (`data/dpo/v1_scale/`, 2049 train / 228 val) — both contamination-checked clean against
+`pmb_v0_full`. Retrained SFT on the v1 data (loss 4.23→0.79, token accuracy 51%→80%), then DPO
+on top of that new SFT checkpoint (`configs/training/dpo_v1_scale.yaml`, 1 epoch, 257 steps,
+~10.3 min wall-clock — 10x more steps than v0's 25).
+
+### Training-time signal
+
+| | v0 (1 epoch, 200 pairs) | v1 (4 epochs, 200 pairs) | v1_scale (1 epoch, 2049 pairs) |
+|---|---|---|---|
+| Final `rewards/accuracies` | 92.5% | 100% | 100% |
+| Final `rewards/margins` | 1.32 | 6.14 | 11.65 |
+| Final `loss` | 0.43 | 0.045 | 0.00016 (final step), 0.057 (train_loss avg) |
+| Epoch reward-accuracy hit 100% | not reached in 1 epoch | — | **epoch 0.27** (very early) |
+
+Reward accuracy saturates to 100% extremely early (by 27% through the first epoch) and margin
+keeps climbing the rest of the run. Read this carefully, not as straightforward overfitting:
+`rejected` in this dataset is a fixed pool of only 5 hand-written generic-disclaimer sentences
+(by design, per `data/dpo/v0/DATASHEET.md`'s and `data/dpo/v1_scale/DATASHEET.md`'s own
+description) — distinguishing "a natural, varied, memory-grounded response" from "one of 5
+fixed canned disclaimers" is a much easier binary classification than typical DPO preference
+data, so near-100% reward accuracy early in training is expected structurally, not necessarily
+evidence of the same overfitting risk documented for the v1 (4-epoch, same-200-pairs) run
+earlier in this doc. The genuinely new information here is the margin: even at 1 epoch,
+v1_scale's margin (11.65) is nearly 2x v1's 4-epoch margin on the small dataset (6.14) —
+10x more (still-diverse) chosen-response examples produces a more confident, better-separated
+reward model than repeating the same 200 examples 4x, which is the expected and reassuring
+direction (more real signal beats more repetition of a small sample).
+
+### Real eval result: not yet run
+
+Unlike the v0/v1 passes above, the real held-out pairwise eval for v1_scale has not been run
+yet — this is task #46 (full A/B/D/E/C re-evaluation against the pmb_v0_full 688-probe
+harness with the new SFT-v1 and DPO-v1_scale checkpoints), which will produce the actual
+answer to whether the 10x data scale finally makes DPO's effect distinguishable from SFT
+alone, rather than relying on training-time metrics (which, per this project's own research
+discipline, are informative but not sufficient — see the "suspiciously good is a wiring-bug
+signal" lesson in `docs/model_quirks.md`). Do not read the strong training-time numbers above
+as a confirmed H6 result until that eval completes.
+
 ## What a real H6/H7 test needs (not done here, noted for later)
 
 - A preference dataset an order of magnitude larger (the roadmap's SFT target was 6-10k
