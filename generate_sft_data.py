@@ -174,16 +174,32 @@ print(f"Generated {len(abstain_examples)} abstention examples", file=sys.stderr)
 all_examples = examples + irrelevant_examples + abstain_examples
 rng.shuffle(all_examples)
 
-# Simple filtering: length bounds, dedup by assistant response text.
+# Simple filtering: length bounds, dedup. memory_relevant examples get real
+# teacher-generated (naturally-unique) responses, so dedup by response text alone is a
+# reasonable near-duplicate filter for them. abstention/irrelevant_retrieval examples use
+# a FIXED template response by design (the point is to teach "always give this answer when
+# you don't know," repeated across many different contexts) -- deduping those by response
+# text alone collapsed ~227 intended abstention examples down to 1 real survivor, silently
+# gutting the abstention training signal (see docs/model_quirks.md's dedup-collapse entry).
+# Dedup those by the full example (system+user+response) instead, so only true exact repeats
+# (same context AND same response) are dropped.
 seen_responses = set()
+seen_full = set()
 filtered = []
 for ex in all_examples:
     resp = ex["messages"][-1]["content"]
     if not (5 <= len(resp.split()) <= 200):
         continue
-    if resp in seen_responses:
-        continue
-    seen_responses.add(resp)
+    kind = ex["meta"]["kind"]
+    if kind == "memory_relevant":
+        if resp in seen_responses:
+            continue
+        seen_responses.add(resp)
+    else:
+        full_key = tuple(m["content"] for m in ex["messages"])
+        if full_key in seen_full:
+            continue
+        seen_full.add(full_key)
     filtered.append(ex)
 
 print(f"After filtering: {len(filtered)} examples (from {len(all_examples)})", file=sys.stderr)

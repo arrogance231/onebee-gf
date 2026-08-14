@@ -160,6 +160,30 @@ result.
     time budget — documented as a real blocker, not silently skipped. If ORPO is needed later,
     check trl's current version support before assuming `ORPOTrainer` exists.
 
+16. **`generate_sft_data.py`'s response-text dedup silently collapsed the abstention and
+    irrelevant-retrieval training categories down to a single surviving example each,
+    regardless of how many were generated.** These two categories use a FIXED template
+    response by design (e.g. `"I don't think you've told me that — I don't want to guess."`)
+    repeated across many different personas/contexts — that repetition IS the intended
+    training signal (learn to always give this response when you don't know, in any context).
+    But the post-generation filter deduped by exact assistant-response text, which is correct
+    for `memory_relevant` examples (real teacher text, naturally unique) but wrong for these:
+    after the first abstention example, every subsequent one looked like an exact duplicate
+    and got silently dropped. Confirmed via the datasheet output: `data/sft/v0/DATASHEET.md`
+    and `data/sft/v1/DATASHEET.md` both show `"abstention": 1, "irrelevant_retrieval": 1"`
+    despite the code intending ~10%/~15% of the dataset. Caught because System E's real-eval
+    UAR (unanswerable-abstention rate) regressed sharply between v0 (33.75%) and the properly-
+    scaled v1 run (16.25%) even though the v1 SFT dataset was 10x larger and used the same
+    generation code — the single surviving abstention example became proportionally 10x more
+    diluted in the larger dataset, which is exactly the mechanism that explains the gap (v0's
+    training signal was already broken, just less severely so at v0's smaller scale). Manually
+    inspected real failing eval responses (fabricated "childhood nickname: Panda", a retrieved-
+    but-wrong "Cape Town" vacation memory misapplied to a distractor-style unanswerable
+    question) confirmed this wasn't a scoring/wiring bug — see `docs/proper_scale_results.md`.
+    **Fix:** only dedup `memory_relevant` examples by response text; dedup
+    `abstention`/`irrelevant_retrieval` examples by the full `(system, user, response)` tuple
+    instead, so only true exact repeats (identical context AND response) get dropped.
+
 ## How to re-run these smoke tests
 
 ```bash
