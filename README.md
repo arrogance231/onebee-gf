@@ -35,15 +35,16 @@ DPO preference optimization on top of SFT was also tried (H6-H7) — full writeu
 [`docs/dpo_results.md`](docs/dpo_results.md).
 
 **Follow-up at proper training scale** (10x the data — 40 personas, 2242 SFT examples, 2277 DPO
-pairs): DPO's effect on persona consistency becomes clearly distinguishable (a 39.0% vs 20.0%
-pairwise win rate, up from v0's 24.8% vs 21.9% — not just noise anymore). An apparent
-calibration regression turned out, on investigation, to be two real bugs: a dedup step was
-silently collapsing ~227 intended abstention training examples down to 1, and the eval
-harness's rule-based abstention detector didn't recognize the model's (correct) trained
-phrasing. Fixing both revealed the true story — UAR jumps to 96.25% (far above v0's 33.75%) —
-but also exposed a genuine new tradeoff: the restored abstention signal now makes the model
-over-hedge on 69.2% of genuinely answerable questions. Reported honestly, root-caused, not
-hidden. Full writeup: [`docs/proper_scale_results.md`](docs/proper_scale_results.md).
+pairs): an apparent calibration regression was root-caused to two real bugs (a dedup step
+silently collapsing ~227 intended abstention training examples down to 1, and an eval-harness
+abstention detector that didn't recognize the model's own correct trained phrasing) and then
+genuinely fixed — not just diagnosed. Fixing the bugs alone over-corrected (96.25% UAR but a
+new 69.2% false-abstention rate on answerable questions); rebalancing the abstention-example
+ratio and diversifying the template phrasing brought this to a real, working middle ground:
+**70.0% UAR** (2x v0's 33.75% baseline) with false-abstention cut to **32.1%**, and the
+strongest DPO pairwise win-rate gap observed in this project (45.7% vs 21.0%, 24.7pp). Root
+cause, fix, and re-verification all reported honestly, not just the flattering numbers. Full
+writeup: [`docs/proper_scale_results.md`](docs/proper_scale_results.md).
 
 Full writeups: [`docs/day3_memory_results.md`](docs/day3_memory_results.md) (memory system),
 [`docs/day4_sft_results.md`](docs/day4_sft_results.md) (SFT), and

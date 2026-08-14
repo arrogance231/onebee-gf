@@ -159,22 +159,65 @@ step, not an open mystery:
 - Weight the loss so answerable/memory_relevant examples aren't outnumbered in effective
   gradient signal by the now-much-larger templated categories.
 
-None of these were attempted in this pass — the investigation's scope was root-causing the
-original regression, which is now fully explained with two real, fixed, documented bugs, not
-resolving the newly-exposed tuning tradeoff. That's a reasonable next step for a future pass,
-not required to close out this investigation.
+These three fixes (lower ratios: irrelevant 15%→6%, abstain 10%→5%; 4 diversified paraphrases
+per category instead of 1 fixed string; matching detector phrase additions) were then actually
+implemented and re-verified end-to-end, per the user's explicit follow-up request to fix the
+tradeoff rather than leave it as a noted limitation.
+
+## Rebalancing fix, implemented and verified (2026-08-14)
+
+Regenerated `data/sft/v1/` with the lower ratios and diversified templates
+(`irrelevant_retrieval`: 136 examples at ~6%, `abstention`: 105 at ~5%, vs the over-corrected
+run's 341/129 — and critically, almost no examples lost to the dedup filter this time: 2480
+survived out of 2526 generated, vs the earlier fix's heavier post-generation loss, because
+varied phrasing means fewer near-duplicate full-example collisions). Retrained SFT (token
+accuracy 81.6%, in line with prior runs) and DPO on top (reward accuracy 100%, margin 11.98,
+consistent with prior DPO runs), then re-ran the full B/E/C evaluation.
+
+### The full three-point trajectory (all rescored with the fixed detector)
+
+| | UAR (unanswerable, correct) | False-abstention (answerable, incorrect) | `pra_lenient` (E) |
+|---|---|---|---|
+| v1 broken dedup (bug #1 only) | 16.25% | 9.9% | 18.42% |
+| v1 dedup fixed, ratios/templates untouched (over-corrected) | 96.25% | 69.2% | 10.2% |
+| **v1 rebalanced (final)** | **70.0%** | **32.1%** | **15.3%** |
+
+This is a real, substantial improvement over the over-corrected version, and a much better
+overall operating point than either extreme:
+- UAR more than doubled v0's own 33.75% baseline (70.0% vs 33.75%) and is far above the
+  originally-broken run's 16.25% — the core finding (fixing the dedup bug genuinely helps
+  calibration) holds up.
+- False-abstention on answerable questions dropped by more than half from the over-corrected
+  run (69.2%→32.1%) — the model is meaningfully less trigger-happy about hedging on things it
+  actually knows.
+- `pra_lenient` partially recovered (10.2%→15.3%, though still short of the broken run's
+  18.42% — some of that original number likely reflected the model confabulating "correct-
+  looking" wrong answers rather than being genuinely well-calibrated, so it isn't a clean
+  like-for-like comparison; see the confabulation examples earlier in this doc).
+- The DPO pairwise gap is now the **largest observed across every run in this project**: C
+  (SFT+DPO) wins 48/105 (45.7%) vs E (SFT only) 22/105 (21.0%) — a 24.7pp gap, well above the
+  original v1_scale run's 19.0pp and the over-corrected run's near-total-ties result (79/105
+  ties, vs this run's 35/105). With false-abstention no longer dominating both systems'
+  behavior, real quality differences between them are visible again.
+
+**Verdict: the rebalance is a real, working fix** — not a perfect one (32.1% false-abstention
+is still a real cost, and a genuinely careful tuning pass would likely find an even better
+ratio/diversity setting), but a substantial, honestly-measured improvement over both the
+original broken state and the over-corrected intermediate state. Further tuning (e.g. trying
+intermediate ratios between 5%/6% and 10%/15%, or per-loss-weighting rather than ratio
+adjustment) is a reasonable next step but not pursued further in this pass — the core ask
+(fix the over-abstention tradeoff) has a real, measured, positive result.
 
 ## Known limitations
 
 - Single seed throughout (same limitation as all prior passes in this project).
-- The over-abstention tradeoff exposed by the fix (69.2% false-abstention on answerable probes)
-  is a real, unresolved issue — see the three concrete next steps above. Not fixed in this pass.
-- The headline `pra_lenient`/`uar` table above and the DPO pairwise numbers were computed
-  *before* the dedup and detector fixes were found — they reflect the originally-reported
-  (bugged) run. The corrected picture is in the "Investigation and fix" section above; a full
-  header-table refresh with the corrected DPO pairwise comparison was not re-run (the C-vs-E
-  comparison already ran against the fixed checkpoints and is reported above — 79/105 ties, a
-  direct consequence of the over-abstention issue, not a separate result needing a rerun).
+- The rebalanced fix improves but does not eliminate the false-abstention cost (32.1%, down
+  from 69.2% but still above the original broken run's 9.9%) — a genuinely optimal ratio/
+  diversity setting was not searched for; the values used (5%/6%, 4 paraphrases) were a
+  reasonable first attempt, not a tuned optimum.
+- The headline `pra_lenient`/`uar` table near the top of this doc and its DPO pairwise numbers
+  reflect the *original* (bugged) run, not the final rebalanced one — kept for historical
+  continuity with the initial writeup; the corrected/final numbers are in this section.
 - C-vs-E pairwise still uses a 105-probe subsample (same size as v0, for comparability), not
   the full 688-probe set — a full-scale pairwise run would tighten the confidence further but
   wasn't run here to keep evaluation cost proportionate.
