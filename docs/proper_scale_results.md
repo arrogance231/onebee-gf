@@ -95,12 +95,86 @@ scales cleanly).
   (19.0pp gap vs v0's 2.9pp), consistent with H6, but still a single seed/run at one data scale
   — genuinely encouraging, not yet a fully confirmed result.
 
+## Investigation and fix: two real bugs, one genuine remaining tradeoff (2026-08-14)
+
+The System E calibration regression above was investigated to root cause, per the user's
+request. Two independent, real bugs were found and fixed — full technical detail in
+`docs/model_quirks.md` items #16-17. Short version:
+
+**Bug #1 — dedup collapse.** `generate_sft_data.py` deduped training examples by exact
+assistant-response text. `memory_relevant` examples have naturally-unique teacher-generated
+text, so this was fine for them, but `abstention`/`irrelevant_retrieval` examples use a FIXED
+template response by design — so after the first one, every subsequent example looked like an
+exact duplicate and got silently dropped. Both `data/sft/v0/` and `data/sft/v1/` had only
+**1** real abstention example survive, instead of the intended ~10% of the dataset (~227 for
+v1). **Fixed:** only dedup `memory_relevant` by response text; dedup the templated categories
+by the full `(system, user, response)` tuple instead. Regenerating gave 129 abstention + 341
+irrelevant-retrieval examples (up from 1 each).
+
+**Bug #2 — abstention detector gap.** After fixing #1 and retraining, UAR (measured by the
+harness's rule-based `detect_abstention`) initially looked *worse*, not better (2.5% vs the
+broken run's 16.25%). Manually reading the raw responses showed the model was now correctly
+producing the exact intended abstention phrase (`"I don't think you've told me that — I don't
+want to guess."`) — but `src/onebee/evaluation/graders/rule.py`'s `_ABSTENTION_PHRASES` list
+didn't include that literal training-target string, so a correctly-abstaining model was being
+scored as not abstaining. **Fixed:** added the actual template phrases to the detector, with a
+regression test that asserts these exact strings are recognized.
+
+### The corrected picture, after both fixes
+
+Rescored all runs' already-saved raw responses with the fixed detector (no need to re-run
+inference/judging):
+
+| | UAR (unanswerable, correct) | False-abstention rate (answerable, incorrect) |
+|---|---|---|
+| v1 broken dedup (original) | 16.25% (13/80) | 9.9% (60/608) |
+| **v1 fixed dedup** | **96.25% (77/80)** | **69.2% (421/608)** |
+| B (SFT-v1 alone, fixed data) | 25.0% (20/80) | 39.8% (242/608) |
+
+The dedup fix (Bug #1) worked exactly as intended — restoring the abstention training signal
+took UAR from 16.25% to 96.25%, far exceeding v0's 33.75% and confirming the original root-
+cause hypothesis. **But this is not simply "the fix worked, story closed."** The same fix that
+taught the model to abstain correctly on genuinely unanswerable questions also taught it to
+hedge on a huge fraction (69.2%) of *answerable* ones — a real, new problem, not a scoring
+artifact (confirmed by directly reading raw responses and manually computing the rate from
+saved data, same discipline used to validate the original finding). `pra_lenient` for E
+dropped to 10.2% as a direct consequence (most of System E's C-vs-E comparison became ties —
+79/105, up from 43/105 — because both systems now frequently produce the same generic hedge).
+
+**Honest conclusion:** the calibration regression wasn't really "regression vs v0," it was two
+independent measurement/data bugs compounding in a way that made the true picture invisible.
+With both fixed, the real underlying issue is a genuine precision/recall tradeoff: the ~17% of
+training data devoted to templated abstention/irrelevant-retrieval responses, restored to its
+intended proportion, is now too aggressive relative to the `memory_relevant` majority — the
+model over-generalizes "give the canned hedge" as a low-risk, low-loss default. This is not
+mysterious or hard to explain (short, fixed-string targets are easy wins for the loss function
+compared to generating a correct, specific, longer answer), and it's a real, addressable next
+step, not an open mystery:
+
+- Reduce the abstention/irrelevant-retrieval fraction (currently ~17% combined) — likely
+  over-corrected once the dedup bug was fixed and its full intended weight applied.
+- Diversify the abstention/irrelevant template responses (multiple paraphrasings instead of one
+  fixed string each) so the model can't take the shortcut of memorizing one low-entropy phrase
+  as a universal hedge.
+- Weight the loss so answerable/memory_relevant examples aren't outnumbered in effective
+  gradient signal by the now-much-larger templated categories.
+
+None of these were attempted in this pass — the investigation's scope was root-causing the
+original regression, which is now fully explained with two real, fixed, documented bugs, not
+resolving the newly-exposed tuning tradeoff. That's a reasonable next step for a future pass,
+not required to close out this investigation.
+
 ## Known limitations
 
 - Single seed throughout (same limitation as all prior passes in this project).
-- The System E calibration regression is a genuine open question, not resolved in this pass —
-  noted for a future investigation rather than chased further given this was primarily a
-  "does more data help the DPO signal" experiment, and it answered that question clearly.
+- The over-abstention tradeoff exposed by the fix (69.2% false-abstention on answerable probes)
+  is a real, unresolved issue — see the three concrete next steps above. Not fixed in this pass.
+- The headline `pra_lenient`/`uar` table above and the DPO pairwise numbers were computed
+  *before* the dedup and detector fixes were found — they reflect the originally-reported
+  (bugged) run. The corrected picture is in the "Investigation and fix" section above; a full
+  header-table refresh with the corrected DPO pairwise comparison was not re-run (the C-vs-E
+  comparison already ran against the fixed checkpoints and is reported above — 79/105 ties, a
+  direct consequence of the over-abstention issue, not a separate result needing a rerun).
 - C-vs-E pairwise still uses a 105-probe subsample (same size as v0, for comparability), not
   the full 688-probe set — a full-scale pairwise run would tighten the confidence further but
   wasn't run here to keep evaluation cost proportionate.

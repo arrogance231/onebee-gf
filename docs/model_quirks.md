@@ -184,6 +184,29 @@ result.
     `abstention`/`irrelevant_retrieval` examples by the full `(system, user, response)` tuple
     instead, so only true exact repeats (identical context AND response) get dropped.
 
+17. **After fixing #16, `_ABSTENTION_PHRASES` in `src/onebee/evaluation/graders/rule.py`
+    (the rule-based `detect_abstention` used to compute UAR) didn't include the literal
+    template strings `generate_sft_data.py` trains the model to produce** (e.g. `"I don't
+    think you've told me that — I don't want to guess."`), so a model that had correctly
+    learned to reproduce that exact intended phrasing was scored as NOT abstaining. This
+    masked a second, independent bug that only became visible after fixing #16: with the real
+    abstention signal restored, the model started reproducing the literal training phrase
+    verbatim far more often, which the old phrase list didn't recognize, making UAR look like
+    it had gotten *worse* (2.5%) right after the fix that should have improved it. Rescoring
+    the same saved responses with the fixed phrase list revealed the true number: **UAR 96.25%**
+    — but also, checked in the same pass, a real new problem: 69.2% false-abstention rate on
+    *answerable* probes (up from the broken run's 9.9%). The dedup fix (#16) worked as intended,
+    but the abstention/irrelevant-retrieval training ratio it restored (~17% of the dataset)
+    turned out to be enough to make the model reflexively hedge on a large fraction of
+    perfectly answerable questions too — a genuine precision/recall tradeoff exposed by fixing
+    the measurement, not a new training bug. See `docs/proper_scale_results.md`'s fix-
+    verification section for the full before/after numbers. **Lesson:** when training data and
+    evaluation code are generated/maintained somewhat independently (different scripts, written
+    at different times), a literal-string rule-based grader silently drifts out of sync with
+    whatever phrasing the training data actually teaches — worth periodically checking that a
+    correctly-behaving model would actually score well under the current metric code, not just
+    that a bad model scores badly.
+
 ## How to re-run these smoke tests
 
 ```bash

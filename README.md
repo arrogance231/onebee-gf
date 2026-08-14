@@ -36,11 +36,14 @@ DPO preference optimization on top of SFT was also tried (H6-H7) — full writeu
 
 **Follow-up at proper training scale** (10x the data — 40 personas, 2242 SFT examples, 2277 DPO
 pairs): DPO's effect on persona consistency becomes clearly distinguishable (a 39.0% vs 20.0%
-pairwise win rate, up from v0's 24.8% vs 21.9% — not just noise anymore), but SFT+memory's
-calibration advantage from the v0 pass does **not** replicate — the larger-scale model
-confabulates specific false answers to unanswerable questions more often than it did at v0
-scale, a genuine regression reported honestly rather than hidden. Full writeup:
-[`docs/proper_scale_results.md`](docs/proper_scale_results.md).
+pairwise win rate, up from v0's 24.8% vs 21.9% — not just noise anymore). An apparent
+calibration regression turned out, on investigation, to be two real bugs: a dedup step was
+silently collapsing ~227 intended abstention training examples down to 1, and the eval
+harness's rule-based abstention detector didn't recognize the model's (correct) trained
+phrasing. Fixing both revealed the true story — UAR jumps to 96.25% (far above v0's 33.75%) —
+but also exposed a genuine new tradeoff: the restored abstention signal now makes the model
+over-hedge on 69.2% of genuinely answerable questions. Reported honestly, root-caused, not
+hidden. Full writeup: [`docs/proper_scale_results.md`](docs/proper_scale_results.md).
 
 Full writeups: [`docs/day3_memory_results.md`](docs/day3_memory_results.md) (memory system),
 [`docs/day4_sft_results.md`](docs/day4_sft_results.md) (SFT), and
