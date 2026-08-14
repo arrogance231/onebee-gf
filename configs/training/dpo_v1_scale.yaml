@@ -1,0 +1,10 @@
+# Proper-scale DPO run (task #45 of the "train properly" pass): chains off the newly-trained
+# SFT v1 checkpoint (2017 examples, batch=8/grad-accum=4), on the 2049-pair v1_scale preference
+# dataset (~10x v0's 200 train pairs). 1 epoch, matching v0's original approach rather than the
+# overfit-prone 4-epoch experiment tried on the small v0 dataset — at this data scale, 1 epoch
+# already means ~10x more training steps than v0's 25-step run.
+base_model: "outputs/sft/v1/merged"
+base_model_revision: "main"
+train_file: "data/dpo/v1_scale/train.jsonl"
+val_file: "data/dpo/v1_scale/val.jsonl"
+output_dir: "outputs/dpo/v1_scale"
