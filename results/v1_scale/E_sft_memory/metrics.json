@@ -3,8 +3,8 @@
   "n_probes": 688,
   "metrics": {
     "pra_strict": 0.0,
-    "pra_lenient": 0.18421052631578946,
-    "uar": 0.1625,
+    "pra_lenient": 0.10197368421052631,
+    "uar": 0.025,
     "mur": 0.0
   },
   "metrics_ci": {
@@ -14,42 +14,42 @@
       0.0
     ],
     "uar": [
-      0.1625,
-      0.0875,
-      0.25
+      0.025,
+      0.0,
+      0.0625
     ]
   },
   "per_category": {
-    "continuity": {
-      "pra_strict": 0.0,
-      "pra_lenient": 0.17708333333333334
-    },
     "distractor": {
       "pra_strict": 0.0,
-      "pra_lenient": 0.20833333333333334
-    },
-    "temporal": {
-      "pra_strict": 0.0,
-      "pra_lenient": 0.25806451612903225
-    },
-    "outdated_fact": {
-      "pra_strict": 0.0,
-      "pra_lenient": 0.14583333333333334
+      "pra_lenient": 0.11458333333333333
     },
     "episodic": {
       "pra_strict": 0.0,
       "pra_lenient": 0.34782608695652173
     },
-    "factual": {
-      "pra_strict": 0.0,
-      "pra_lenient": 0.09183673469387756
-    },
     "preference": {
       "pra_strict": 0.0,
-      "pra_lenient": 0.13186813186813187
+      "pra_lenient": 0.03296703296703297
+    },
+    "temporal": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.03225806451612903
     },
     "unanswerable": {
-      "uar": 0.1625
+      "uar": 0.025
+    },
+    "outdated_fact": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0625
+    },
+    "factual": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.04081632653061224
+    },
+    "continuity": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.125
     }
   }
 }

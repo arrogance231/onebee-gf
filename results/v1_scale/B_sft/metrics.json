@@ -4,7 +4,7 @@
   "metrics": {
     "pra_strict": 0.0,
     "pra_lenient": 0.001644736842105263,
-    "uar": 0.3125,
+    "uar": 0.25,
     "mur": 0.0
   },
   "metrics_ci": {
@@ -14,12 +14,24 @@
       0.0
     ],
     "uar": [
-      0.3125,
-      0.2125,
-      0.4125
+      0.25,
+      0.1625,
+      0.35
     ]
   },
   "per_category": {
+    "distractor": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    },
+    "preference": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    },
+    "temporal": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0
+    },
     "outdated_fact": {
       "pra_strict": 0.0,
       "pra_lenient": 0.0
@@ -32,24 +44,12 @@
       "pra_strict": 0.0,
       "pra_lenient": 0.0
     },
-    "distractor": {
-      "pra_strict": 0.0,
-      "pra_lenient": 0.0
+    "unanswerable": {
+      "uar": 0.25
     },
     "factual": {
       "pra_strict": 0.0,
       "pra_lenient": 0.01020408163265306
-    },
-    "temporal": {
-      "pra_strict": 0.0,
-      "pra_lenient": 0.0
-    },
-    "unanswerable": {
-      "uar": 0.3125
-    },
-    "preference": {
-      "pra_strict": 0.0,
-      "pra_lenient": 0.0
     }
   }
 }
