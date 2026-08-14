@@ -161,6 +161,23 @@ class TestDetectAbstention:
             "could you tell me more?"
         ) is True
 
+    def test_sft_diversified_abstain_paraphrases(self):
+        assert detect_abstention(
+            "That's not something I have on record from our conversations — "
+            "do you want to tell me?"
+        ) is True
+        assert detect_abstention(
+            "I don't recall you sharing that with me, so I don't want to make something up."
+        ) is True
+
+    def test_sft_diversified_irrelevant_paraphrases(self):
+        assert detect_abstention(
+            "That doesn't ring a bell from what you've shared with me — mind filling me in?"
+        ) is True
+        assert detect_abstention(
+            "Hmm, I don't think you've mentioned that to me before — tell me more?"
+        ) is True
+
     def test_normal_response(self):
         assert detect_abstention("The capital of France is Paris") is False
 

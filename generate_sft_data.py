@@ -106,9 +106,21 @@ for corpus in corpora:
 
 print(f"Generated {len(examples)} memory-relevant examples", file=sys.stderr)
 
-# ~15% irrelevant-retrieval examples: pair a turn's question with a WRONG persona's memories.
+# ~6% irrelevant-retrieval examples: pair a turn's question with a WRONG persona's memories.
+# Ratio lowered from 15% and target diversified from 1 fixed string to several paraphrases
+# (picked per-example) after the properly-scaled run showed the model over-generalizing this
+# templated hedge to a large fraction of genuinely answerable questions once the dedup bug
+# (docs/model_quirks.md #16) stopped silently discarding almost all of these examples --
+# both ratio and phrasing diversity should reduce how easy a low-effort shortcut this is to
+# learn. See docs/proper_scale_results.md's over-abstention tradeoff section.
+IRRELEVANT_RESPONSES = [
+    "I don't have anything about that in what I remember about you — could you tell me more?",
+    "That doesn't ring a bell from what you've shared with me — mind filling me in?",
+    "I'm not seeing anything about that in my memory of our conversations — what's the story?",
+    "Hmm, I don't think you've mentioned that to me before — tell me more?",
+]
 persona_ids = list(retrievers.keys())
-n_irrelevant = max(1, int(len(examples) * 0.15))
+n_irrelevant = max(1, int(len(examples) * 0.06))
 irrelevant_examples = []
 base_pool = [e for e in examples if e["meta"]["kind"] == "memory_relevant"]
 for _ in range(min(n_irrelevant, len(base_pool))):
@@ -123,10 +135,7 @@ for _ in range(min(n_irrelevant, len(base_pool))):
         turn_id=f"irrelevant_{src['meta']['turn_id']}", persona=COMPANION_PERSONA, profile={},
         boundaries=[], retrieved_memories=wrong_records, recent_turns=[], user_turn="",
     )
-    target = (
-        "I don't have anything about that in what I remember about you — "
-        "could you tell me more?"
-    )
+    target = rng.choice(IRRELEVANT_RESPONSES)
     irrelevant_examples.append({
         "messages": [
             {"role": "system", "content": system_text.strip()},
@@ -138,14 +147,22 @@ for _ in range(min(n_irrelevant, len(base_pool))):
 
 print(f"Generated {len(irrelevant_examples)} irrelevant-retrieval examples", file=sys.stderr)
 
-# ~10% abstention examples: ask about a predicate never revealed for that persona, k memories retrieved anyway.
-n_abstain = max(1, int(len(examples) * 0.10))
+# ~5% abstention examples: ask about a predicate never revealed for that persona, k memories
+# retrieved anyway. Ratio lowered from 10%, target diversified -- same reasoning as the
+# irrelevant_retrieval change above.
+n_abstain = max(1, int(len(examples) * 0.05))
 abstain_examples = []
 UNANSWERABLE_QUESTIONS = [
     "What is your phone number?",
     "What is your middle name?",
     "What was your childhood nickname?",
     "What shoe size do you wear?",
+]
+ABSTAIN_RESPONSES = [
+    "I don't think you've told me that — I don't want to guess.",
+    "I'm not sure you've mentioned that to me — I'd rather not assume.",
+    "That's not something I have on record from our conversations — do you want to tell me?",
+    "I don't recall you sharing that with me, so I don't want to make something up.",
 ]
 for _ in range(min(n_abstain, len(base_pool))):
     src = rng.choice(base_pool)
@@ -159,7 +176,7 @@ for _ in range(min(n_abstain, len(base_pool))):
         turn_id=f"abstain_{pid}", persona=COMPANION_PERSONA, profile={},
         boundaries=[], retrieved_memories=records, recent_turns=[], user_turn="",
     )
-    target = "I don't think you've told me that — I don't want to guess."
+    target = rng.choice(ABSTAIN_RESPONSES)
     abstain_examples.append({
         "messages": [
             {"role": "system", "content": system_text.strip()},

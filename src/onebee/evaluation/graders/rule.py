@@ -34,6 +34,16 @@ _ABSTENTION_PHRASES: list[str] = [
     "i don't have anything about that in what i remember",
     "i don't want to guess",
     "i do not want to guess",
+    # Diversified paraphrases added when the fixed single-string templates were found to make
+    # over-abstention too easy a shortcut to learn (docs/model_quirks.md #17,
+    # docs/proper_scale_results.md's over-abstention tradeoff section).
+    "doesn't ring a bell",
+    "does not ring a bell",
+    "not seeing anything about that",
+    "don't think you've mentioned that",
+    "do not think you have mentioned that",
+    "rather not assume",
+    "not something i have on record",
 ]
 
 
