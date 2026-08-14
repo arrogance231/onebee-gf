@@ -6,8 +6,8 @@ populated memory stores built from 40 personas disjoint from the PMB-v0 eval set
 (`data/benchmarks/sft_personas_v1/`, `data/stores/sft_personas_v1/`), with target responses from
 a live teacher model (gpt-5.6-luna).
 
-- Total examples: 2242 (2017 train / 225 val)
-- By kind: {"memory_relevant": 2240, "irrelevant_retrieval": 1, "abstention": 1}
+- Total examples: 2698 (2428 train / 270 val)
+- By kind: {"memory_relevant": 2228, "irrelevant_retrieval": 341, "abstention": 129}
 - Not yet checked against PMB-v0-full for contamination — run
   `scripts/check_contamination.py --train-glob "data/sft/v1/train.jsonl"
   --eval-glob "data/benchmarks/pmb_v0_full/probes.jsonl"` before training if this matters to you.
