@@ -10,8 +10,8 @@ from onebee.memory.extraction.openai_extractor import OpenAITeacherExtractor
 from onebee.memory.extraction.scoring import compute_importance
 from onebee.memory.store import MemoryRecord, MemoryStore, SessionRecord, TurnRecord
 
-personas_dir = Path("data/benchmarks/sft_personas_v0/personas")
-stores_dir = Path("data/stores/sft_personas_v0")
+personas_dir = Path("data/benchmarks/sft_personas_v1/personas")
+stores_dir = Path("data/stores/sft_personas_v1")
 stores_dir.mkdir(parents=True, exist_ok=True)
 
 embedder = SentenceTransformer("intfloat/multilingual-e5-small")
