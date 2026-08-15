@@ -109,12 +109,47 @@ follow-up if distillation work continues (e.g. raise `max_completion_length`, ch
 loss/grad_norm stabilize over more steps) — not chased further here since the real-eval result
 already answers H23's actual question.
 
+## Follow-up: real PCS-stylometric analysis (2026-08-15)
+
+After building the project's first real PCS (Persona Consistency Score) implementation
+(`src/onebee/evaluation/metrics/persona_consistency.py` — a judge-based semantic-consistency
+`pcs`/`pcs_judge_score`, plus a pure-text-statistics `pcs_stylometric`/`stylometric_drift` that
+needs no GPU or judge API at all), ran it against the already-saved eval transcripts from this
+pass (`run_pcs_stylometric_analysis.py`, no new inference needed) to add an independent,
+non-semantic data point to H23's story: does distillation change *how* the model writes, not
+just *what* it gets right.
+
+| System | n | Self-consistency (stylometric) |
+|---|---|---|
+| B (SFT alone) | 688 | 0.5091 |
+| E (pre-distillation) | 688 | 0.5085 |
+| E-distill (post-distillation, H23) | 688 | **0.5243** |
+
+**Stylometric drift, pre- vs post-distillation: 0.8725** (1.0 = identical style, 0.0 = maximally
+different — moderate, real drift, not extreme).
+
+Post-distillation writing style is slightly MORE internally consistent than either
+pre-distillation baseline, not less — a further independent piece of evidence against the risk
+H23 flagged going in (that pulling toward a non-persona-tuned teacher would degrade
+consistency). Combined with the earlier judge-based pairwise result (persona consistency
+favored post-distillation, +7.6pp), this is now two independent measures — one semantic
+(LLM-judged), one purely statistical (word/sentence-level features, no model calls) — both
+pointing the same direction. Neither alone would be conclusive; together they're a more
+credible signal than either. Full numbers: `results/v1_scale/pcs_stylometric_analysis/summary.json`.
+
+This does not replace the judge-based `pcs`/`pcs_judge_score` functions as the intended
+"real" PCS metric (those measure semantic in-character-ness, which stylometric features
+can't) — it's a complementary, cheaper-to-compute signal that happened to be runnable
+immediately against data already on disk.
+
 ## Known limitations
 
 - Single seed, single data scale (2008 prompts) — no ablation on teacher choice, training
   steps, or `beta`/`temperature` (the JSD-interpolation and sampling hyperparameters).
 - The training-time metric anomaly above is flagged, not explained — a genuine open question.
-- No PCS (Persona Consistency Score) metric yet — same gap as every other results doc in this
-  project; the pairwise judge comparison is a reasonable proxy, not the intended real metric.
+- The real PCS metric (see the follow-up section above) has NOT yet been run in its
+  judge-based (`pcs`/`pcs_judge_score`) form against these systems — only the no-API
+  `pcs_stylometric` variant was applied so far. The judge-based semantic PCS is still a
+  real next step, distinct from and complementary to the stylometric result above.
 - This closes out Week 2's scope (DPO + distillation, per `docs/gpu_box_bootstrap.md`'s
   status log) — ORPO remains deferred to Week 3, tracked in `docs/model_quirks.md` #15.

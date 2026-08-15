@@ -221,5 +221,7 @@ adjustment) is a reasonable next step but not pursued further in this pass — t
 - C-vs-E pairwise still uses a 105-probe subsample (same size as v0, for comparability), not
   the full 688-probe set — a full-scale pairwise run would tighten the confidence further but
   wasn't run here to keep evaluation cost proportionate.
-- No PCS (Persona Consistency Score) metric yet — still the same gap noted in
-  `docs/dpo_results.md`.
+- PCS was not yet implemented when this pass ran (2026-08-14) — it now exists
+  (`src/onebee/evaluation/metrics/persona_consistency.py`, added 2026-08-15) but hasn't been
+  applied retroactively to this pass's checkpoints. See `docs/distillation_results.md` for its
+  first real application.

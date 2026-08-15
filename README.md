@@ -240,13 +240,20 @@ pytest   # 415+ tests, ~3s
 Week 2 (DPO + distillation) is now closed out — both done with real, positive results.
 
 - **ORPO** (Week 3) — blocked on upstream `trl` support, tracked openly.
-- **Imatrix-calibrated GGUF requantization** — should improve quality at aggressive quant
-  levels beyond what's already shipped.
+- **Imatrix-calibrated GGUF requantization** — done. Calibrated on this project's own
+  companion-conversation data, 6 aggressive-level quants produced. Currently held **private**
+  (`onebee-gf-dpo-v1-scale-gguf-imatrix`) pending a real perplexity comparison against the
+  public non-imatrix quants — see [`docs/quantization_results.md`](docs/quantization_results.md).
+- **Real PCS (Persona Consistency Score) metric** — implemented
+  (`src/onebee/evaluation/metrics/persona_consistency.py`): judge-based semantic consistency
+  (`pcs`) plus a pure-text-statistics variant (`pcs_stylometric`) needing no GPU or API at all.
+  First real application in [`docs/distillation_results.md`](docs/distillation_results.md).
+  The judge-based variant hasn't been run against any checkpoint yet — that's the remaining work.
 - **Abliteration research (H22)** — a real, pre-registered experiment on the relationship
   between refusal capability and judgment quality, not a "ship an uncensored model" feature.
   Eval design required before any model work.
-- Real PCS (Persona Consistency Score) metric, voice/TTS feasibility, the full companion
-  persona-card schema, mobile deployment, and a final open-source runnable app — see
+- Voice/TTS feasibility, the full companion persona-card schema, mobile deployment, and a
+  final open-source runnable app — see
   [`docs/research_questions.md`](docs/research_questions.md) for design notes on all of these.
 
 ## License

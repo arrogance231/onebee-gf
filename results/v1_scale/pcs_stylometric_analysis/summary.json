@@ -1,0 +1,51 @@
+{
+  "B_sft_v1 (SFT alone)": {
+    "n_responses": 688,
+    "pcs_stylometric_self_consistency": 0.5091,
+    "top_10_words": {
+      "i": 1149,
+      "you": 841,
+      "not": 649,
+      "have": 593,
+      "do": 566,
+      "a": 549,
+      "to": 467,
+      "your": 462,
+      "personal": 425,
+      "information": 350
+    }
+  },
+  "E_sft_memory (pre-distillation)": {
+    "n_responses": 688,
+    "pcs_stylometric_self_consistency": 0.5085,
+    "top_10_words": {
+      "you": 711,
+      "i": 498,
+      "me": 401,
+      "that": 384,
+      "to": 352,
+      "don't": 345,
+      "your": 200,
+      "is": 185,
+      "in": 175,
+      "tell": 144
+    }
+  },
+  "E_distill (post-distillation, H23)": {
+    "n_responses": 688,
+    "pcs_stylometric_self_consistency": 0.5243,
+    "top_10_words": {
+      "you": 890,
+      "i": 466,
+      "me": 413,
+      "that": 410,
+      "to": 402,
+      "your": 275,
+      "don't": 260,
+      "a": 258,
+      "is": 237,
+      "and": 210
+    }
+  },
+  "stylometric_drift_pre_vs_post_distillation": 0.8725
+}
