@@ -105,7 +105,13 @@ def run_distillation(
             if isinstance(kwargs.get("eval_dataset"), list):
                 kwargs["eval_dataset"] = Dataset.from_list(kwargs["eval_dataset"])
 
-            return DistillationTrainer(args=trl_config, **kwargs)
+            # `teacher_model_name_or_path` in DistillationConfig is metadata only -- the
+            # actual `teacher_model` constructor argument must be passed separately, or
+            # trainer.teacher_model stays None and every training step crashes with
+            # AttributeError: 'NoneType' object has no attribute 'eval' (found via a real
+            # training run, not caught by a dry-run since teacher loading is lazy).
+            teacher_model = kwargs.pop("_teacher_model")
+            return DistillationTrainer(args=trl_config, teacher_model=teacher_model, **kwargs)
 
     tokenizer = tokenizer_loader(config.base_model, config.base_model_revision)
     train_dataset = _load_jsonl(config.train_file)
@@ -141,6 +147,7 @@ def run_distillation(
         processing_class=tokenizer,
         peft_config=lora_config,
         _config_kwargs=config_kwargs,
+        _teacher_model=config.teacher_model,
     )
 
     if dry_run:

@@ -257,6 +257,22 @@ result.
     (correctly described a real fixture image) — the crash was a CLI templating issue, not a
     real multimodal-capability loss from quantization.
 
+22. **`trl.DistillationConfig`'s `teacher_model_name_or_path` field is metadata only — it does
+    NOT cause the trainer to actually load a teacher.** `DistillationTrainer` needs the teacher
+    passed as its own separate `teacher_model` constructor argument (a string ID or an
+    instantiated model, per its docstring). Passing `teacher_model_name_or_path` on the config
+    alone (a very natural mistake — that's exactly the field name you'd expect to control this)
+    leaves `trainer.teacher_model` as `None`, which doesn't error until the very first real
+    training step: `AttributeError: 'NoneType' object has no attribute 'eval'`, deep inside
+    `DistillationTrainer.compute_loss`. **A `--dry-run` (build the trainer, skip `.train()`)
+    does NOT catch this** — teacher loading is apparently lazy/step-triggered, not done at
+    trainer construction, so the bug only surfaced on a real (paid) training run. **Fix:** pass
+    `teacher_model=<model id>` explicitly to the `DistillationTrainer` constructor, in addition
+    to (or instead of) setting it on the config. **Lesson:** for any trl trainer with both a
+    config field and a same-named-ish constructor argument, verify which one actually does the
+    work before trusting a dry-run to have validated it — this project's SFT/DPO dry-runs never
+    needed this distinction since neither has an analogous "external second model" concept.
+
 ## How to re-run these smoke tests
 
 ```bash

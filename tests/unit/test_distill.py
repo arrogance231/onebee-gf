@@ -120,3 +120,7 @@ class TestRunDistillation:
         assert tc["_config_kwargs"]["teacher_model_name_or_path"] == "teacher-model"
         assert tc["_config_kwargs"]["model_init_kwargs"] == {"dtype": "bfloat16"}
         assert tc["_config_kwargs"]["teacher_model_init_kwargs"] == {"dtype": "bfloat16"}
+        # Regression test: teacher_model must be passed explicitly to the trainer
+        # constructor, not just as config metadata (real bug found via a live training run
+        # -- trainer.teacher_model stayed None and crashed on the first training step).
+        assert tc["_teacher_model"] == "teacher-model"
