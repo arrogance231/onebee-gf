@@ -8,6 +8,15 @@ from onebee.evaluation.metrics.memory_quality import (
     precision_at_k,
     recall_at_k,
 )
+from onebee.evaluation.metrics.persona_consistency import (
+    StylometricFeatures,
+    extract_stylometric_features,
+    pcs,
+    pcs_judge_score,
+    pcs_stylometric,
+    stylometric_drift,
+    word_frequency_profile,
+)
 from onebee.evaluation.metrics.personalized import (
     Probe,
     ProbeResult,
@@ -20,14 +29,21 @@ from onebee.evaluation.metrics.personalized import (
 __all__ = [
     "Probe",
     "ProbeResult",
+    "StylometricFeatures",
     "contradiction_rate",
+    "extract_stylometric_features",
     "fmr",
     "mrr",
     "mur",
+    "pcs",
+    "pcs_judge_score",
+    "pcs_stylometric",
     "pra_lenient",
     "pra_strict",
     "precision_at_k",
     "recall_at_k",
     "score_probe",
+    "stylometric_drift",
     "uar",
+    "word_frequency_profile",
 ]
