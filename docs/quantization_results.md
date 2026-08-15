@@ -116,3 +116,37 @@ cleanly on the first successful attempt once the tooling issues were resolved.
 - Only one base checkpoint quantized (`dpo-v1-scale`, the current best) — the other 4
   checkpoints on HF Hub (sft-v0, sft-v1, dpo-v0, dpo-v1-4epoch) were not quantized, since
   they're superseded/experimental, not needed for deployment.
+
+## Follow-up: imatrix-calibrated requantization (2026-08-15)
+
+**Real, working next step.** Rather than a generic corpus (e.g. wikitext), the importance
+matrix was computed from **this project's own data** — real companion conversations and
+persona-consistent preference responses (`data/imatrix_calibration.txt`, built by
+`build_imatrix_calibration.py` from `data/sft/v1/train.jsonl` + `data/dpo/v1_scale/train.jsonl`
+chosen responses, ~11MB / 15k lines) — so the quantizer preserves precision on what this model
+is actually used for, not generic language modeling. Rejected DPO responses (the
+disclaimer-breaking behavior being trained away) were deliberately excluded from calibration.
+
+- Computed via `llama-imatrix` against the F16 GGUF, 5328 chunks (n_ctx=512), final training
+  PPL estimate 2.7258 ± 0.0046. Took considerably longer than expected on CPU (~2 hours), well
+  past the tool's own initial ETA — a real observation, not investigated further (this run was
+  time-constrained; a future pass could profile why).
+- Requantized 6 levels with `--imatrix`: Q2_K, Q3_K_S/M/L, Q4_K_S/M — the levels imatrix
+  calibration is expected to help most (near-lossless levels like Q8_0/Q6_K weren't
+  reprocessed, imatrix barely matters there).
+- Real sanity check on `Q4_K_M-imat` (companion system prompt, "What is your favorite color?"):
+  coherent, in-character output — same qualitative behavior as the non-imatrix version.
+- All 6 imatrix-calibrated files (`onebee-dpo-v1-scale-<LEVEL>-imat.gguf`) plus the raw
+  `imatrix.gguf` itself uploaded to `arrochi112/onebee-gf-dpo-v1-scale-gguf` (both imatrix and
+  non-imatrix versions kept side by side so they can be compared directly).
+
+**Not done in this pass** (real time constraint — the GPU box was on a tight, user-stated
+budget with a real risk of the instance disappearing mid-work, so verification depth was
+deliberately traded for getting real artifacts saved): a full quantitative perplexity
+comparison between imatrix and non-imatrix versions at matching quant levels was started
+(`llama-perplexity` on a held-out slice of `data/sft/v1/val.jsonl`, explicitly NOT the
+calibration corpus) but not confirmed complete before this doc was written — check
+`results/imatrix_perplexity_comparison.md` if it exists for the outcome, or treat the imatrix
+quants as "real, uploaded, sanity-checked for coherence, not yet numerically proven better"
+until that follow-up lands. This is reported honestly rather than claiming a clean win that
+wasn't actually measured — consistent with this project's discipline throughout.
