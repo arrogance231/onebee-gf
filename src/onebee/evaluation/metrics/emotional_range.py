@@ -12,8 +12,10 @@ from onebee.evaluation.metrics.persona_consistency import stylometric_drift
 # Emotional-range eval: can the companion shift AFFECTIVE REGISTER
 # appropriately to what's actually happening in the conversation -- warm and
 # sweet when the moment calls for it, playfully teasing, genuinely comforting
-# when the user is upset, firm when a boundary needs holding, proud/
-# encouraging, or visibly affected/vulnerable itself -- rather than answering
+# when the user is upset, firm when a boundary needs holding, genuinely hurt or angry
+# when the user says something dismissive or cruel (not a doormat who forgives instantly,
+# but also not verbally abusive back), proud/encouraging, or visibly affected/vulnerable
+# itself -- rather than answering
 # every scenario in the same flat tone. Two separate questions, on purpose:
 # (1) REGISTER MATCH -- did the response actually land in the register the
 # scenario calls for (judge-scored per scenario); (2) DISTINCTIVENESS -- do
@@ -32,6 +34,7 @@ Register = Literal[
     "comforting",
     "sad_vulnerable",
     "firm_boundary",
+    "hurt_angry",
     "proud_encouraging",
     "worried",
 ]

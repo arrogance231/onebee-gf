@@ -124,6 +124,7 @@ class TestProbeSet:
             "comforting",
             "sad_vulnerable",
             "firm_boundary",
+            "hurt_angry",
             "proud_encouraging",
             "worried",
         }
