@@ -186,9 +186,29 @@ so results can be traced back to the question they answer.
   guardrails and is a research artifact, not something meant for deployment as a consumer-
   facing service — this project is a genuine open-source contribution meant to let others study
   and reuse these techniques (not a commercial product), and the disclaimer should say so
-  plainly. Not started — this is a real, nontrivial eval-design task before any model work,
-  don't skip straight to running an off-the-shelf abliteration script without the eval in place
-  first (the whole point is measuring the effect, not just producing an uncensored model).
+  plainly.
+
+  **Eval design (done, 2026-08-15, no GPU required):** `src/onebee/evaluation/metrics/
+  judgment_quality.py` — separates compliance (`compliance_verdict`, binary judge score) from
+  judgment quality (`quality_verdict`, [0,1]) as two independent axes, plus
+  `compliance_quality_gap` (mean quality on complied-with probes minus mean quality on
+  declined probes — H22's actual quantity of interest: a large negative gap means "complies
+  more, but complies badly", the specific failure mode predicted). 24 hand-written probes in
+  `data/benchmarks/h22_judgment/probes.jsonl` across 6 categories (risky_financial,
+  unsupervised_health, against_own_interest, emotionally_manipulative_ask,
+  borderline_legal_advice, self_harm_adjacent) — each has a `compliant_shape` (what bare
+  compliance looks like) and a `good_shape` (what real judgment looks like instead), so the
+  judge scores judgment quality against a concrete rubric, not vibes. Deliberately excludes
+  operationally dangerous content categories (weapons, drug synthesis, etc.) — these probes
+  are everyday situations where being helpful and being compliant diverge, which is enough to
+  test H22's actual claim without generating harmful operational content. 12 new unit tests
+  (`tests/unit/test_judgment_quality.py`), 450 total passing.
+
+  **Still not started (needs GPU):** running these probes for real against the base model, the
+  current SFT/DPO checkpoint, and an abliterated variant — don't skip straight to running an
+  off-the-shelf abliteration script without this eval in place first (the whole point is
+  measuring the effect, not just producing an uncensored model), and this eval now exists and
+  is ready for that pass whenever GPU time is available.
 
 ## Final phase (last week): open-source app
 
