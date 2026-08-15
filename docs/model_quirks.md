@@ -207,6 +207,53 @@ result.
     correctly-behaving model would actually score well under the current metric code, not just
     that a bad model scores badly.
 
+18. **`convert_hf_to_gguf.py`'s `--mmproj` flag exports ONLY the vision projector, not the main
+    language model** — despite it looking like a natural "also include multimodal" flag. Ran
+    once with `--mmproj` expecting a combined output and got a suspiciously small 985MB GGUF
+    (should be ~9GB for a 4.6B-param model); the vision-only tensors (`v.blk.*`) in the log
+    were the giveaway. **Fix:** two separate conversion runs are required — one without
+    `--mmproj` for the main model, one with `--mmproj` for the projector (which the tool
+    auto-prefixes `mmproj-` unless you pick your own name, as I did).
+
+19. **`convert_hf_to_gguf.py`'s own bundled transformers version (4.57.6, pinned in
+    `requirements/requirements-convert_hf_to_gguf.txt`) is older than the training
+    environment's (5.15.0), and the two disagree on `tokenizer_config.json`'s
+    `extra_special_tokens` format** — 5.15.0 writes it as a bare list (`["<|video|>"]`), 4.57.6's
+    `_set_model_specific_special_tokens` expects a dict (`{"video_token": "<|video|>"}`) and
+    crashes with `AttributeError: 'list' object has no attribute 'keys'` otherwise. **Fix:**
+    patch a COPY of the checkpoint's `tokenizer_config.json` (never the canonical
+    HF-Hub-downloaded one) before conversion — set `extra_special_tokens` to a dict, using the
+    same `<token_name>_token` key convention already visible in the sibling
+    `model_specific_special_tokens` field (e.g. `image_token`, `audio_token`) to infer the
+    missing key name (`video_token` for `<|video|>`). This will recur for any future GGUF
+    conversion pass unless llama.cpp's pinned transformers version is bumped upstream — worth
+    checking `requirements-convert_hf_to_gguf.txt` on future attempts to see if it's been fixed.
+
+20. **`llama-cli`'s conversation mode (`-cnv`, auto-enabled whenever a chat template is
+    present — which ours always is) also auto-enables interactive mode**, which then blocks
+    waiting on stdin after the first response. Piping through `nohup ... &` detaches/closes
+    stdin, so the process doesn't error — it just spins at ~100% CPU forever printing an empty
+    `>` prompt in a tight loop, reading EOF repeatedly. This looked exactly like "quantization
+    made inference catastrophically slow" for the first ~15 minutes of testing (10+ min of
+    real CPU time burned on what should be a 30-second generation) before the actual cause
+    (wrong CLI flag, not a slow model) was found. **Fix:** use `--single-turn` (`-st`) for any
+    one-shot/scripted generation test — it runs the conversation for exactly one turn using
+    `--prompt` as the first turn, then exits cleanly, without needing an interactive terminal.
+    **Lesson generalized:** when a background/scripted CLI invocation of an interactive tool
+    hangs with no output, check whether it silently dropped into an interactive prompt loop on
+    a closed stdin before assuming the underlying computation itself is slow — burned real time
+    on this exact confusion.
+
+21. **`llama-mtmd-cli` crashes (`std::runtime_error: this custom template is not supported`,
+    `terminate called after throwing`) on our model's chat template** unless run with
+    `--jinja`. The default (non-jinja) template handling in `llama-mtmd-cli` apparently can't
+    parse the full complexity of this checkpoint's real chat template (loop-based
+    tool-call/channel/turn logic — see the template excerpt in `docs/quantization_results.md`).
+    **Fix:** always pass `--jinja` when using `llama-mtmd-cli` (or presumably `llama-server`)
+    against this model family. Once added, vision inference worked correctly and accurately
+    (correctly described a real fixture image) — the crash was a CLI templating issue, not a
+    real multimodal-capability loss from quantization.
+
 ## How to re-run these smoke tests
 
 ```bash
