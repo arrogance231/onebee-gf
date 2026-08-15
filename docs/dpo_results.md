@@ -118,8 +118,7 @@ hundreds) to properly test H6.
 
 ## Follow-up: proper scale (v1_scale, 2026-08-14, "train properly" pass)
 
-Per the user's explicit instruction to train properly at scale (task #40-47 of the
-`docs/gpu_box_bootstrap.md` §7 status), generated 40 personas (vs v0's 4), a 2242-example SFT
+Per the user's explicit instruction to train properly at scale, generated 40 personas (vs v0's 4), a 2242-example SFT
 dataset (`data/sft/v1/`, see `docs/day4_sft_v1_results.md`) and a 2277-pair DPO preference
 dataset (`data/dpo/v1_scale/`, 2049 train / 228 val) — both contamination-checked clean against
 `pmb_v0_full`. Retrained SFT on the v1 data (loss 4.23→0.79, token accuracy 51%→80%), then DPO

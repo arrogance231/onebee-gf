@@ -1,7 +1,7 @@
 # Model-loading quirks and environment findings
 
-Discovered via real download + generation smoke tests on the GPU training box
-(`docs/hardware.md`), one per bake-off candidate, before running the full bake-off for real.
+Discovered via real download + generation smoke tests on the GPU training box, one per
+bake-off candidate, before running the full bake-off for real.
 Keep this updated whenever a new environment/model surprise turns up — the point is that a
 fresh session (or a future week's re-test) doesn't have to rediscover any of this.
 

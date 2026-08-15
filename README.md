@@ -234,8 +234,6 @@ pytest   # 450+ tests, ~2s
 | [`proper_scale_results.md`](docs/proper_scale_results.md) | Proper-scale SFT/DPO + the full bug-investigation trail |
 | [`quantization_results.md`](docs/quantization_results.md) | GGUF quantization, benchmarks, bugs found |
 | [`model_quirks.md`](docs/model_quirks.md) | Every real environment/API/tooling bug found, with root cause and fix |
-| [`gpu_box_bootstrap.md`](docs/gpu_box_bootstrap.md) | Fresh-machine setup + "where things stand" status log |
-| [`hardware.md`](docs/hardware.md) | Training hardware specs and measured throughput |
 
 ## Roadmap
 

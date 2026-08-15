@@ -151,5 +151,5 @@ immediately against data already on disk.
   judge-based (`pcs`/`pcs_judge_score`) form against these systems — only the no-API
   `pcs_stylometric` variant was applied so far. The judge-based semantic PCS is still a
   real next step, distinct from and complementary to the stylometric result above.
-- This closes out Week 2's scope (DPO + distillation, per `docs/gpu_box_bootstrap.md`'s
-  status log) — ORPO remains deferred to Week 3, tracked in `docs/model_quirks.md` #15.
+- This closes out Week 2's scope (DPO + distillation) — ORPO remains deferred to Week 3,
+  tracked in `docs/model_quirks.md` #15.

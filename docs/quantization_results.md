@@ -100,8 +100,7 @@ cleanly on the first successful attempt once the tooling issues were resolved.
 ## Known limitations / not done in this pass
 
 - No comparison against Google's own QAT mobile variant
-  (`google/gemma-4-E2B-it-qat-mobile-transformers`) — noted as a next step in
-  `docs/gpu_box_bootstrap.md`, not done here.
+  (`google/gemma-4-E2B-it-qat-mobile-transformers`) — noted as a next step, not done here.
 - No real accuracy/quality regression test against the PMB-v0 benchmark at each quant level —
   this pass confirmed "coherent and on-topic," not "measurably as accurate as F16 on the real
   eval harness." A real quant-vs-quality tradeoff study (does Q4_K_M measurably hurt
