@@ -69,6 +69,13 @@ v0 data scale. A k-sweep confirms an inverted-U in retrieved-memory count peakin
 - **DPO pairwise win-rate gap: 45.7% vs 21.0%** (24.7 percentage points) — the strongest and
   cleanest preference-optimization signal observed across every run in this project.
 
+**On-policy distillation (H23)** from a larger local teacher (`gemma-4-E4B-it`, 8B) on top of
+the best checkpoint: `pra_lenient` improved another +3.3pp (15.3%→18.6%), UAR held flat
+(no calibration regression), and pairwise persona-consistency actually favored the
+post-distillation model (38.1% vs 30.5%) despite the teacher not being persona-tuned — a real
+risk the hypothesis explicitly flagged going in. Full writeup:
+[`docs/distillation_results.md`](docs/distillation_results.md).
+
 Full writeups: [`docs/proper_scale_results.md`](docs/proper_scale_results.md) (the current
 authoritative results doc), [`docs/day3_memory_results.md`](docs/day3_memory_results.md)
 (memory system), [`docs/day4_sft_results.md`](docs/day4_sft_results.md) (SFT),
@@ -154,7 +161,7 @@ Week 1/2/3 scope, and design notes for unbuilt future work:
 | SFT (H4, H5) | Done — [`docs/day4_sft_results.md`](docs/day4_sft_results.md) |
 | DPO (H6, H7) | Done — [`docs/dpo_results.md`](docs/dpo_results.md), [`docs/proper_scale_results.md`](docs/proper_scale_results.md) |
 | GGUF quantization | Done — [`docs/quantization_results.md`](docs/quantization_results.md) |
-| Distillation (H23) | In progress — `src/onebee/training/distill.py` |
+| Distillation (H23) | Done, positive result — [`docs/distillation_results.md`](docs/distillation_results.md) |
 | ORPO | Blocked upstream (Week 3) — [`docs/model_quirks.md`](docs/model_quirks.md) #15 |
 | Abliteration research (H22) | Scoped, not started — [`docs/research_questions.md`](docs/research_questions.md) |
 
@@ -230,7 +237,8 @@ pytest   # 415+ tests, ~3s
 
 ## Roadmap
 
-- **Distillation (H23)** — on-policy distillation from `gemma-4-E4B-it` (8B), in progress.
+Week 2 (DPO + distillation) is now closed out — both done with real, positive results.
+
 - **ORPO** (Week 3) — blocked on upstream `trl` support, tracked openly.
 - **Imatrix-calibrated GGUF requantization** — should improve quality at aggressive quant
   levels beyond what's already shipped.
