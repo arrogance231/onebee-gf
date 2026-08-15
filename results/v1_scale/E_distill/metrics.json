@@ -1,0 +1,55 @@
+{
+  "system": "E_distill_v1",
+  "n_probes": 688,
+  "metrics": {
+    "pra_strict": 0.0,
+    "pra_lenient": 0.18585526315789475,
+    "uar": 0.7125,
+    "mur": 0.0
+  },
+  "metrics_ci": {
+    "pra_strict": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "uar": [
+      0.7125,
+      0.6125,
+      0.8125
+    ]
+  },
+  "per_category": {
+    "unanswerable": {
+      "uar": 0.7125
+    },
+    "continuity": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.1875
+    },
+    "episodic": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.391304347826087
+    },
+    "distractor": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.1875
+    },
+    "preference": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.0989010989010989
+    },
+    "temporal": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.20967741935483872
+    },
+    "factual": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.11224489795918367
+    },
+    "outdated_fact": {
+      "pra_strict": 0.0,
+      "pra_lenient": 0.17708333333333334
+    }
+  }
+}
