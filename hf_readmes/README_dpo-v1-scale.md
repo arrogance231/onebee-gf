@@ -20,7 +20,7 @@ signal to investigate, not a result to trust — see the
 [README's Engineering highlights](https://github.com/arrogance231/small-mind-companion#engineering-highlights)
 for real bugs found, root-caused, and fixed along the way (not just "it worked").
 
-Proper-scale, rebalanced DPO checkpoint (2049 preference pairs) on top of `sft-v1` — **current best checkpoint overall**. Also available as GGUF quantizations at `onebee-gf-dpo-v1-scale-gguf`.
+Proper-scale, rebalanced DPO checkpoint (2049 preference pairs) on top of `sft-v1` — **superseded by `onebee-gf-distill-v1`** (SFT+DPO+distillation), the current best checkpoint overall. This repo remains the pre-distillation baseline used in that comparison. Also available as GGUF quantizations at `onebee-gf-dpo-v1-scale-gguf` (quantized from this pre-distillation checkpoint).
 
 **Full results, methodology, and honest limitations**: see
 [`docs/proper_scale_results.md`](https://github.com/arrogance231/small-mind-companion/blob/main/docs/proper_scale_results.md) in the project
@@ -35,7 +35,8 @@ the docs before assuming any number here is a clean win.
 | [onebee-gf-sft-v1](https://huggingface.co/arrochi112/onebee-gf-sft-v1) | Proper-scale SFT — current best SFT |
 | [onebee-gf-dpo-v0](https://huggingface.co/arrochi112/onebee-gf-dpo-v0) | Week 2 DPO v0 |
 | [onebee-gf-dpo-v1-4epoch](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-4epoch) | DPO overfitting experiment |
-| [onebee-gf-dpo-v1-scale](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO — current best overall |
+| [onebee-gf-dpo-v1-scale](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO, pre-distillation |
+| [onebee-gf-distill-v1](https://huggingface.co/arrochi112/onebee-gf-distill-v1) | SFT+DPO+distillation — current best overall |
 | [onebee-gf-dpo-v1-scale-gguf](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations of the current-best checkpoint |
 
 ## License

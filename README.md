@@ -73,8 +73,9 @@ v0 data scale. A k-sweep confirms an inverted-U in retrieved-memory count peakin
 the best checkpoint: `pra_lenient` improved another +3.3pp (15.3%→18.6%), UAR held flat
 (no calibration regression), and pairwise persona-consistency actually favored the
 post-distillation model (38.1% vs 30.5%) despite the teacher not being persona-tuned — a real
-risk the hypothesis explicitly flagged going in. Full writeup:
-[`docs/distillation_results.md`](docs/distillation_results.md).
+risk the hypothesis explicitly flagged going in. Weights:
+[`onebee-gf-distill-v1`](https://huggingface.co/arrochi112/onebee-gf-distill-v1) (current best
+checkpoint overall). Full writeup: [`docs/distillation_results.md`](docs/distillation_results.md).
 
 Full writeups: [`docs/proper_scale_results.md`](docs/proper_scale_results.md) (the current
 authoritative results doc), [`docs/day3_memory_results.md`](docs/day3_memory_results.md)
@@ -163,7 +164,7 @@ Week 1/2/3 scope, and design notes for unbuilt future work:
 | GGUF quantization | Done — [`docs/quantization_results.md`](docs/quantization_results.md) |
 | Distillation (H23) | Done, positive result — [`docs/distillation_results.md`](docs/distillation_results.md) |
 | ORPO | Blocked upstream (Week 3) — [`docs/model_quirks.md`](docs/model_quirks.md) #15 |
-| Abliteration research (H22) | Scoped, not started — [`docs/research_questions.md`](docs/research_questions.md) |
+| Abliteration research (H22) | Eval harness built, model work not started — [`docs/research_questions.md`](docs/research_questions.md) |
 
 ## Model weights (HF Hub)
 
@@ -177,8 +178,9 @@ per repo, not worth it for a naming-only change. Every repo's model card links b
 | [`onebee-gf-sft-v1`](https://huggingface.co/arrochi112/onebee-gf-sft-v1) | Proper-scale SFT, rebalanced (2232 train examples) — **current best SFT** |
 | [`onebee-gf-dpo-v0`](https://huggingface.co/arrochi112/onebee-gf-dpo-v0) | Week 2 DPO v0 (1 epoch, 200 pairs) |
 | [`onebee-gf-dpo-v1-4epoch`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-4epoch) | DPO v0 data, 4 epochs (overfitting experiment) |
-| [`onebee-gf-dpo-v1-scale`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO, rebalanced base — **current best overall** |
-| [`onebee-gf-dpo-v1-scale-gguf`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations of the current-best checkpoint |
+| [`onebee-gf-dpo-v1-scale`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO, rebalanced base — pre-distillation |
+| [`onebee-gf-distill-v1`](https://huggingface.co/arrochi112/onebee-gf-distill-v1) | SFT+DPO+distillation (H23) — **current best overall** |
+| [`onebee-gf-dpo-v1-scale-gguf`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations (of the pre-distillation checkpoint) |
 
 ## Quantization
 
@@ -205,7 +207,7 @@ writeup: [`docs/quantization_results.md`](docs/quantization_results.md).
 - `results/` — canonical numbers and figures, versioned by pass.
 - `mobile/` — on-device runtime build/convert scripts (llama.cpp/MLC/ExecuTorch).
 - `docs/` — ADRs, hardware notes, results writeups, and the full bug/quirk log.
-- `tests/` — 415+ unit tests, all real (no vacuous assertions), run in CI.
+- `tests/` — 450+ unit tests, all real (no vacuous assertions), run in CI.
 
 ## Install & quickstart
 
@@ -217,7 +219,7 @@ uv sync --extra gpu --extra judge --extra dev  # + training/inference/eval deps
 ## Testing
 
 ```bash
-pytest   # 415+ tests, ~3s
+pytest   # 450+ tests, ~2s
 ```
 
 ## Full documentation index
@@ -251,7 +253,9 @@ Week 2 (DPO + distillation) is now closed out — both done with real, positive 
   The judge-based variant hasn't been run against any checkpoint yet — that's the remaining work.
 - **Abliteration research (H22)** — a real, pre-registered experiment on the relationship
   between refusal capability and judgment quality, not a "ship an uncensored model" feature.
-  Eval design required before any model work.
+  Eval harness and 24-probe set built (`src/onebee/evaluation/metrics/judgment_quality.py`,
+  `data/benchmarks/h22_judgment/`) — running it against real base/checkpoint/abliterated
+  generations still needs a GPU pass.
 - Voice/TTS feasibility, the full companion persona-card schema, mobile deployment, and a
   final open-source runnable app — see
   [`docs/research_questions.md`](docs/research_questions.md) for design notes on all of these.
