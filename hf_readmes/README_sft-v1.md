@@ -1,7 +1,13 @@
 ---
-license: gemma
+language:
+  - en
+license: apache-2.0
+library_name: transformers
+pipeline_tag: image-text-to-text
 base_model: google/gemma-4-E2B-it
 tags:
+  - text-generation
+  - fine-tuning
   - companion
   - multimodal
   - lora
@@ -9,37 +15,115 @@ tags:
 
 # onebee-gf-sft-v1
 
-**Table of contents:** [Overview](#onebee-gf-sft-v1) · [Other checkpoints](#other-checkpoints-from-this-project) ·
-[License](#license)
+> Proper-scale LoRA SFT checkpoint on gemma-4-E2B-it (40 personas, 2232 examples) — current best SFT-only checkpoint.
 
-Part of **[small-mind-companion](https://github.com/arrogance231/small-mind-companion)** — an
-open-source research project exploring how much apparent capability a small (~2-4B parameter),
-vision-capable language model can recover through post-training, external memory, and
-retrieval, rather than raw parameter scale. The project treats "the number looked good" as a
-signal to investigate, not a result to trust — see the
-[README's Engineering highlights](https://github.com/arrogance231/small-mind-companion#engineering-highlights)
-for real bugs found, root-caused, and fixed along the way (not just "it worked").
+[![Project](https://img.shields.io/badge/GitHub-small--mind--companion-blue)](https://github.com/arrogance231/small-mind-companion)
 
-Proper-scale, rebalanced LoRA SFT checkpoint (2232 train examples, 40 personas) — **current best SFT**.
+## Model Overview
 
-**Full results, methodology, and honest limitations**: see
-[`docs/proper_scale_results.md`](https://github.com/arrogance231/small-mind-companion/blob/main/docs/proper_scale_results.md) in the project
-repo. This project reports negative/inconclusive results as honestly as positive ones — read
-the docs before assuming any number here is a clean win.
+Proper-scale LoRA SFT checkpoint — 10x the data of `sft-v0` (2232 train examples, 40 personas, memory-aware conversational format), 2 epochs. Best SFT-only checkpoint in this project; the DPO and distillation checkpoints chain off this one.
 
-## Other checkpoints from this project
+## Model Details
+
+| Property | Details |
+|---|---|
+| Model | `onebee-gf-sft-v1` |
+| Parameters | ~2B effective (base) + LoRA rank 16 adapter |
+| Architecture | Gemma4 (multimodal, text + vision) |
+| Base Model | [`google/gemma-4-E2B-it`](https://huggingface.co/google/gemma-4-E2B-it) |
+| Language | English |
+| Context Length | 131,072 tokens (inherited from base model) |
+| Training Method | LoRA SFT, 2 epochs, batch 8 / grad-accum 4 |
+| License | Apache-2.0 (inherited from base model) |
+
+## Intended Use
+
+### Intended Use
+
+As a base for further post-training (DPO/distillation), or for studying the isolated effect of SFT before preference optimization is applied.
+
+### Out-of-Scope Use
+
+Not evaluated or intended for: safety-critical decisions, medical/legal/financial advice, or any
+deployment where a wrong or overconfident answer causes real harm. This is a research artifact
+from an open-source project studying post-training and memory architecture on small models — see
+[the project README](https://github.com/arrogance231/small-mind-companion) for the full research framing before using it in any
+production context.
+
+## Capabilities
+
+- Companion-persona conversational responses conditioned on retrieved memories
+- Improved abstention calibration over sft-v0 after a documented bug-fix cycle
+
+## Quick Start
+
+### Installation
+
+```bash
+pip install transformers torch
+```
+
+### Usage
+
+```python
+from transformers import AutoModelForCausalLM, AutoProcessor
+
+model = AutoModelForCausalLM.from_pretrained("arrochi112/onebee-gf-sft-v1")
+processor = AutoProcessor.from_pretrained("arrochi112/onebee-gf-sft-v1")
+
+messages = [
+    {"role": "system", "content": "You are a warm AI companion who remembers this user."},
+    {"role": "user", "content": "What conference did I say I was attending?"},
+]
+inputs = processor.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
+output = model.generate(**inputs, max_new_tokens=128)
+print(processor.decode(output[0], skip_special_tokens=True))
+```
+
+## Evaluation
+
+Scored against **PMB** (Personalized Memory Benchmark), 688 adversarial probes across 8
+categories, with an LLM judge under dual-order (position-bias-controlled) scoring plus a
+rule-based abstention detector.
+
+| System | pra_lenient | UAR |
+|---|---|---|
+| SFT v1 + memory (pre-DPO) | — | — (see full writeup; DPO adds the measured gain) |
+| + DPO (dpo-v1-scale) | — | 70.0% |
+
+Full methodology, all numbers, and honest limitations:
+[`docs/proper_scale_results.md`](https://github.com/arrogance231/small-mind-companion/blob/main/docs/proper_scale_results.md).
+
+## Limitations
+
+SFT alone, no preference optimization — use `onebee-gf-dpo-v1-scale` or `onebee-gf-distill-v1` for the strongest results. Single seed/run.
+
+This project reports negative/inconclusive results as honestly as positive ones — read the
+linked docs before assuming any number here is a clean win.
+
+## Other Checkpoints From This Project
 
 | Repo | Description |
 |---|---|
-| [onebee-gf-sft-v0](https://huggingface.co/arrochi112/onebee-gf-sft-v0) | Day 4 v0 SFT |
-| [onebee-gf-sft-v1](https://huggingface.co/arrochi112/onebee-gf-sft-v1) | Proper-scale SFT — current best SFT |
-| [onebee-gf-dpo-v0](https://huggingface.co/arrochi112/onebee-gf-dpo-v0) | Week 2 DPO v0 |
+| [onebee-gf-sft-v0](https://huggingface.co/arrochi112/onebee-gf-sft-v0) | Day 4 v0 SFT (202 examples) |
+| [onebee-gf-sft-v1](https://huggingface.co/arrochi112/onebee-gf-sft-v1) | Proper-scale SFT (2232 examples) |
+| [onebee-gf-dpo-v0](https://huggingface.co/arrochi112/onebee-gf-dpo-v0) | Week 2 DPO v0 (200 pairs) |
 | [onebee-gf-dpo-v1-4epoch](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-4epoch) | DPO overfitting experiment |
 | [onebee-gf-dpo-v1-scale](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO, pre-distillation |
 | [onebee-gf-distill-v1](https://huggingface.co/arrochi112/onebee-gf-distill-v1) | SFT+DPO+distillation — current best overall |
-| [onebee-gf-dpo-v1-scale-gguf](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations of the current-best checkpoint |
+| [onebee-gf-dpo-v1-scale-gguf](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations |
+
+## Citation
+
+```bibtex
+@software{small_mind_companion,
+  title  = {small-mind-companion: Post-training and cognitive architecture for a small multimodal companion LLM},
+  author = {arrogance231},
+  year   = {2026},
+  url    = {https://github.com/arrogance231/small-mind-companion}
+}
+```
 
 ## License
 
-Inherits Gemma's license terms from the base model (`google/gemma-4-E2B-it`).
-
+Apache-2.0, inherited from the base model (`google/gemma-4-E2B-it`).
