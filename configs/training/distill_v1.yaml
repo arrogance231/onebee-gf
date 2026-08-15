@@ -1,0 +1,20 @@
+# H23: on-policy distillation from gemma-4-E4B-it (8B, confirmed same tokenizer/vocab as
+# gemma-4-E2B) onto the current-best checkpoint. Small batch/short completions since this is
+# on-policy (the student generates a real completion every training step, not just a forward
+# pass) -- meaningfully more compute per step than SFT/DPO. Conservative learning rate (trl's
+# own DistillationConfig default, 1e-6) since this is further-refining an already-trained
+# checkpoint, not training from scratch.
+base_model: "outputs/dpo/v1_scale/merged"
+base_model_revision: "main"
+teacher_model: "google/gemma-4-E4B-it"
+teacher_model_revision: "main"
+train_file: "data/distill/v1/train.jsonl"
+val_file: "data/distill/v1/val.jsonl"
+output_dir: "outputs/distill/v1"
+num_train_epochs: 1.0
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 8
+max_completion_length: 128
+temperature: 1.0
+beta: 1.0
+report_to: "none"
