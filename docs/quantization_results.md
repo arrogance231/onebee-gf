@@ -137,8 +137,11 @@ disclaimer-breaking behavior being trained away) were deliberately excluded from
 - Real sanity check on `Q4_K_M-imat` (companion system prompt, "What is your favorite color?"):
   coherent, in-character output — same qualitative behavior as the non-imatrix version.
 - All 6 imatrix-calibrated files (`onebee-dpo-v1-scale-<LEVEL>-imat.gguf`) plus the raw
-  `imatrix.gguf` itself uploaded to `arrochi112/onebee-gf-dpo-v1-scale-gguf` (both imatrix and
-  non-imatrix versions kept side by side so they can be compared directly).
+  `imatrix.gguf` itself uploaded to a **private** repo,
+  `arrochi112/onebee-gf-dpo-v1-scale-gguf-imatrix` — kept separate from and private relative to
+  the public `arrochi112/onebee-gf-dpo-v1-scale-gguf` repo (which still has the original
+  non-imatrix quants, public) per an explicit decision to hold the imatrix quants back for now
+  while the perplexity comparison below is still unverified.
 
 **Not done in this pass** (real time constraint — the GPU box was on a tight, user-stated
 budget with a real risk of the instance disappearing mid-work, so verification depth was
