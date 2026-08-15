@@ -1,4 +1,4 @@
-# onebee-gf
+# small-mind-companion
 
 **Stretching a small multimodal LLM through post-training and external cognitive architecture.**
 
@@ -50,6 +50,21 @@ Full writeups: [`docs/day3_memory_results.md`](docs/day3_memory_results.md) (mem
 [`docs/day4_sft_results.md`](docs/day4_sft_results.md) (SFT), and
 [`docs/model_quirks.md`](docs/model_quirks.md) (real environment/API issues found and fixed
 along the way — worth reading before assuming any of this "just works").
+
+## Model weights (HF Hub)
+
+Repo names still carry the project's old `onebee-gf` name (from before this repo was renamed
+to `small-mind-companion`) — renaming them would mean recreating and re-uploading tens of GB
+per repo, not worth it for a naming-only change.
+
+| Checkpoint | Description |
+|---|---|
+| [`onebee-gf-sft-v0`](https://huggingface.co/arrochi112/onebee-gf-sft-v0) | Day 4 v0 SFT (202 train examples) |
+| [`onebee-gf-sft-v1`](https://huggingface.co/arrochi112/onebee-gf-sft-v1) | Proper-scale SFT, rebalanced (2232 train examples) — **current best SFT** |
+| [`onebee-gf-dpo-v0`](https://huggingface.co/arrochi112/onebee-gf-dpo-v0) | Week 2 DPO v0 (1 epoch, 200 pairs) |
+| [`onebee-gf-dpo-v1-4epoch`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-4epoch) | DPO v0 data, 4 epochs (overfitting experiment) |
+| [`onebee-gf-dpo-v1-scale`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO, rebalanced base — **current best overall** |
+| [`onebee-gf-dpo-v1-scale-gguf`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations of the current-best checkpoint (F16 through Q2_K, 12 levels + vision mmproj) — see [`docs/quantization_results.md`](docs/quantization_results.md) |
 
 ## Repo layout
 

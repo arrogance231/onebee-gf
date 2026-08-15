@@ -257,7 +257,7 @@ result.
 ## How to re-run these smoke tests
 
 ```bash
-cd /root/onebee-gf
+cd /root/small-mind-companion
 export PATH=$HOME/.local/bin:$PATH
 source /root/.env.onebee && export HF_TOKEN OPENAI_API_KEY JUDGE_MODEL
 export TORCH_CUDNN_V8_API_DISABLED=1   # harmless for non-Qwen3-VL models, required for it

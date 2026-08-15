@@ -88,7 +88,7 @@ cleanly on the first successful attempt once the tooling issues were resolved.
 
 ## Where the artifacts are
 
-- Local (this GPU box, `/root/onebee-gf/gguf/`): all 4 files (F16 main + mmproj, Q8_0, Q4_K_M).
+- Local (this GPU box, `/root/small-mind-companion/gguf/`): all 4 files (F16 main + mmproj, Q8_0, Q4_K_M).
 - HF Hub: uploaded to `arrochi112/onebee-gf-dpo-v1-scale-gguf` (see repo for exact filenames)
   so they survive this box being deleted, same pattern as the merged checkpoints themselves.
 
