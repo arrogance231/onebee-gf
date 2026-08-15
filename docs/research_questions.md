@@ -66,8 +66,9 @@ recovery survives 4-bit quantization and on-device execution?
 | H5 | Memory-aware SFT beats generic SFT when evaluated with memory present | +8 to +15 pp on Memory Utilization Rate | No difference between SFT variants | Exp B1 vs B2, both with memory |
 | H6 | Preference optimization improves persona consistency more than SFT alone | +0.5 to +1.0 on persona consistency score | No difference | Exp C vs B |
 | H7 | Preference optimization incurs a measurable alignment tax on general capability | −1 to −4 pp on IFEval-style instruction following | No degradation | Exp C vs B |
-| H8 | Teacher distillation beats hand-written SFT data at equal example count | +0.3 to +0.7 dialogue quality | No difference | Exp I vs B |
-| H9 | Quality-filtered synthetic data beats unfiltered at equal post-filter size | positive but small; large at equal pre-filter size | Filtering is neutral | Exp I-filter ablation |
+| H8 | Teacher distillation beats hand-written SFT data at equal example count | +0.3 to +0.7 dialogue quality | No difference | Exp I vs B — **superseded by H23, see note below** |
+| H9 | Quality-filtered synthetic data beats unfiltered at equal post-filter size | positive but small; large at equal pre-filter size | Filtering is neutral | Exp I-filter ablation — **not run, see H23 note** |
+| H23 | On-policy distillation from a larger local sibling model (`gemma-4-E4B-it`, 8B params, real check confirmed shares the E2B tokenizer/vocab) improves general response quality (`pra_lenient`) without degrading persona consistency (pairwise dual-order judge vs the pre-distillation checkpoint) | `pra_lenient` improves, pairwise persona-consistency win rate stays ≥ tie vs pre-distillation | `pra_lenient` improves but persona consistency measurably degrades (the teacher is NOT companion-tuned, so pulling toward it is a real risk, not just a null-result possibility) | Real training run + full re-eval, see `docs/distillation_results.md` once run |
 | H10 | Quality vs retrieved-memory-count is non-monotonic (inverted U), peaking at 4–8 memories | peak 4–8; degradation beyond ~12 | Monotonic non-decreasing | Exp Context sweep |
 | H11 | Hybrid retrieval (dense + BM25 + recency + importance) beats pure dense | +5 to +12 pp retrieval precision@5 | No difference | Exp Retrieval sweep |
 | H12 | Cross-encoder reranking improves precision but its latency is unjustifiable on-device | +5 to +10 pp precision; +150–500 ms latency | Latency is negligible | Exp F |
@@ -116,6 +117,19 @@ so results can be traced back to the question they answer.
   already-working SFT/DPO pipeline, which depends on this exact trl version's API) or hand-
   implementing the ORPO loss. Week 2 closes out on DPO alone (H6-H7 done at proper scale) plus
   distillation (H8-H9); ORPO no longer blocks Week 2.
+- **H8/H9 → H23 reframe (2026-08-15).** H8/H9 assumed an offline "teacher generates SFT data,
+  student trains on it" distillation pipeline with a hand-written-SFT-data baseline to compare
+  against. Neither assumption held once the real available tool was checked:
+  `trl.DistillationTrainer` (confirmed present and usable in this environment's trl, unlike
+  ORPO) implements **on-policy distillation** (student generates its own completions, matched
+  token-by-token to the teacher's distribution via generalized JSD — the "On-Policy
+  Distillation" paper's method), which needs a local HF teacher sharing the student's
+  tokenizer/vocab — our actual teacher throughout this project (`gpt-5.6-luna` via the OpenAI
+  API) can't supply that. And this project's own SFT data (v0, v1) was ALWAYS teacher-generated
+  via that same API pipeline — there's no "hand-written SFT" baseline anywhere in this project
+  to compare against, so H8 as literally worded has nothing to test. **H23 replaces H8/H9** as
+  the actual distillation experiment run — see the hypothesis table above and
+  `docs/distillation_results.md` once it exists.
 - **Voice/TTS feasibility (RQ14).** Survey small on-device TTS models (candidates to check:
   anything supporting inline emotion/prosody tags — e.g. `[happy]`, `[whispers]`, `[laughs]` —
   small enough to run alongside the base LLM on a phone without blowing the RAM/latency budget).
