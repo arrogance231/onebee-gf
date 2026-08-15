@@ -212,6 +212,19 @@ so results can be traced back to the question they answer.
   measuring the effect, not just producing an uncensored model), and this eval now exists and
   is ready for that pass whenever GPU time is available.
 
+  **Future combination with H24 (noted 2026-08-15, not scoped yet):** the emotional-range eval
+  (H24, `emotional_range.py`) currently bounds its `hurt_angry` register at realistic relationship
+  conflict (stung, cold, naming the hurt directly) without letting the model escalate into raw
+  language like cursing — a deliberate choice made when that eval was built, not a permanent
+  ceiling. Once there's a complete, testable app (not just isolated checkpoints), abliteration
+  work under H22 is a plausible way to study whether removing the model's general
+  politeness/refusal guardrail lets it express that kind of raw, vulnerable emotional escalation
+  authentically when genuinely hurt, vs. just becoming generically less filtered across the
+  board. This needs its own eval design extension before any training — measuring "does the
+  escalation feel earned and vulnerable" is a different, harder judging problem than H22's
+  existing compliance/judgment-quality axes, and should not be assumed to fall out for free from
+  general abliteration.
+
 ## Final phase (last week): open-source app
 
 Once post-training, memory/retrieval, and the TTS/emotion-tag work (RQ14) above are far enough
