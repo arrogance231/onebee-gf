@@ -142,7 +142,7 @@ disclaimer-breaking behavior being trained away) were deliberately excluded from
   non-imatrix quants, public) per an explicit decision to hold the imatrix quants back for now
   while the perplexity comparison below is still unverified.
 
-**Not done in this pass** (real time constraint — the GPU box was on a tight, user-stated
+**Not done in this pass** (real time constraint — the GPU box was on a tight rental
 budget with a real risk of the instance disappearing mid-work, so verification depth was
 deliberately traded for getting real artifacts saved): a full quantitative perplexity
 comparison between imatrix and non-imatrix versions at matching quant levels was started

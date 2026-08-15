@@ -97,8 +97,7 @@ scales cleanly).
 
 ## Investigation and fix: two real bugs, one genuine remaining tradeoff (2026-08-14)
 
-The System E calibration regression above was investigated to root cause, per the user's
-request. Two independent, real bugs were found and fixed — full technical detail in
+The System E calibration regression above was investigated to root cause. Two independent, real bugs were found and fixed — full technical detail in
 `docs/model_quirks.md` items #16-17. Short version:
 
 **Bug #1 — dedup collapse.** `generate_sft_data.py` deduped training examples by exact
@@ -161,8 +160,8 @@ step, not an open mystery:
 
 These three fixes (lower ratios: irrelevant 15%→6%, abstain 10%→5%; 4 diversified paraphrases
 per category instead of 1 fixed string; matching detector phrase additions) were then actually
-implemented and re-verified end-to-end, per the user's explicit follow-up request to fix the
-tradeoff rather than leave it as a noted limitation.
+implemented and re-verified end-to-end, to fix the tradeoff rather than leave it as a noted
+limitation.
 
 ## Rebalancing fix, implemented and verified (2026-08-14)
 
