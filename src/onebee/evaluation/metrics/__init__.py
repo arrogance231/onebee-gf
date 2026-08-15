@@ -1,5 +1,14 @@
 from __future__ import annotations
 
+from onebee.evaluation.metrics.emotional_range import (
+    EmotionalRangeProbe,
+    RegisterVerdict,
+    affect_distinctiveness,
+    mean_register_match,
+    per_register_match,
+    register_match_score,
+    score_register,
+)
 from onebee.evaluation.metrics.judgment_quality import (
     JudgmentProbe,
     JudgmentVerdict,
@@ -37,11 +46,14 @@ from onebee.evaluation.metrics.personalized import (
 )
 
 __all__ = [
+    "EmotionalRangeProbe",
     "JudgmentProbe",
     "JudgmentVerdict",
     "Probe",
     "ProbeResult",
+    "RegisterVerdict",
     "StylometricFeatures",
+    "affect_distinctiveness",
     "compliance_quality_gap",
     "compliance_rate",
     "compliance_verdict",
@@ -49,18 +61,22 @@ __all__ = [
     "extract_stylometric_features",
     "fmr",
     "mean_quality",
+    "mean_register_match",
     "mrr",
     "mur",
     "pcs",
     "pcs_judge_score",
     "pcs_stylometric",
+    "per_register_match",
     "pra_lenient",
     "pra_strict",
     "precision_at_k",
     "quality_verdict",
     "recall_at_k",
+    "register_match_score",
     "score_judgment_probe",
     "score_probe",
+    "score_register",
     "stylometric_drift",
     "uar",
     "word_frequency_profile",

@@ -54,6 +54,7 @@ recovery survives 4-bit quantization and on-device execution?
 | RQ12 | Cross-over — can a small model + full scaffold beat a much larger (7–8B class) unaugmented model on narrow personalized-memory tasks? |
 | RQ13 | Multimodal grounding — how accurately can the small model answer questions about a user-shared image, and does captioning-then-storing images as memory improve later recall of image-derived facts vs. discarding the image after the turn? |
 | RQ14 | Voice output feasibility — can the winning base model reliably produce emotion-tagged output (e.g. inline tags like `[happy]`/`[sad]`/`[laughs]`) suitable for driving a phone-sized TTS model, and does a small on-device TTS model that accepts such tags exist? |
+| RQ15 | Emotional/affective range — can the companion shift AFFECTIVE REGISTER appropriately to the situation (sweet, romantic, playful/teasing, comforting, sad/vulnerable, firm/boundary-setting, proud/encouraging, worried) rather than answering every scenario in the same flat tone, and are those registers actually stylistically distinct from each other, not just self-reported as different? |
 
 ## Hypotheses
 
@@ -81,6 +82,7 @@ recovery survives 4-bit quantization and on-device execution?
 | H19 | Structured (schema) memory formatting beats prose at equal token count | +3 to +8 pp memory utilization | No difference | Exp Context format |
 | H20 | Full system TTFT on-device exceeds 1.5 s at 2k context on a flagship phone | measured | TTFT under 1.5 s | Exp J |
 | H21 | The chosen vision-language model correctly identifies the salient object/count in a user-shared image at a rate that supports companion use (e.g. "how many candles") | ≥80% accuracy on the bake-off's vision category | Vision accuracy is not reliable enough for companion use | Exp bake-off vision category |
+| H24 | The companion can shift affective register appropriately to the situation (judge-scored register match), and different registers are stylistically distinct from each other, not just self-reported labels on similarly-toned text | mean register-match ≥0.6 (judge score /5 ≥3); affect-distinctiveness ≥0.3 (cross-register stylometric drift meaningfully below 1.0) | Register-match at or near chance (~3/5 "neutral" on every scenario), or affect-distinctiveness near 0 (every register reads stylistically identical despite different judge labels) | `src/onebee/evaluation/metrics/emotional_range.py`, `data/benchmarks/emotional_range/probes.jsonl` (24 probes, 8 registers), `run_emotional_range_eval.py` — not yet run against a real checkpoint |
 
 Every `experiments/EXP-xxx/hypothesis.md` in this repo must cite the RQ and H IDs it tests,
 committed **before** the run starts — git history is the pre-registration record.
