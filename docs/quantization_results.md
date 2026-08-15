@@ -20,12 +20,17 @@ survive conversion and quantization. Four real bugs found and fixed along the wa
    - Required patching a copy of `tokenizer_config.json` first (model_quirks #19) — llama.cpp's
      own pinned `transformers==4.57.6` and our training environment's `transformers==5.15.0`
      disagree on the `extra_special_tokens` field format.
-4. Quantized the main model to two levels with `llama-quantize`:
-   - `onebee-dpo-v1-scale-Q8_0.gguf` (4.59 GiB, -47% vs F16)
-   - `onebee-dpo-v1-scale-Q4_K_M.gguf` (3.17 GiB, -63% vs F16)
-   - The mmproj (vision projector) was NOT separately quantized — used as F16 with all three
-     text-model quant levels, which is llama.cpp's standard pattern (the projector is small
+4. Quantized the main model to the full standard spread with `llama-quantize` (12 levels: F16
+   through Q2_K — the common K-quant + legacy set the GGUF community typically ships, e.g.
+   Q8_0/Q6_K/Q5_K_M/Q5_K_S/Q5_0/Q4_K_M/Q4_K_S/Q4_0/Q3_K_L/Q3_K_M/Q3_K_S/Q2_K — deliberately
+   excluding the exotic IQ*/TQ*/MXFP4_MOE types, which need imatrix calibration data to be
+   worthwhile and would quantize poorly without it; imatrix-calibrated requantization is a
+   separate, not-yet-done next step, see `docs/research_questions.md`).
+   - The mmproj (vision projector) was NOT separately quantized — used as F16 with every
+     text-model quant level, which is llama.cpp's standard pattern (the projector is small
      relative to the LLM, and is more precision-sensitive).
+   - Full file listing and exact sizes: see the model card on
+     `arrochi112/onebee-gf-dpo-v1-scale-gguf`.
 5. Verified real generation quality and multimodal capability on all three levels — not just
    "did it produce a file," but "does it produce coherent, correct output."
 

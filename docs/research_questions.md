@@ -140,6 +140,36 @@ so results can be traced back to the question they answer.
   `src/onebee/evaluation/metrics/`) already exist to test — so building the rich persona schema
   and holding the model to it via PCS evaluation should land together, not the schema alone.
 
+- **Importance-matrix (imatrix) quantization.** The GGUF quants produced in
+  `docs/quantization_results.md` used no imatrix calibration data — a real next step, not a
+  minor detail: imatrix-guided quantization (computing per-tensor importance weights from a
+  real calibration corpus, then biasing the quantizer to preserve precision on high-importance
+  weights) typically closes a meaningful chunk of the quality gap at aggressive quant levels
+  (Q2_K/Q3_K especially). Needs a real calibration corpus (a sample of the actual training-
+  distribution text — the SFT/DPO data already generated is a natural candidate) and
+  `llama-imatrix` to compute it, then re-quantize with `--imatrix`. Compare against the
+  existing non-imatrix quants on the same real generation-quality checks used in
+  `quantization_results.md`, not just file size.
+- **Abliteration, as a real research experiment (H22, added 2026-08-15).** Not a "ship this"
+  feature — an explicit, pre-registered research question about the relationship between
+  refusal capability and judgment quality, in the same spirit as this project's other
+  hypotheses. **H22: removing a model's general refusal direction (abliteration) increases
+  compliance but degrades judgment on tasks where the "right" answer requires weighing whether
+  a request is actually a good idea — i.e. refusal-training and judgment/reasoning-about-risk
+  are more entangled than a simple on/off compliance switch would suggest.** This needs a real
+  eval design before any training: a set of prompts where compliance and quality genuinely
+  diverge (not just refuse-vs-comply binaries, but scenarios with a clearly worse "yes,
+  technically" answer vs a better "here's what you should actually consider" answer), scored
+  by an LLM judge for both compliance rate AND answer quality/appropriateness, run on the base
+  model, the existing SFT/DPO checkpoints, and an abliterated variant. Any published abliterated
+  checkpoint on HF Hub MUST carry an explicit model-card disclaimer that it has no safety
+  guardrails and is a research artifact, not something meant for deployment as a consumer-
+  facing service — this project is a genuine open-source contribution meant to let others study
+  and reuse these techniques (not a commercial product), and the disclaimer should say so
+  plainly. Not started — this is a real, nontrivial eval-design task before any model work,
+  don't skip straight to running an off-the-shelf abliteration script without the eval in place
+  first (the whole point is measuring the effect, not just producing an uncensored model).
+
 ## Final phase (last week): open-source app
 
 Once post-training, memory/retrieval, and the TTS/emotion-tag work (RQ14) above are far enough
