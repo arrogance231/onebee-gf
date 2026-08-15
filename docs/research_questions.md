@@ -110,6 +110,12 @@ so results can be traced back to the question they answer.
 
 ## Week 2+ (deferred, not Week 1 scope)
 
+- **ORPO (H3.1, moved from Week 2 to Week 3 on 2026-08-15).** `trl.ORPOTrainer`/`ORPOConfig`
+  don't exist at all in this environment's trl (1.10.0) — dropped entirely, not renamed (see
+  `docs/model_quirks.md` #15). Needs either pinning an older trl version (risk: could break the
+  already-working SFT/DPO pipeline, which depends on this exact trl version's API) or hand-
+  implementing the ORPO loss. Week 2 closes out on DPO alone (H6-H7 done at proper scale) plus
+  distillation (H8-H9); ORPO no longer blocks Week 2.
 - **Voice/TTS feasibility (RQ14).** Survey small on-device TTS models (candidates to check:
   anything supporting inline emotion/prosody tags — e.g. `[happy]`, `[whispers]`, `[laughs]` —
   small enough to run alongside the base LLM on a phone without blowing the RAM/latency budget).

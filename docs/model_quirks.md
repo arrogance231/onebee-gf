@@ -158,7 +158,10 @@ result.
     version (risk: could break the already-working SFT/DPO pipeline, which depends on this
     exact trl version's API) or hand-implementing the ORPO loss.** Neither was attempted given
     time budget — documented as a real blocker, not silently skipped. If ORPO is needed later,
-    check trl's current version support before assuming `ORPOTrainer` exists.
+    check trl's current version support before assuming `ORPOTrainer` exists. **Moved to Week
+    3's scope (2026-08-15)** — Week 2 is now considered closed on DPO alone (H6-H7 done at
+    proper scale, see `docs/proper_scale_results.md`), with distillation (H8-H9) as the
+    remaining Week 2 item; ORPO deferred rather than blocking Week 2's close-out.
 
 16. **`generate_sft_data.py`'s response-text dedup silently collapsed the abstention and
     irrelevant-retrieval training categories down to a single surviving example each,
