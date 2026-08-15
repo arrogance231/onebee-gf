@@ -1,124 +1,27 @@
 # small-mind-companion
 
-**Stretching a small multimodal LLM through post-training and external cognitive architecture.**
+Post-training and cognitive-architecture research on a small (~2B effective-parameter) multimodal LLM, evaluated on adversarial long-horizon personalized memory.
 
-An active, open-source research project: real training runs, real evaluation harnesses, real
-bugs found and fixed with full root-cause writeups — not a toy demo. Every result below links
-to a doc with the honest methodology and limitations behind it, including negative/inconclusive
-findings reported as such.
-
-## Table of contents
-
-- [Overview](#overview)
-- [Key results](#key-results)
-- [Engineering highlights](#engineering-highlights)
-- [Architecture](#architecture)
-- [Research questions & hypotheses](#research-questions--hypotheses)
-- [Model weights (HF Hub)](#model-weights-hf-hub)
-- [Quantization](#quantization)
-- [Repo layout](#repo-layout)
-- [Install & quickstart](#install--quickstart)
-- [Testing](#testing)
-- [Full documentation index](#full-documentation-index)
-- [Roadmap](#roadmap)
-- [License](#license)
+![License](https://img.shields.io/badge/license-Apache--2.0-blue) ![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-451%20passing-brightgreen)
 
 ## Overview
 
-How much apparent capability can be recovered from a small (~2–8B parameter), vision-capable
-language model through post-training, external memory, retrieval, state modeling, distillation,
-and inference-time cognitive architecture — and how much of that survives quantization and runs
-locally on a smartphone?
+Small on-device language models generally can't sustain a persona across years of conversation the way a much larger model with a huge context window can — they either forget, hallucinate memories, or answer confidently when they shouldn't. This project asks how much of that gap can be closed without scaling parameters: by pairing a ~2B-parameter vision-capable model with an external memory/retrieval system, LoRA post-training (SFT → DPO → on-policy distillation), and quantization for on-device inference, then measuring the result against an adversarial benchmark built specifically to catch abstention failures and false memories, not just recall accuracy.
 
-This project builds a small multimodal companion model — able to see and respond to images the
-user shares, not just text — augmented with:
+Every result below links to a doc with full methodology and honest limitations, including negative/inconclusive findings reported as such. Full research-question hierarchy and hypotheses: [`docs/research_questions.md`](docs/research_questions.md).
 
-- an **external memory system** (short-term, episodic, and semantic tiers)
-- **hybrid dense + BM25 retrieval** with recency/importance weighting
-- a **token-budgeted context builder**
-- a **LoRA SFT → DPO post-training pipeline**
-- **GGUF quantization** for on-device inference
+## Results
 
-and evaluates it against an adversarial **personalized-memory benchmark (PMB)** with abstention
-and contradiction traps — not just recall. The stress test is a persona expected to hold
-continuity across **years** of conversation, which is why external memory rather than raw
-context length is the project's central bet.
+| Model | Dataset | Method | pra_lenient | UAR |
+|---|---|---|---|---|
+| `gemma-4-E2B-it` | — | raw model, no memory | 0.16% | 13.75% |
+| `gemma-4-E2B-it` | SFT v0 (202 ex) | LoRA SFT, no memory | 0.16% | 16.25% |
+| `gemma-4-E2B-it` | — | + hybrid retrieval memory (k=8), no SFT | 15.10% | 8.75% |
+| `gemma-4-E2B-it` | SFT v0 + memory | LoRA SFT + memory | 17.76% | 33.75% |
+| `gemma-4-E2B-it` | SFT v1 (2232 ex) + DPO v1 (2049 pairs) | proper-scale LoRA SFT → DPO + memory | — | 70.0% |
+| `gemma-4-E2B-it` | + distill v1 (2008 prompts) | + on-policy distillation from `gemma-4-E4B-it` | 18.59% | 71.25% |
 
-Full research-question hierarchy and hypotheses: [`docs/research_questions.md`](docs/research_questions.md).
-
-## Key results
-
-Base model: `gemma-4-E2B-it` (`google/gemma-4-E2B-it`), chosen via a real multimodal bake-off
-— see [`docs/adr/0001-model-selection.md`](docs/adr/0001-model-selection.md).
-
-| System | Description | pra_lenient | uar |
-|---|---|---|---|
-| A | raw model, no memory | 0.16% | 13.75% |
-| B | + LoRA SFT, no memory | 0.16% | 16.25% |
-| D | + hybrid retrieval memory (k=8) | 15.10% | 8.75% |
-| **E** | **+ SFT and memory together** | **17.76%** | **33.75%** |
-
-Memory retrieval alone recovers real personalized-recall accuracy from a model with zero
-context (H1); SFT alone does not (H4, as expected); combining both beats either alone (H5) at
-v0 data scale. A k-sweep confirms an inverted-U in retrieved-memory count peaking at k=8 (H10).
-
-**At proper training scale** (10x the data — 40 personas, 2242 SFT examples, 2277 DPO pairs):
-
-- **UAR: 70.0%** (2x the v0 baseline of 33.75%), with false-abstention on answerable questions
-  cut to **32.1%** after a real root-cause-and-fix cycle (see [Engineering highlights](#engineering-highlights)).
-- **DPO pairwise win-rate gap: 45.7% vs 21.0%** (24.7 percentage points) — the strongest and
-  cleanest preference-optimization signal observed across every run in this project.
-
-**On-policy distillation (H23)** from a larger local teacher (`gemma-4-E4B-it`, 8B) on top of
-the best checkpoint: `pra_lenient` improved another +3.3pp (15.3%→18.6%), UAR held flat
-(no calibration regression), and pairwise persona-consistency actually favored the
-post-distillation model (38.1% vs 30.5%) despite the teacher not being persona-tuned — a real
-risk the hypothesis explicitly flagged going in. Weights:
-[`onebee-gf-distill-v1`](https://huggingface.co/arrochi112/onebee-gf-distill-v1) (current best
-checkpoint overall). Full writeup: [`docs/distillation_results.md`](docs/distillation_results.md).
-
-Full writeups: [`docs/proper_scale_results.md`](docs/proper_scale_results.md) (the current
-authoritative results doc), [`docs/day3_memory_results.md`](docs/day3_memory_results.md)
-(memory system), [`docs/day4_sft_results.md`](docs/day4_sft_results.md) (SFT),
-[`docs/dpo_results.md`](docs/dpo_results.md) (DPO).
-
-## Engineering highlights
-
-This project treats "the number looked good" as a signal to investigate, not a result to trust
-— every finding below was caught by that discipline, not luck.
-
-- **Root-caused a calibration regression to two independent bugs, then fixed both and
-  re-verified end-to-end.** Scaling the training data 10x appeared to make the model *worse* at
-  abstaining on unanswerable questions. Investigation found: (1) a naive text-based dedup step
-  in the data-generation script was silently collapsing ~227 intended abstention training
-  examples down to 1 (fixed-template responses looked like exact duplicates); (2) after fixing
-  that, the eval harness's own abstention detector didn't recognize the model's newly-correct
-  phrasing, making a genuine improvement look like a further regression. Fixing both exposed a
-  real third issue — over-correction into excessive hedging — which was then also fixed by
-  rebalancing the training-data ratios. Three real, sequential root causes, each confirmed by
-  reading actual model outputs, not just trusting aggregate metrics. Full trail:
-  [`docs/proper_scale_results.md`](docs/proper_scale_results.md),
-  [`docs/model_quirks.md`](docs/model_quirks.md) #16-17.
-- **Found and fixed a rubric-construction bug that inflated a zero-context baseline to ~94%
-  accuracy** — Python operator-precedence in a string-concatenation expression silently dropped
-  the gold answer from the judge's rubric whenever a probe had no listed alternatives (the
-  common case). Caught because a model with no memory access scoring 94% on personalized-recall
-  questions is *definitionally* impossible — treated as a bug signal, not a result.
-  [`docs/model_quirks.md`](docs/model_quirks.md).
-- **21 real environment/API/tooling bugs found, fixed, and documented** across the stack — wrong
-  `AutoModel` class for multimodal models, a cuDNN/Blackwell/conv3d incompatibility, four
-  `trl`/`transformers` breaking API changes across versions, a chat-template bug that silently
-  dropped user text for one model family, an `hf` GGUF conversion tool that only exports the
-  vision projector unless invoked twice, a cross-version tokenizer-config format mismatch
-  between training and conversion environments, and CLI-flag traps that look exactly like real
-  performance bugs (an interactive-mode default that hangs silently on closed stdin) until
-  traced to their actual cause. Full log: [`docs/model_quirks.md`](docs/model_quirks.md) — every
-  entry has a "why this happened" and "how it was fixed," not just "it broke."
-- **A blocked technique (ORPO) documented as a real blocker, not silently skipped or faked
-  around.** `trl`'s ORPO support doesn't exist in this environment's pinned version at all —
-  rather than pin a risky alternate version that could break the working SFT/DPO pipeline, this
-  is tracked openly as deferred, with the exact missing symbols and available alternatives
-  recorded.
+`pra_lenient` and UAR are measured against **PMB** (Personalized Memory Benchmark), 688 adversarial probes across 8 categories (factual, episodic, temporal, preference, continuity, outdated-fact, distractor, unanswerable). Full writeups: [`docs/proper_scale_results.md`](docs/proper_scale_results.md) (current authoritative results), [`docs/day3_memory_results.md`](docs/day3_memory_results.md), [`docs/day4_sft_results.md`](docs/day4_sft_results.md), [`docs/dpo_results.md`](docs/dpo_results.md), [`docs/distillation_results.md`](docs/distillation_results.md).
 
 ## Architecture
 
@@ -139,53 +42,132 @@ User message + image
 └──────────┬───────────┘
            ▼
 ┌─────────────────────┐
-│  gemma-4-E2B-it       │  LoRA SFT → DPO post-trained,
+│  gemma-4-E2B-it       │  LoRA SFT → DPO → distillation post-trained,
 │  (multimodal)         │  quantized to GGUF for on-device inference
 └──────────────────────┘
 ```
 
-Evaluated against **PMB** (Personalized Memory Benchmark) — 688 adversarial probes across 8
-categories (factual, episodic, temporal, preference, continuity, outdated-fact, distractor,
-unanswerable), scored by an LLM judge with position-bias control (dual-order scoring) plus
-rule-based abstention detection.
+## Quick Start
 
-## Research questions & hypotheses
+```bash
+git clone https://github.com/arrogance231/small-mind-companion.git
+cd small-mind-companion
+uv sync             # base install (CPU-only, lint/test)
+```
 
-The project runs on a pre-registered hypothesis discipline — git history itself is the
-pre-registration record (hypotheses and eval design committed before results). Full RQ/H list,
-Week 1/2/3 scope, and design notes for unbuilt future work:
-[`docs/research_questions.md`](docs/research_questions.md).
+Smallest runnable example — generate a response using retrieved memory:
 
-| Area | Status |
-|---|---|
-| Memory + retrieval (H1, H3, H10, H11) | Done — [`docs/day3_memory_results.md`](docs/day3_memory_results.md) |
-| SFT (H4, H5) | Done — [`docs/day4_sft_results.md`](docs/day4_sft_results.md) |
-| DPO (H6, H7) | Done — [`docs/dpo_results.md`](docs/dpo_results.md), [`docs/proper_scale_results.md`](docs/proper_scale_results.md) |
-| GGUF quantization | Done — [`docs/quantization_results.md`](docs/quantization_results.md) |
-| Distillation (H23) | Done, positive result — [`docs/distillation_results.md`](docs/distillation_results.md) |
-| ORPO | Blocked upstream (Week 3) — [`docs/model_quirks.md`](docs/model_quirks.md) #15 |
-| Abliteration research (H22) | Eval harness built, model work not started — [`docs/research_questions.md`](docs/research_questions.md) |
+```python
+from onebee.inference.engine import HFEngine, GenerationConfig
 
-## Model weights (HF Hub)
+engine = HFEngine("arrochi112/onebee-gf-distill-v1")
+response = engine.generate([
+    {"role": "system", "content": "You are a warm AI companion who remembers this user."},
+    {"role": "user", "content": "What conference did I say I was attending?"},
+], GenerationConfig(max_new_tokens=128))
+print(response)
+```
 
-Repo names still carry the project's old `onebee-gf` name (from before this repo was renamed
-to `small-mind-companion`) — renaming them would mean recreating and re-uploading tens of GB
-per repo, not worth it for a naming-only change. Every repo's model card links back here.
+For the full memory-retrieval-augmented pipeline (not just a raw checkpoint), see `run_system_e_distill.py` at the repo root.
+
+## Dataset
+
+Two data families, both versioned and hash-pinned in `data/`:
+
+- **PMB (evaluation)**: `data/benchmarks/pmb_v0_full/` — 688 adversarial probes across 40 personas, each probe categorized (factual/episodic/temporal/preference/continuity/outdated-fact/distractor/unanswerable) with a gold answer, supporting-memory IDs, and acceptable alternatives.
+- **SFT / DPO / distillation (training)**: `data/sft/v1/`, `data/dpo/v1_scale/`, `data/distill/v1/` — each with a `DATASHEET.md` describing generation methodology, class balance, and known caveats (e.g. not human-reviewed, not yet contamination-checked against PMB at generation time — verify with `scripts/check_contamination.py` before reusing).
+
+Splits: SFT v1 is 2232 train / 248 val; DPO v1_scale is 2049 train / 228 val; distillation v1 is 2008 train / 224 val prompts (prompt-only — the student generates its own completions on-policy).
+
+Personas used for training data are generated disjoint from the PMB eval personas (separate seed, separate output directory) — see each `DATASHEET.md` for the exact construction method.
+
+## Training
+
+All runs so far were single-GPU LoRA fine-tunes on a rented workstation (see [Hardware](#hardware)) — no multi-GPU or distributed training has been needed at this model/data scale.
+
+### Single GPU
+
+```bash
+uv sync --extra gpu --extra dev
+
+# SFT
+uv run python -m onebee.training.sft --config configs/training/sft_v1.yaml
+
+# DPO (chains off the SFT output)
+uv run python -m onebee.training.dpo --config configs/training/dpo_v1_scale.yaml
+
+# On-policy distillation (chains off the DPO output)
+uv run python -m onebee.training.distill --config configs/training/distill_v1.yaml
+```
+
+### Multi-GPU / Distributed Training
+
+Not implemented — out of scope at the current ~2B-parameter, LoRA-rank-16 training scale. Revisit if a full-parameter or larger-model training pass is added later.
+
+## Configuration
+
+Every run is a composed YAML config under `configs/training/` — no hardcoded hyperparameters in code. The values that matter most:
+
+| Field | SFT v1 | DPO v1_scale | Distill v1 |
+|---|---|---|---|
+| `lora_r` / `lora_alpha` | 16 / 32 | 16 / 32 | 16 / 32 |
+| `learning_rate` | 1e-4 | (DPO default) | 1e-6 (conservative — refining an already-trained checkpoint) |
+| `num_train_epochs` | 2.0 | 1.0 | 1.0 (125 steps) |
+| `per_device_train_batch_size` | 8 | — | 2 (on-policy generation is more expensive per step) |
+| `max_seq_length` / `max_completion_length` | 2048 | — | 128 |
+| `teacher_model` | — | — | `google/gemma-4-E4B-it` (8B, same tokenizer/vocab as the student) |
+| `seed` | 1337 | — | — |
+
+Full configs: [`configs/training/sft_v1.yaml`](configs/training/sft_v1.yaml), [`configs/training/dpo_v1_scale.yaml`](configs/training/dpo_v1_scale.yaml), [`configs/training/distill_v1.yaml`](configs/training/distill_v1.yaml).
+
+## Evaluation
+
+```bash
+uv sync --extra judge --extra dev
+export OPENAI_API_KEY=...  # LLM judge for PRA/UAR scoring and pairwise comparisons
+
+uv run python run_system_e_distill.py          # generate + score the current-best system against PMB
+uv run python compare_c_vs_f_distill.py        # pairwise persona-consistency, pre- vs post-distillation
+```
+
+Metrics are computed with an LLM judge under dual-order (position-bias-controlled) scoring plus a rule-based abstention detector — see [`src/onebee/evaluation/`](src/onebee/evaluation/) for the scoring implementation and [`docs/proper_scale_results.md`](docs/proper_scale_results.md) for the full methodology.
+
+## Checkpoints
+
+Trained checkpoints are published to Hugging Face Hub, not committed to git (`outputs/` is gitignored). Resume/load any stage from its HF repo:
+
+```bash
+hf download arrochi112/onebee-gf-distill-v1 --local-dir outputs/distill/v1/merged
+```
 
 | Checkpoint | Description |
 |---|---|
 | [`onebee-gf-sft-v0`](https://huggingface.co/arrochi112/onebee-gf-sft-v0) | Day 4 v0 SFT (202 train examples) |
-| [`onebee-gf-sft-v1`](https://huggingface.co/arrochi112/onebee-gf-sft-v1) | Proper-scale SFT, rebalanced (2232 train examples) — **current best SFT** |
+| [`onebee-gf-sft-v1`](https://huggingface.co/arrochi112/onebee-gf-sft-v1) | Proper-scale SFT, rebalanced (2232 train examples) |
 | [`onebee-gf-dpo-v0`](https://huggingface.co/arrochi112/onebee-gf-dpo-v0) | Week 2 DPO v0 (1 epoch, 200 pairs) |
 | [`onebee-gf-dpo-v1-4epoch`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-4epoch) | DPO v0 data, 4 epochs (overfitting experiment) |
-| [`onebee-gf-dpo-v1-scale`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO, rebalanced base — pre-distillation |
+| [`onebee-gf-dpo-v1-scale`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO, pre-distillation |
 | [`onebee-gf-distill-v1`](https://huggingface.co/arrochi112/onebee-gf-distill-v1) | SFT+DPO+distillation (H23) — **current best overall** |
 | [`onebee-gf-dpo-v1-scale-gguf`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations (of the pre-distillation checkpoint) |
 
-## Quantization
+Repo names still carry the project's earlier `onebee-gf` name (predates a repo rename to `small-mind-companion`) — renaming them would mean recreating and re-uploading tens of GB per repo, not worth it for a naming-only change.
 
-The current-best checkpoint is quantized to the full standard GGUF spread (F16 through Q2_K,
-12 levels, plus the vision projector) for `llama.cpp`-based local/on-device inference.
+## Experiments
+
+| # | Hypothesis | Result | Detail |
+|---|---|---|---|
+| H1, H4, H5 | Memory retrieval and SFT each help; combined beats either alone | Confirmed at v0 scale | [`docs/day3_memory_results.md`](docs/day3_memory_results.md) |
+| H10 | Retrieved-memory count k has an inverted-U optimum | Peaks at k=8 | [`docs/day3_memory_results.md`](docs/day3_memory_results.md) |
+| H6, H7 | DPO improves preference alignment over SFT alone | Confirmed — 24.7pp pairwise win-rate gap at proper scale | [`docs/dpo_results.md`](docs/dpo_results.md), [`docs/proper_scale_results.md`](docs/proper_scale_results.md) |
+| H16/H17-adjacent | 10x data scale improves calibration (UAR) | Confirmed after fixing 2 real bugs that initially masked the improvement | [`docs/proper_scale_results.md`](docs/proper_scale_results.md) |
+| H23 | On-policy distillation from a larger teacher improves quality without degrading persona consistency | Confirmed — `pra_lenient` +3.3pp, UAR flat, persona-consistency favored the distilled model | [`docs/distillation_results.md`](docs/distillation_results.md) |
+| — | GGUF quantization preserves generation quality | Confirmed down to Q4_K_M by manual + automated checks | [`docs/quantization_results.md`](docs/quantization_results.md) |
+| H22 | Abliteration increases compliance at the cost of judgment quality | Eval harness built, not yet run | [`docs/research_questions.md`](docs/research_questions.md) |
+| — | ORPO as an alternative to DPO | Blocked — not supported by the pinned `trl` version | [`docs/model_quirks.md`](docs/model_quirks.md) #15 |
+
+## Hardware
+
+All training and quantization runs were done on a single rented workstation GPU (NVIDIA RTX PRO 6000 Blackwell class, ~96GB VRAM) — sufficient headroom for LoRA fine-tuning and on-policy distillation of a ~2B/8B student/teacher pair without offloading. Quantization benchmarks (generation speed table below) were run CPU-only, since the deployment target is on-device/mobile inference, not GPU-served inference.
 
 | Quant | Size | Generation speed (CPU, 30 threads) |
 |---|---|---|
@@ -193,70 +175,46 @@ The current-best checkpoint is quantized to the full standard GGUF spread (F16 t
 | Q8_0 | 4.61 GiB | 43.07 t/s |
 | **Q4_K_M** | **3.18 GiB** | **58.00 t/s** (recommended default) |
 
-Real generation and multimodal (vision) capability verified post-quantization, not just
-file-size checks — four real `llama.cpp` tooling bugs found and fixed along the way. Full
-writeup: [`docs/quantization_results.md`](docs/quantization_results.md).
+Full quantization spread (F16 through Q2_K, 12 levels) and methodology: [`docs/quantization_results.md`](docs/quantization_results.md).
 
-## Repo layout
+## Project Structure
 
-- `src/onebee/` — installable package: memory, retrieval, context, state, inference, training,
-  evaluation.
-- `configs/` — every experiment is a composed YAML config, no hardcoded params.
-- `scripts/` — bake-off, benchmark construction, contamination checking, figure generation.
-- `data/` — versioned benchmarks, SFT/preference/distillation data, populated memory stores.
-- `results/` — canonical numbers and figures, versioned by pass.
-- `mobile/` — on-device runtime build/convert scripts (llama.cpp/MLC/ExecuTorch).
-- `docs/` — ADRs, hardware notes, results writeups, and the full bug/quirk log.
-- `tests/` — 450+ unit tests, all real (no vacuous assertions), run in CI.
-
-## Install & quickstart
-
-```bash
-uv sync             # base install (CPU-only, lint/test)
-uv sync --extra gpu --extra judge --extra dev  # + training/inference/eval deps
+```
+src/onebee/           installable package: memory, retrieval, context, state, inference, training, evaluation
+configs/training/      composed YAML configs, one per experiment
+scripts/                bake-off, benchmark construction, contamination checking
+data/                    versioned benchmarks + SFT/DPO/distillation datasets, each with a DATASHEET.md
+results/                 canonical numbers, versioned by pass (results/v0/, results/v1_scale/, ...)
+mobile/                  on-device runtime build/convert scripts (llama.cpp/MLC/ExecuTorch)
+docs/                    ADRs, results writeups, and the full environment/bug log
+tests/                   451 unit tests, run in CI
 ```
 
-## Testing
+## Results & Analysis
 
-```bash
-pytest   # 450+ tests, ~2s
+- **Root-caused a calibration regression to two independent bugs, then fixed both and re-verified end-to-end.** Scaling the training data 10x initially appeared to make the model *worse* at abstaining on unanswerable questions. Investigation found: (1) a naive text-based dedup step in the data-generation script was silently collapsing ~227 intended abstention training examples down to 1; (2) after fixing that, the eval harness's own abstention detector didn't recognize the model's newly-correct phrasing, making a genuine improvement look like a further regression. Fixing both exposed a real third issue — over-correction into excessive hedging — resolved by rebalancing training-data ratios. Full trail: [`docs/proper_scale_results.md`](docs/proper_scale_results.md), [`docs/model_quirks.md`](docs/model_quirks.md) #16-17.
+- **Found and fixed a rubric-construction bug that inflated a zero-context baseline to ~94% accuracy** — an operator-precedence bug in a string-concatenation expression silently dropped the gold answer from the judge's rubric whenever a probe had no listed alternatives. Caught because a model with no memory access scoring 94% on personalized-recall is *definitionally* impossible. [`docs/model_quirks.md`](docs/model_quirks.md).
+- **Distillation's training-time metrics looked unhealthy (flat loss, unstable grad norm, ~95-98% completion clipping) but real evaluation showed a clean positive result** — a case where trusting the eval harness over the training curve mattered. [`docs/distillation_results.md`](docs/distillation_results.md).
+- **21 real environment/API/tooling bugs found, fixed, and documented** across the stack, each with a root cause and fix, not just "it broke": [`docs/model_quirks.md`](docs/model_quirks.md).
+
+## Reproducibility
+
+- All training seeds are pinned in their respective config files (e.g. `seed: 1337` in `configs/training/sft_v1.yaml`).
+- Base model revision is pinned by commit SHA, not a moving tag (`base_model_revision` in each config).
+- Every dataset directory has a `hash.txt` and `DATASHEET.md` documenting exact generation methodology and known caveats.
+- `uv.lock` pins every dependency version.
+- Hypotheses and eval design are committed to git *before* results — git history itself is the pre-registration record.
+
+## Citation
+
+```bibtex
+@software{small_mind_companion,
+  title  = {small-mind-companion: Post-training and cognitive architecture for a small multimodal companion LLM},
+  author = {arrogance231},
+  year   = {2026},
+  url    = {https://github.com/arrogance231/small-mind-companion}
+}
 ```
-
-## Full documentation index
-
-| Doc | What it covers |
-|---|---|
-| [`research_questions.md`](docs/research_questions.md) | Full RQ/H hierarchy, Week 1-3 scope, future design notes |
-| [`adr/0001-model-selection.md`](docs/adr/0001-model-selection.md) | Base model bake-off and decision rationale |
-| [`day3_memory_results.md`](docs/day3_memory_results.md) | Memory + retrieval system results |
-| [`day4_sft_results.md`](docs/day4_sft_results.md) | Day 4 SFT results (v0 scale) |
-| [`dpo_results.md`](docs/dpo_results.md) | DPO results (v0 + overfitting experiment) |
-| [`proper_scale_results.md`](docs/proper_scale_results.md) | Proper-scale SFT/DPO + the full bug-investigation trail |
-| [`quantization_results.md`](docs/quantization_results.md) | GGUF quantization, benchmarks, bugs found |
-| [`model_quirks.md`](docs/model_quirks.md) | Every real environment/API/tooling bug found, with root cause and fix |
-
-## Roadmap
-
-Week 2 (DPO + distillation) is now closed out — both done with real, positive results.
-
-- **ORPO** (Week 3) — blocked on upstream `trl` support, tracked openly.
-- **Imatrix-calibrated GGUF requantization** — done. Calibrated on this project's own
-  companion-conversation data, 6 aggressive-level quants produced. Currently held **private**
-  (`onebee-gf-dpo-v1-scale-gguf-imatrix`) pending a real perplexity comparison against the
-  public non-imatrix quants — see [`docs/quantization_results.md`](docs/quantization_results.md).
-- **Real PCS (Persona Consistency Score) metric** — implemented
-  (`src/onebee/evaluation/metrics/persona_consistency.py`): judge-based semantic consistency
-  (`pcs`) plus a pure-text-statistics variant (`pcs_stylometric`) needing no GPU or API at all.
-  First real application in [`docs/distillation_results.md`](docs/distillation_results.md).
-  The judge-based variant hasn't been run against any checkpoint yet — that's the remaining work.
-- **Abliteration research (H22)** — a real, pre-registered experiment on the relationship
-  between refusal capability and judgment quality, not a "ship an uncensored model" feature.
-  Eval harness and 24-probe set built (`src/onebee/evaluation/metrics/judgment_quality.py`,
-  `data/benchmarks/h22_judgment/`) — running it against real base/checkpoint/abliterated
-  generations still needs a GPU pass.
-- Voice/TTS feasibility, the full companion persona-card schema, mobile deployment, and a
-  final open-source runnable app — see
-  [`docs/research_questions.md`](docs/research_questions.md) for design notes on all of these.
 
 ## License
 
