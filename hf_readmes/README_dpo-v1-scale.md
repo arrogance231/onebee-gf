@@ -9,10 +9,16 @@ tags:
 
 # onebee-gf-dpo-v1-scale
 
+**Table of contents:** [Overview](#onebee-gf-dpo-v1-scale) · [Other checkpoints](#other-checkpoints-from-this-project) ·
+[License](#license)
+
 Part of **[small-mind-companion](https://github.com/arrogance231/small-mind-companion)** — an
 open-source research project exploring how much apparent capability a small (~2-4B parameter),
 vision-capable language model can recover through post-training, external memory, and
-retrieval, rather than raw parameter scale.
+retrieval, rather than raw parameter scale. The project treats "the number looked good" as a
+signal to investigate, not a result to trust — see the
+[README's Engineering highlights](https://github.com/arrogance231/small-mind-companion#engineering-highlights)
+for real bugs found, root-caused, and fixed along the way (not just "it worked").
 
 Proper-scale, rebalanced DPO checkpoint (2049 preference pairs) on top of `sft-v1` — **current best checkpoint overall**. Also available as GGUF quantizations at `onebee-gf-dpo-v1-scale-gguf`.
 

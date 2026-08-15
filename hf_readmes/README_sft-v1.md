@@ -9,10 +9,16 @@ tags:
 
 # onebee-gf-sft-v1
 
+**Table of contents:** [Overview](#onebee-gf-sft-v1) · [Other checkpoints](#other-checkpoints-from-this-project) ·
+[License](#license)
+
 Part of **[small-mind-companion](https://github.com/arrogance231/small-mind-companion)** — an
 open-source research project exploring how much apparent capability a small (~2-4B parameter),
 vision-capable language model can recover through post-training, external memory, and
-retrieval, rather than raw parameter scale.
+retrieval, rather than raw parameter scale. The project treats "the number looked good" as a
+signal to investigate, not a result to trust — see the
+[README's Engineering highlights](https://github.com/arrogance231/small-mind-companion#engineering-highlights)
+for real bugs found, root-caused, and fixed along the way (not just "it worked").
 
 Proper-scale, rebalanced LoRA SFT checkpoint (2232 train examples, 40 personas) — **current best SFT**.
 

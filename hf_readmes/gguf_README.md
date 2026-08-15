@@ -11,6 +11,10 @@ tags:
 
 # onebee-gf-dpo-v1-scale (GGUF)
 
+**Table of contents:** [Overview](#onebee-gf-dpo-v1-scale-gguf) ·
+[Files](#files) · [Benchmarks](#real-benchmark-numbers-cpu-30-threads-llama-bench) ·
+[Usage](#usage) · [Limitations](#known-limitations) · [License](#license)
+
 GGUF conversion and quantization of the current-best checkpoint from
 **[small-mind-companion](https://github.com/arrogance231/small-mind-companion)** — an
 open-source research project exploring how much apparent capability a small (~2-4B parameter),

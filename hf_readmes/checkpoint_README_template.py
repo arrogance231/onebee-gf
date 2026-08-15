@@ -39,10 +39,16 @@ tags:
 
 # {title}
 
+**Table of contents:** [Overview](#{title}) · [Other checkpoints](#other-checkpoints-from-this-project) ·
+[License](#license)
+
 Part of **[small-mind-companion](https://github.com/arrogance231/small-mind-companion)** — an
 open-source research project exploring how much apparent capability a small (~2-4B parameter),
 vision-capable language model can recover through post-training, external memory, and
-retrieval, rather than raw parameter scale.
+retrieval, rather than raw parameter scale. The project treats "the number looked good" as a
+signal to investigate, not a result to trust — see the
+[README's Engineering highlights](https://github.com/arrogance231/small-mind-companion#engineering-highlights)
+for real bugs found, root-caused, and fixed along the way (not just "it worked").
 
 {desc}
 
