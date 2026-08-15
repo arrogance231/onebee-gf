@@ -23,6 +23,8 @@ tags:
 
 Proper-scale LoRA SFT checkpoint — 10x the data of `sft-v0` (2232 train examples, 40 personas, memory-aware conversational format), 2 epochs. Best SFT-only checkpoint in this project; the DPO and distillation checkpoints chain off this one.
 
+> **GGUF quantizations available**: this project's current-best checkpoint is also published as [12-level GGUF quantizations](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) for `llama.cpp`-based on-device inference (quantized from `dpo-v1-scale`, not this checkpoint).
+
 ## Model Details
 
 | Property | Details |

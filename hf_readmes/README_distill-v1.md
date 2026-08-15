@@ -43,6 +43,8 @@ memory, rather than raw parameter scale.
 - **Training method**: LoRA SFT (2232 examples) → LoRA DPO (2049 preference pairs) → on-policy
   distillation (2008 prompts, 125 steps), each stage chained off the previous checkpoint.
 
+> **GGUF quantizations available**: [12-level GGUF quantizations](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) exist for the pre-distillation `dpo-v1-scale` checkpoint (not yet built from this checkpoint) for `llama.cpp`-based on-device inference.
+
 ## Model Details
 
 | Property | Details |

@@ -23,6 +23,8 @@ tags:
 
 Early-scale LoRA SFT checkpoint on top of `gemma-4-E2B-it`, trained on 202 examples generated from 4 personas. This was the Day-4 baseline before the project scaled up data 10x for `sft-v1` — kept published for reproducibility of the v0-scale results, not recommended as a starting point for new work.
 
+> **GGUF quantizations available**: this project's current-best checkpoint is also published as [12-level GGUF quantizations](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) for `llama.cpp`-based on-device inference (quantized from `dpo-v1-scale`, not this checkpoint).
+
 ## Model Details
 
 | Property | Details |

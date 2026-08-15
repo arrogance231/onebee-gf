@@ -23,6 +23,8 @@ tags:
 
 Proper-scale DPO checkpoint on top of `sft-v1` — 2049 preference pairs (~10x `dpo-v0`'s scale), 1 epoch. Strongest and cleanest preference-optimization signal observed across every run in this project (24.7pp pairwise win-rate gap). **Superseded by `onebee-gf-distill-v1`** (adds on-policy distillation on top of this checkpoint) as the current best overall, but this remains the pre-distillation baseline used in that comparison, and the checkpoint the published GGUF quantizations are built from.
 
+> **GGUF quantizations available**: this checkpoint is also published as [12-level GGUF quantizations](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) (F16 through Q2_K, plus vision projector) for `llama.cpp`-based on-device inference.
+
 ## Model Details
 
 | Property | Details |

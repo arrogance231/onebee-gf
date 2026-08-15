@@ -23,6 +23,8 @@ tags:
 
 Early-scale DPO checkpoint on top of `sft-v0`, 200 preference pairs, 1 epoch. Kept published for reproducibility of the v0-scale preference-optimization results; superseded by `dpo-v1-scale`'s 10x-larger dataset.
 
+> **GGUF quantizations available**: this project's current-best checkpoint is also published as [12-level GGUF quantizations](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) for `llama.cpp`-based on-device inference (quantized from `dpo-v1-scale`, not this checkpoint).
+
 ## Model Details
 
 | Property | Details |

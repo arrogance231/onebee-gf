@@ -23,6 +23,8 @@ tags:
 
 A deliberate overfitting experiment: the same 200-pair v0 preference dataset as `dpo-v0`, but trained for 4 epochs instead of 1, to study how DPO degrades when over-trained on a small preference set. Published for reproducibility of that specific experiment, not as a general-purpose checkpoint.
 
+> **GGUF quantizations available**: this project's current-best checkpoint is also published as [12-level GGUF quantizations](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) for `llama.cpp`-based on-device inference (quantized from `dpo-v1-scale`, not this checkpoint).
+
 ## Model Details
 
 | Property | Details |
