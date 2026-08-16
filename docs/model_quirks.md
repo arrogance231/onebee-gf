@@ -273,6 +273,50 @@ result.
     work before trusting a dry-run to have validated it — this project's SFT/DPO dry-runs never
     needed this distinction since neither has an analogous "external second model" concept.
 
+23. **`google-colab-cli` 0.6.0's own pinned dependency resolution installs a `jupyter_kernel_client`
+    version incompatible with the code that imports it.** A plain `pip install google-colab-cli`
+    pulls `jupyter_kernel_client` 1.0.1 (its actual latest release), but `colab-cli`'s
+    `runtime.py` does `jupyter_kernel_client.KernelClient(...)` — a class that was renamed/removed
+    in that version (`1.0.1` only exposes `JupyterKernelClient`, not `KernelClient`). Every
+    `colab exec`/`colab new` call that reaches kernel connection fails with
+    `AttributeError: module 'jupyter_kernel_client' has no attribute 'KernelClient'`, even though
+    installation and OAuth login succeed cleanly first — the failure is deep enough into the
+    session lifecycle to look like a real runtime problem rather than a version pin bug. **Fix:**
+    `pip install "jupyter_kernel_client==0.15.0"` after installing `google-colab-cli` — that
+    version still exposes `KernelClient`. Not yet filed upstream; re-check if a newer
+    `google-colab-cli` release fixes its own pin before repeating this workaround.
+
+24. **Even after fixing #23, `colab exec`'s underlying kernel connection was completely
+    unreachable in this environment — a deeper, unresolved issue, not just the version pin.**
+    Every HTTP call to the runtime's Jupyter API (`/api/kernels`, `/api/status`, `/api/sessions`,
+    even the bare root path) returned `404`, reproduced both through `colab-cli` itself and a
+    direct `requests.get(..., headers={"Authorization": f"Bearer {token}"})` using the exact
+    same assignment token `list_assignments()` returned — so this was not a bug in colab-cli's
+    request construction, the tunnel genuinely wasn't routing to the runtime from this sandboxed
+    dev machine. Raising `REQUEST_TIMEOUT` (see #23) and recreating the session from scratch
+    (including force-releasing a stuck assignment via `Client.unassign()` directly, since
+    `colab stop`/`colab restart-kernel` only look up sessions by locally-cached name and fail on
+    an assignment the local `~/.config/colab-cli/sessions.json` doesn't know about) did not fix
+    it. Likely cause (untested): Colab's tunnel proxy (`*.prod.colab.dev`) may require a browser-
+    session trust signal (cookies, IP reputation) that a pure server-to-server OAuth flow from a
+    headless sandbox doesn't have — this is speculative, not confirmed. **Net effect: `colab-cli`
+    could authenticate and create/list/stop sessions, but never actually ran code on one, from
+    this environment.** Abandoned in favor of Modal (`modal` CLI) for the actual quantization
+    work, which worked end-to-end on the first real attempt after fixing its own base-image gap
+    (see #25).
+
+25. **Modal's `debian_slim` base image has no CUDA toolkit — `-DGGML_CUDA=ON` fails at CMake
+    configure time even on a GPU-attached function.** `cmake` output: `Could not find nvcc,
+    please set CUDAToolkit_ROOT` / `CUDA Toolkit not found`, despite `gpu="RTX-PRO-6000"` being
+    correctly attached and `nvidia-smi` working fine inside the container. The GPU being
+    scheduled and CUDA userspace libraries being installed are separate things from the CUDA
+    *toolkit* (nvcc, headers) needed to compile CUDA code — `debian_slim` only implies the
+    former. **Fix:** build from `modal.Image.from_registry("nvidia/cuda:12.8.1-devel-ubuntu22.04",
+    add_python="3.11")` instead — the `-devel` tag specifically includes nvcc; the `-runtime` tag
+    (if ever tempted) would not. Also note: Modal's GPU type string for this card is the literal
+    `"RTX-PRO-6000"` (hyphenated, no "Blackwell" suffix) — passing a mis-formatted string like
+    `"RTX PRO 6000"` fails clearly at function-definition time with `InvalidError`, not silently.
+
 ## How to re-run these smoke tests
 
 ```bash

@@ -1,0 +1,17 @@
+{
+  "B_sft (SFT alone, no memory)": {
+    "n_sampled": 60,
+    "n_total": 688,
+    "pcs_judge_mean": 0.37
+  },
+  "E_sft_memory (pre-distillation)": {
+    "n_sampled": 60,
+    "n_total": 688,
+    "pcs_judge_mean": 0.63
+  },
+  "E_distill (post-distillation, H23)": {
+    "n_sampled": 60,
+    "n_total": 688,
+    "pcs_judge_mean": 0.646
+  }
+}

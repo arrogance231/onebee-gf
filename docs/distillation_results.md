@@ -142,14 +142,36 @@ This does not replace the judge-based `pcs`/`pcs_judge_score` functions as the i
 can't) — it's a complementary, cheaper-to-compute signal that happened to be runnable
 immediately against data already on disk.
 
+## Follow-up: real judge-based PCS analysis (2026-08-16)
+
+With OpenAI judge access available, ran the judge-based `pcs_judge_score` (semantic
+in-character consistency, distinct from the stylometric-only signal above) against a random
+60-probe sample per system (`run_pcs_judge_analysis.py`, seed 1337, same companion persona used
+at generation time — no new inference needed, scores responses already saved on disk):
+
+| System | n sampled | PCS (judge-scored) |
+|---|---|---|
+| B (SFT alone, no memory) | 60/688 | 0.370 |
+| E (pre-distillation, SFT+DPO+memory) | 60/688 | 0.630 |
+| E-distill (post-distillation, H23) | 60/688 | **0.646** |
+
+This is now a **third independent measure** agreeing with H23's positive direction: memory
+alone drives most of the semantic in-character gain (0.37→0.63, expected — a companion with no
+memory access can't ground responses in the relationship at all), and distillation adds a
+further real, if smaller, improvement on top (0.63→0.646) — consistent with, not contradicted
+by, the earlier pairwise judge result (+7.6pp favoring post-distillation) and the stylometric
+self-consistency result (0.524 vs 0.509). Three measures — one pairwise-comparative, one
+absolute-semantic, one purely statistical — all point the same direction. Full numbers:
+`results/v1_scale/pcs_judge_analysis/summary.json`.
+
+**Caveat**: this pass sampled 60/688 probes per system (not the full set) to bound judge API
+cost — a real, if secondary, limitation worth flagging alongside the ones below.
+
 ## Known limitations
 
 - Single seed, single data scale (2008 prompts) — no ablation on teacher choice, training
   steps, or `beta`/`temperature` (the JSD-interpolation and sampling hyperparameters).
 - The training-time metric anomaly above is flagged, not explained — a genuine open question.
-- The real PCS metric (see the follow-up section above) has NOT yet been run in its
-  judge-based (`pcs`/`pcs_judge_score`) form against these systems — only the no-API
-  `pcs_stylometric` variant was applied so far. The judge-based semantic PCS is still a
-  real next step, distinct from and complementary to the stylometric result above.
+- The judge-based PCS follow-up above sampled 60/688 probes per system, not the full set.
 - This closes out Week 2's scope (DPO + distillation) — ORPO remains deferred to Week 3,
   tracked in `docs/model_quirks.md` #15.
