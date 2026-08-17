@@ -104,7 +104,7 @@ personalized recall — that result is reported as-is, not hidden or reframed af
 | RQ8, H14 | `src/onebee/memory/reflection/`, `consolidation/` |
 | RQ9, H15 | `configs/quantization/`, quant sweep in the eval grid |
 | RQ10, H20 | `mobile/`, `benchmarks/device/` |
-| RQ12, H16–H17 | Crossover experiment: small model+scaffold vs a larger unaugmented model in the eval grid |
+| RQ12, H16–H17 | Crossover experiment: small model+scaffold vs a larger unaugmented model — `run_crossover_baseline.py` ready to fire (uses `gemma-4-E4B-it`, already verified as the H23 teacher), not yet run (needs GPU) |
 | RQ13, H21 | `scripts/model_bakeoff.py`'s `vision` category; future image-memory tiers in `src/onebee/memory/` |
 | RQ14 | Deferred — see Week 2+ below |
 
@@ -142,25 +142,58 @@ so results can be traced back to the question they answer.
   tag-following is unreliable, that becomes its own ablation (does light SFT on tagged examples
   fix it, at what data cost) rather than a blocking assumption baked into architecture decisions
   now.
+
+  **Survey done (2026-08-17, no GPU needed): real candidates identified, exact tag syntax not
+  yet confirmed for any of them.** Four small on-device TTS models found with some form of
+  inline emotion/expression control:
+  - **ABR Nith** (5.5M params, ~6MB quantized) — smallest by far, explicitly supports "inline
+    emotion tags," but the exact tag syntax isn't published anywhere public; would need the
+    ABR developer portal/SDK docs (not accessible from a plain web search) to confirm before
+    committing to it.
+  - **Supertonic V3** (66M→99M params, ~404MB ONNX assets) — confirmed tag examples `<laugh>`,
+    `<breath>`, `<sigh>` (not the full tag set), CPU-first ONNX Runtime with Swift/Flutter
+    bindings suggesting real mobile viability, but 404MB is a real storage/cold-start cost a
+    reviewer of the release itself flagged as "not tiny."
+  - **Fish Audio S2 Pro** — free-form natural-language inline tags at arbitrary word positions
+    (e.g. `[whisper in small voice]`, `[excited and fast]`) rather than a fixed tag vocabulary —
+    more expressive but a much harder target for the base LLM to reliably produce in a
+    structured/constrained way (open-ended text generation, not a small closed tag set).
+  - **Piper** — edge-optimized, "10x faster than neural alternatives" on CPU, described as
+    supporting emotional tags, but with less detail available on the exact mechanism than the
+    above three.
+
+  **Not yet done**: confirming exact tag syntax for the most promising candidate (likely ABR
+  Nith given its size, if its tag format can be confirmed as small/learnable) and testing
+  whether the project's base model can reliably produce that format — the actual
+  instruction-following-capability test this design note calls for. This survey narrows the
+  candidate list; it does not resolve RQ14.
+
 - Image-derived memory tiers (RQ13's second half): captioning-then-storing images as retrievable
   memory, not just answering about an image in the same turn.
-- **Full companion persona card (design note, not yet built).** The companion must read as an
-  actual person, not a generic assistant — the persona card
-  (`src/onebee/context/render.py::render_persona_card`, currently just `name`/`description`/
-  `traits`) needs to expand into a comprehensive human-identity schema: things like age,
-  appearance, favorite color, hobbies/interests, personality quirks, speech style/verbal tics,
-  backstory, family/friends she'd reference, values, and boundaries — the same category of
-  fields a real person would have, not a feature list. This is a distinct concept from the
+- **Full companion persona card — schema and rendering built (2026-08-17, no GPU needed).** The
+  companion must read as an actual person, not a generic assistant. Built
+  `src/onebee/data/companion_persona.py::CompanionPersona` — a pydantic schema with age,
+  appearance, favorite_color, hobbies, personality_quirks, speech_style, backstory,
+  key_relationships, values, and boundaries alongside the original name/description/traits —
+  the same category of fields a real person would have, not a feature list. Distinct from the
   existing PMB `Persona` model in `src/onebee/data/personas.py`, which represents the *user's*
-  synthetic identity for benchmark construction — this new schema is the *companion's own*
-  identity, always-injected (like Tier 5 user-profile memory, bounded token budget) rather than
-  retrieved. **Critically, this can't be a card that's merely present in context — the system
-  must be measured against actually staying consistent with it.** That's not a new concept: it's
-  exactly what H6 (preference optimization improves persona consistency) and H13 (explicit state
-  improves cross-session consistency) and the PCS/PCS-stylometric metrics
-  (`00_RESEARCH_DESIGN.md` definitions, to be implemented in
-  `src/onebee/evaluation/metrics/`) already exist to test — so building the rich persona schema
-  and holding the model to it via PCS evaluation should land together, not the schema alone.
+  synthetic identity for benchmark construction — this schema is the *companion's own* identity,
+  always-injected (like Tier 5 user-profile memory) rather than retrieved.
+  `render.py::render_persona_card` extended to render all new fields when present, strictly
+  backward-compatible (a plain `{name, description, traits}` dict renders identically to before
+  — verified by a dedicated test). 9 new tests (`test_companion_persona.py`, plus additions to
+  `test_context.py`), 473 total passing.
+
+  **Critically, this can't be a card that's merely present in context — the system must be
+  measured against actually staying consistent with it.** That's not a new concept: it's
+  exactly what H6 (preference optimization improves persona consistency), H13 (explicit state
+  improves cross-session consistency), the PCS/PCS-stylometric metrics
+  (`src/onebee/evaluation/metrics/persona_consistency.py`, real judge-based results now exist —
+  see `docs/distillation_results.md`), and H24's emotional-range register-match eval
+  (`src/onebee/evaluation/metrics/emotional_range.py`) already exist to test. **Still not done
+  (needs GPU)**: actually running training/eval against a real `CompanionPersona` instance
+  populated with real field values — the schema and renderer exist, but no persona using the
+  new fields has been built and evaluated against yet.
 
 - **Importance-matrix (imatrix) quantization.** The GGUF quants produced in
   `docs/quantization_results.md` used no imatrix calibration data — a real next step, not a

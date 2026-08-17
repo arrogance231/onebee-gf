@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from onebee.data.companion_persona import CompanionPersona
 from onebee.data.personas import (
     ConversationTurn,
     FactSheetEntry,
@@ -10,6 +11,7 @@ from onebee.data.personas import (
 from onebee.data.teacher import FixtureTeacherClient, TeacherClient
 
 __all__ = [
+    "CompanionPersona",
     "ConversationTurn",
     "FactSheetEntry",
     "FixtureTeacherClient",

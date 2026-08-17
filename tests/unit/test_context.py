@@ -195,6 +195,48 @@ class TestRenderPersonaCard:
         result = render_persona_card({})
         assert result == ""
 
+    def test_extended_fields_rendered_when_present(self):
+        persona = {
+            "name": "Alex",
+            "age": 27,
+            "appearance": "curly dark hair",
+            "favorite_color": "amber",
+            "hobbies": ["pottery", "night runs"],
+            "personality_quirks": ["hums when thinking"],
+            "speech_style": "uses a lot of em-dashes",
+            "backstory": "grew up moving between three countries",
+            "key_relationships": ["her sister Mia"],
+            "values": ["honesty"],
+            "boundaries": ["won't pretend to agree just to keep the peace"],
+        }
+        result = render_persona_card(persona)
+        assert "Age: 27" in result
+        assert "Appearance: curly dark hair" in result
+        assert "Favorite color: amber" in result
+        assert "pottery, night runs" in result
+        assert "hums when thinking" in result
+        assert "Speech style: uses a lot of em-dashes" in result
+        assert "Backstory: grew up moving between three countries" in result
+        assert "her sister Mia" in result
+        assert "Values: honesty" in result
+        assert "Boundaries" in result and "won't pretend to agree" in result
+
+    def test_extended_fields_absent_when_not_given(self):
+        # Strict backward compatibility: a plain {name, description, traits} dict must not
+        # gain any extended-field lines it didn't ask for.
+        persona = {"name": "Bot", "description": "minimal"}
+        result = render_persona_card(persona)
+        assert "Age" not in result
+        assert "Appearance" not in result
+        assert "Hobbies" not in result
+        assert "Boundaries" not in result
+
+    def test_age_zero_is_rendered_not_treated_as_falsy(self):
+        # age=0 is a real (if unusual) value -- must not be silently dropped by a truthiness
+        # check the way an empty string/list correctly is.
+        result = render_persona_card({"name": "Bot", "age": 0})
+        assert "Age: 0" in result
+
 
 class TestRenderProfile:
     def test_full_profile(self):

@@ -15,6 +15,42 @@ def render_persona_card(persona: dict) -> str:
         lines.append(f"Traits: {', '.join(traits)}")
     if description:
         lines.append(f"Description: {description}")
+
+    # Extended companion-identity fields (CompanionPersona schema) -- all optional, rendered
+    # only when present, so this stays a strict superset of the original name/traits/description
+    # card and every existing caller passing a plain {name, description, traits} dict is
+    # unaffected.
+    age = persona.get("age")
+    if age is not None:
+        lines.append(f"Age: {age}")
+    appearance = persona.get("appearance", "")
+    if appearance:
+        lines.append(f"Appearance: {appearance}")
+    favorite_color = persona.get("favorite_color", "")
+    if favorite_color:
+        lines.append(f"Favorite color: {favorite_color}")
+    hobbies = persona.get("hobbies", [])
+    if hobbies:
+        lines.append(f"Hobbies: {', '.join(hobbies)}")
+    personality_quirks = persona.get("personality_quirks", [])
+    if personality_quirks:
+        lines.append(f"Personality quirks: {', '.join(personality_quirks)}")
+    speech_style = persona.get("speech_style", "")
+    if speech_style:
+        lines.append(f"Speech style: {speech_style}")
+    backstory = persona.get("backstory", "")
+    if backstory:
+        lines.append(f"Backstory: {backstory}")
+    key_relationships = persona.get("key_relationships", [])
+    if key_relationships:
+        lines.append(f"Key relationships: {', '.join(key_relationships)}")
+    values = persona.get("values", [])
+    if values:
+        lines.append(f"Values: {', '.join(values)}")
+    boundaries = persona.get("boundaries", [])
+    if boundaries:
+        lines.append(f"Boundaries (held even under pressure): {', '.join(boundaries)}")
+
     return "\n".join(lines)
 
 
