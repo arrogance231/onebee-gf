@@ -148,7 +148,7 @@ hf download arrochi112/onebee-gf-distill-v1 --local-dir outputs/distill/v1/merge
 | [`onebee-gf-dpo-v1-4epoch`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-4epoch) | DPO v0 data, 4 epochs (overfitting experiment) |
 | [`onebee-gf-dpo-v1-scale`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO, pre-distillation |
 | [`onebee-gf-distill-v1`](https://huggingface.co/arrochi112/onebee-gf-distill-v1) | SFT+DPO+distillation (H23) — **current best overall** |
-| [`onebee-gf-dpo-v1-scale-gguf`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations (of the pre-distillation checkpoint) |
+| [`onebee-gf-dpo-v1-scale-gguf`](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations (of the pre-distillation checkpoint) — **Q2_K broken, use Q3_K_S or above** |
 | [`onebee-gf-distill-v1-gguf`](https://huggingface.co/arrochi112/onebee-gf-distill-v1-gguf) | GGUF quantizations of the current-best checkpoint (F16 through Q2_K + mmproj) — **Q2_K found broken on generation testing, use Q3_K_S or above** |
 
 Repo names still carry the project's earlier `onebee-gf` name (predates a repo rename to `small-mind-companion`) — renaming them would mean recreating and re-uploading tens of GB per repo, not worth it for a naming-only change.

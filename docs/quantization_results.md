@@ -176,15 +176,14 @@ color?"):
 | Q3_K_S | Coherent, in-character: "emerald... like the color of moss after a spring rain" |
 | **Q2_K** | **Broken** — garbled special-token output (`<\|turn\>confusion`, `<\|turn\>engine`) followed by a nonsense repeating loop (`type:t \| \| \| ...`), not usable |
 
-**This is a new finding, not previously tested at Q2_K for either checkpoint.** The earlier
-`dpo-v1-scale` pass only sanity-checked Q4_K_M/Q8_0/F16 — Q2_K generation quality was never
-actually verified for that checkpoint either, so this isn't necessarily specific to
-distillation making the model more quantization-sensitive; it may be that Q2_K was never a
-safe recommendation for this model family at all and nobody had tested it until now. Worth a
-real follow-up: test `dpo-v1-scale`'s existing Q2_K file for the same failure before concluding
-anything about distillation's effect on quantization robustness specifically.
-**Recommendation: do not use Q2_K for this model — Q3_K_S is the smallest verified-coherent
-level.**
+**Follow-up (2026-08-17, CPU-only, no GPU needed): confirmed NOT distillation-specific.**
+Tested `dpo-v1-scale`'s own Q2_K file (same prompt, same companion system prompt, `llama.cpp`
+built CPU-only locally) — it fails the exact same way: garbled `<|turn>` special-token output
+followed by a non-terminating repetition loop (repeating "amazon" instead of "type:t", but the
+same failure shape). **This resolves the open question: Q2_K was never safe for this model
+family at all — it was simply never generation-tested before this pass, for either checkpoint.**
+Not a distillation side-effect. **Recommendation stands: do not use Q2_K for this model family
+— Q3_K_S is the smallest verified-coherent level, for both `dpo-v1-scale` and `distill-v1`.**
 
 A separate, real infrastructure bug hit during upload (not a quantization issue): HF Hub's Xet
 upload backend (`_upload_xet_files`) repeatedly raised `TimeoutError: ... error decoding

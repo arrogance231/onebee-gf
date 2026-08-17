@@ -131,9 +131,9 @@ Full methodology: [`docs/quantization_results.md`](https://github.com/arrogance2
 ## Limitations
 
 - **Q2_K is broken for this checkpoint** — confirmed via real generation testing, not
-  file-size/load checks. Do not use it. Whether this is specific to the distillation stage
-  making the model more quantization-sensitive, or Q2_K was never safe for this model family at
-  all (untested previously), is not yet determined — see the full writeup.
+  file-size/load checks. Do not use it. Confirmed NOT distillation-specific: the pre-distillation
+  `dpo-v1-scale` checkpoint's own Q2_K file fails the same way — Q2_K was simply never safe for
+  this model family, untested until this pass. See the full writeup.
 - No accuracy/quality regression measured against the project's own PMB eval harness at each
   quant level — verified "coherent and on-topic" via real generation tests, not "measurably as
   accurate as F16."

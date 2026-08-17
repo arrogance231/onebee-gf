@@ -94,7 +94,7 @@ framing before using it in any production context.
 | `onebee-dpo-v1-scale-Q3_K_L.gguf` | Q3_K_L | 3.05 GiB | |
 | `onebee-dpo-v1-scale-Q3_K_M.gguf` | Q3_K_M | 2.97 GiB | |
 | `onebee-dpo-v1-scale-Q3_K_S.gguf` | Q3_K_S | 2.89 GiB | |
-| `onebee-dpo-v1-scale-Q2_K.gguf` | Q2_K | 2.78 GiB | Smallest, real quality loss expected |
+| `onebee-dpo-v1-scale-Q2_K.gguf` | Q2_K | 2.78 GiB | **Broken — confirmed via generation testing, do not use** |
 | `mmproj-onebee-dpo-v1-scale-f16.gguf` | F16 | 940 MiB | Vision projector — needed for image input, use with any of the above |
 
 No importance-matrix (imatrix) calibration was used for these quants. An imatrix-calibrated
@@ -140,6 +140,10 @@ Full methodology and generation-quality checks:
 
 ## Limitations
 
+- **Q2_K is broken — confirmed via real generation testing (2026-08-17), not usable.** Produces
+  garbled special-token output followed by a non-terminating repetition loop. Use Q3_K_S or
+  above. See `docs/quantization_results.md` for the full test and comparison against
+  `distill-v1`'s Q2_K (same failure — not checkpoint-specific).
 - No accuracy/quality regression measured against the project's own PMB eval harness at each
   quant level — verified "coherent and on-topic" via real generation tests, not "measurably as
   accurate as F16." See `docs/quantization_results.md` for the exact checks run.
