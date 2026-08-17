@@ -39,8 +39,8 @@ scale.
 - **Base model**: `google/gemma-4-E2B-it`.
 - **Training method** (inherited from the source checkpoint): LoRA SFT → LoRA DPO (this repo
   does not include the later distillation stage — see
-  [`onebee-gf-distill-v1`](https://huggingface.co/arrochi112/onebee-gf-distill-v1) for the
-  current best checkpoint, not yet quantized).
+  [`onebee-gf-distill-v1-gguf`](https://huggingface.co/arrochi112/onebee-gf-distill-v1-gguf) for
+  GGUF quants of the current-best, post-distillation checkpoint).
 
 ## Model Details
 
@@ -144,7 +144,8 @@ Full methodology and generation-quality checks:
   quant level — verified "coherent and on-topic" via real generation tests, not "measurably as
   accurate as F16." See `docs/quantization_results.md` for the exact checks run.
 - Quantized from the pre-distillation checkpoint (`dpo-v1-scale`), not the current-best
-  `distill-v1` — a distillation-checkpoint quantization pass hasn't been done yet.
+  `distill-v1` — see [`onebee-gf-distill-v1-gguf`](https://huggingface.co/arrochi112/onebee-gf-distill-v1-gguf)
+  for GGUF quants of the post-distillation checkpoint.
 - This is a research checkpoint from an active, in-progress open-source project — expect real,
   documented limitations (see the linked docs) rather than a polished consumer product.
 
@@ -157,7 +158,8 @@ Full methodology and generation-quality checks:
 | [onebee-gf-dpo-v0](https://huggingface.co/arrochi112/onebee-gf-dpo-v0) | Week 2 DPO v0 (200 pairs) |
 | [onebee-gf-dpo-v1-4epoch](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-4epoch) | DPO overfitting experiment |
 | [onebee-gf-dpo-v1-scale](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO — source checkpoint for this repo |
-| [onebee-gf-distill-v1](https://huggingface.co/arrochi112/onebee-gf-distill-v1) | SFT+DPO+distillation — current best overall (not yet quantized) |
+| [onebee-gf-distill-v1](https://huggingface.co/arrochi112/onebee-gf-distill-v1) | SFT+DPO+distillation — current best overall |
+| [onebee-gf-distill-v1-gguf](https://huggingface.co/arrochi112/onebee-gf-distill-v1-gguf) | GGUF quantizations of the current-best checkpoint |
 
 ## Citation
 

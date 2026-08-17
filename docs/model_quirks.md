@@ -317,6 +317,30 @@ result.
     `"RTX-PRO-6000"` (hyphenated, no "Blackwell" suffix) — passing a mis-formatted string like
     `"RTX PRO 6000"` fails clearly at function-definition time with `InvalidError`, not silently.
 
+26. **A Modal `Volume` used to cache a build across ephemeral container runs will contain a
+    half-finished clone if a prior run was interrupted (e.g. manually stopped from the Modal
+    dashboard) mid-clone/build — and `git clone` refuses to clone into a non-empty directory on
+    the next attempt.** Fails with `fatal: destination path '...' already exists and is not an
+    empty directory` (`git`'s exit code 128), which looks like a permissions/state bug rather
+    than what it actually is: leftover partial state from an interruption. Skip-if-cached logic
+    keyed on the *final* build artifact existing (e.g. checking for the `llama-quantize` binary)
+    is not sufficient on its own — it correctly avoids rebuilding a COMPLETE cached build, but
+    does nothing to clean up an INCOMPLETE one. **Fix:** `rm -rf` the target clone directory
+    immediately before `git clone` in the rebuild branch, so a half-finished prior attempt never
+    blocks a fresh one.
+
+27. **`hf upload` of a large multi-file directory (52.5GB, 14 files) repeatedly failed via HF
+    Hub's Xet backend even after the full data transfer visibly completed.** Real traceback:
+    `huggingface_hub/_commit_api.py::_upload_xet_files` → `TimeoutError: Timeout: Request error:
+    error decoding response body, domain: no-url` — happened on 2 out of 3 attempts, each time
+    only after the progress bar already showed 100% transferred, meaning this is a post-transfer
+    commit/finalization failure on Xet's side, not a data-loss/retry-from-zero issue. A bare
+    retry of the identical `hf upload` command does re-attempt the full transfer each time
+    (no resume), so 3 retries costs real time on large uploads. **Fix:** set
+    `HF_HUB_DISABLE_XET=1` before the upload to force the classic (non-chunk-dedup) upload path,
+    which doesn't depend on the same backend — worth setting proactively for any large multi-file
+    upload rather than waiting for the Xet path to fail first.
+
 ## How to re-run these smoke tests
 
 ```bash

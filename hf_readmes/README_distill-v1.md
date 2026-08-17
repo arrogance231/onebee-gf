@@ -43,7 +43,7 @@ memory, rather than raw parameter scale.
 - **Training method**: LoRA SFT (2232 examples) → LoRA DPO (2049 preference pairs) → on-policy
   distillation (2008 prompts, 125 steps), each stage chained off the previous checkpoint.
 
-> **GGUF quantizations available**: [12-level GGUF quantizations](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) exist for the pre-distillation `dpo-v1-scale` checkpoint (not yet built from this checkpoint) for `llama.cpp`-based on-device inference.
+> **GGUF quantizations available**: [12-level GGUF quantizations of this checkpoint](https://huggingface.co/arrochi112/onebee-gf-distill-v1-gguf) (F16 through Q2_K, plus vision projector) for `llama.cpp`-based on-device inference. **Note: Q2_K was found broken on real generation testing — use Q3_K_S or above.**
 
 ## Model Details
 
@@ -150,6 +150,7 @@ before assuming any number here is a clean win.
 | [onebee-gf-dpo-v1-scale](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale) | Proper-scale DPO, pre-distillation |
 | [onebee-gf-distill-v1](https://huggingface.co/arrochi112/onebee-gf-distill-v1) | **This repo** — current best overall |
 | [onebee-gf-dpo-v1-scale-gguf](https://huggingface.co/arrochi112/onebee-gf-dpo-v1-scale-gguf) | GGUF quantizations (of the pre-distillation checkpoint) |
+| [onebee-gf-distill-v1-gguf](https://huggingface.co/arrochi112/onebee-gf-distill-v1-gguf) | GGUF quantizations of **this checkpoint** |
 
 ## Citation
 

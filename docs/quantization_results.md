@@ -152,3 +152,41 @@ calibration corpus) but not confirmed complete before this doc was written — c
 quants as "real, uploaded, sanity-checked for coherence, not yet numerically proven better"
 until that follow-up lands. This is reported honestly rather than claiming a clean win that
 wasn't actually measured — consistent with this project's discipline throughout.
+
+## Follow-up: distill-v1 (current-best checkpoint) GGUF quantization (2026-08-17)
+
+The GGUF quants above were built from `dpo-v1-scale` (pre-distillation) — the current-best
+checkpoint, `distill-v1` (H23, post-distillation), had no GGUF quants until this pass. Built on
+Modal (`RTX-PRO-6000`, see `docs/model_quirks.md` #25-26 for the real Modal/CUDA-image and
+volume-caching issues hit along the way), same 12-level spread (F16 through Q2_K) plus mmproj,
+uploaded to a new repo: `arrochi112/onebee-gf-distill-v1-gguf` (52.5GB total, all 14 files
+verified present).
+
+The tokenizer_config.json `extra_special_tokens` list→dict bug (`model_quirks.md` #19)
+reproduced exactly as documented on this checkpoint too, same fix applied.
+
+**Real generation quality checks, with the companion system prompt** ("What is your favorite
+color?"):
+
+| Quant | Result |
+|---|---|
+| Q4_K_M | Coherent (bare prompt, no system prompt in this specific test — generic-assistant-style response as a result, not a quant artifact) |
+| Q4_K_S | Coherent, in-character: "soft white... calm and open, without being cold or stark" |
+| Q3_K_M | Coherent, in-character: "amber—the soft, buttery glow right before sunset" |
+| Q3_K_S | Coherent, in-character: "emerald... like the color of moss after a spring rain" |
+| **Q2_K** | **Broken** — garbled special-token output (`<\|turn\>confusion`, `<\|turn\>engine`) followed by a nonsense repeating loop (`type:t \| \| \| ...`), not usable |
+
+**This is a new finding, not previously tested at Q2_K for either checkpoint.** The earlier
+`dpo-v1-scale` pass only sanity-checked Q4_K_M/Q8_0/F16 — Q2_K generation quality was never
+actually verified for that checkpoint either, so this isn't necessarily specific to
+distillation making the model more quantization-sensitive; it may be that Q2_K was never a
+safe recommendation for this model family at all and nobody had tested it until now. Worth a
+real follow-up: test `dpo-v1-scale`'s existing Q2_K file for the same failure before concluding
+anything about distillation's effect on quantization robustness specifically.
+**Recommendation: do not use Q2_K for this model — Q3_K_S is the smallest verified-coherent
+level.**
+
+A separate, real infrastructure bug hit during upload (not a quantization issue): HF Hub's Xet
+upload backend (`_upload_xet_files`) repeatedly raised `TimeoutError: ... error decoding
+response body` even after a full 52.5GB transfer completed, requiring `HF_HUB_DISABLE_XET=1`
+to force the classic upload path — see `docs/model_quirks.md` for detail if this recurs.
